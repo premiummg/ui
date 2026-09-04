@@ -1,0 +1,263 @@
+/* @premiummg/ui - brand styles.
+ *
+ * Import this AFTER your own Tailwind entry point, so the `@layer components`
+ * blocks below land inside Tailwind's own components layer instead of
+ * fighting it on specificity:
+ *
+ *   // Tailwind v3
+ *   @tailwind base;
+ *   @tailwind components;
+ *   @tailwind utilities;
+ *   @import "@premiummg/ui/styles.css";
+ *
+ *   // Tailwind v4
+ *   @import "tailwindcss";
+ *   @import "@premiummg/ui/styles.css";
+ *
+ * This file must be imported by something Vite/PostCSS actually builds
+ * (an app's own CSS entry) - not linked directly as a <link> tag - so
+ * Tailwind's own @layer processing and Vite's font url() copying both see it.
+ *
+ * Colors/fonts as Tailwind theme tokens live in ./tailwind-preset.js instead
+ * of here - a consuming app's tailwind.config.js composes that as a preset.
+ */
+
+/* -- Montserrat (headings, large numbers/data - BRAND.md "Fonts") ---- */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./fonts/Montserrat-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./fonts/Montserrat-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./fonts/Montserrat-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./fonts/Montserrat-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-display: swap;
+}
+
+/* -- Poppins (body - default font-sans) ------------------------------ */
+@font-face {
+  font-family: 'Poppins';
+  src: url('./fonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('./fonts/Poppins-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('./fonts/Poppins-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  /* Primary palette (brand book pg. 12). #E62027 = Premium Red MAIN
+     (Pantone EC 2027), for interactive elements. #A51E26 = SECONDARY, for
+     hover states and large solid fields. */
+  --premium-red: #e62027;
+  --premium-red-dark: #a51e26;
+  --premium-red-light: #fee8e9;
+  --premium-red-ring: #e6202740;
+  --premium-black: #000000;
+
+  /* Secondary palette (pg. 13) */
+  --premium-dark-grey: #212121;
+  --premium-steel-grey: #3a3a3a;
+  --premium-light-grey: #f2f2f2;
+  --premium-orange: #faad00;
+
+  /* The signature angle (pg. 9, 16). The "P" mark is built on a 45deg slant
+     grid and the book calls 45deg "the foundation of our visual identity".
+     Every diagonal in the brand system uses this value - no other angles. */
+  --pmg-angle: 45deg;
+}
+
+/* -- Dark mode overrides (class-based: html.dark) --------------------- */
+html.dark body {
+  color: #f9fafb;
+  background-color: var(--premium-black);
+}
+
+html.dark .input-field {
+  background-color: var(--premium-steel-grey);
+  border-color: #4f4f4f;
+  color: #f9fafb;
+}
+html.dark .input-field::placeholder {
+  color: #6b7280;
+}
+html.dark .input-field:focus {
+  border-color: var(--premium-red);
+  box-shadow: 0 0 0 3px var(--premium-red-ring);
+}
+html.dark input[type='date'].input-field {
+  color-scheme: dark;
+}
+
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 2px solid var(--premium-red);
+  outline-offset: 2px;
+}
+
+/* Every number input drops the native up/down spinner - inconsistent across
+   browsers and nobody clicks a tiny arrow 40 times to type "18.50". */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@layer components {
+  .btn-primary {
+    @apply font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-60 text-white;
+    background-color: var(--premium-red);
+  }
+  .btn-primary:hover {
+    background-color: var(--premium-red-dark);
+  }
+
+  .input-field {
+    @apply w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm placeholder:text-gray-400 transition;
+    color: var(--premium-dark-grey);
+  }
+  .input-field:focus {
+    border-color: var(--premium-red);
+    box-shadow: 0 0 0 3px var(--premium-red-ring);
+    outline: none;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes toast-drain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   Premium graphic language
+
+   Implements the brand book's Graphic System (pg. 16) and Digital Brand
+   Presence (pg. 22) as reusable utilities. Every diagonal here is
+   var(--pmg-angle) = 45deg - the brand's signature angle is explicitly
+   protected (pg. 11 forbids introducing any other angle).
+   ────────────────────────────────────────────────────────────────────── */
+@layer components {
+  /* Corner bracket. The red angular mark the book sets beside body copy and
+     section headings throughout (pg. 12, 16, 22). The most recognisable
+     Premium device and the cheapest to apply. Put it on a relatively
+     positioned parent; it hangs off the top-left. */
+  .pmg-bracket {
+    position: relative;
+    padding-left: 1.125rem;
+  }
+  .pmg-bracket::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.15em;
+    width: 0.6rem;
+    height: 1.05em;
+    border-left: 3px solid var(--premium-red-dark);
+    border-top: 3px solid var(--premium-red-dark);
+  }
+
+  /* Bold red field. "Solid blocks of Premium Red that command attention and
+     create visual hierarchy" (pg. 16). Fills with SECONDARY red: every
+     full-bleed red panel in the book itself is #A51E26, never MAIN red,
+     which vibrates at large sizes. */
+  .pmg-field {
+    background-color: var(--premium-red-dark);
+    color: #fff;
+  }
+
+  /* Diagonal section divider. "Bold geometric transitions between content
+     sections reinforce brand geometry" (pg. 22). Place as the last child of
+     a .pmg-field to cut its bottom edge at the signature angle. */
+  .pmg-diagonal-bottom {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.75rem), 0 100%);
+  }
+
+  /* Diagonal bars. Decorative 45deg striping for use INSIDE red fields and
+     on large empty areas (pg. 16). Never behind body text. */
+  .pmg-bars {
+    background-image: repeating-linear-gradient(
+      var(--pmg-angle),
+      rgba(255, 255, 255, 0.1) 0px,
+      rgba(255, 255, 255, 0.1) 2px,
+      transparent 2px,
+      transparent 12px
+    );
+  }
+
+  /* Industrial texture. "Subtle patterns and materials that reflect the
+     tangible, real-world nature of construction" (pg. 16). Deliberately
+     near-invisible: it should register as material, not as pattern. */
+  .pmg-texture {
+    background-image: repeating-linear-gradient(
+      var(--pmg-angle),
+      currentColor 0px,
+      currentColor 1px,
+      transparent 1px,
+      transparent 9px
+    );
+    opacity: 0.035;
+  }
+
+  /* Hi-vis stripe. The amber bar under the primary nav on the reference site
+     (pg. 22). Also the left edge marker for flagged/warning rows. Amber is
+     the "attention, not alarm" channel; red stays reserved for destructive
+     and error states. */
+  .pmg-stripe {
+    background-color: var(--premium-orange);
+  }
+
+  /* Eyebrow label. Uppercase Montserrat micro-label with wide tracking, the
+     book's "high-impact section header" treatment (pg. 16) at UI scale. */
+  .pmg-eyebrow {
+    @apply font-heading font-bold uppercase tracking-[0.14em] text-[10px] leading-none;
+  }
+
+  /* Data figure. The book prescribes Montserrat for "large numbers and data
+     displays" (pg. 14). tabular-nums keeps digits from shifting width as
+     values change, which matters on live-updating dashboards. */
+  .pmg-figure {
+    @apply font-heading font-bold tabular-nums tracking-tight;
+  }
+}

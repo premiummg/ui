@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@import "../src/styles.css";
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--premium-light-grey);
+  padding: 1rem;
+}
