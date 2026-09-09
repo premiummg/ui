@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "preinstall": "cd .. && npm install",
     "predev": "node scripts/generate-props.mjs",
     "dev": "vite",
     "prebuild": "node scripts/generate-props.mjs",
