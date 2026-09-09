@@ -84,23 +84,23 @@ function Example() {
 }
 ```
 
-## Components (v0.2.0)
+## Components (v0.3.0)
 
 | Component | Notes |
 |---|---|
-| `Button` | `variant`: `primary` (MAIN red, `.btn-primary`) / `secondary` (neutral outline) / `danger` (alias of `primary` - the brand book uses the same red for both). `size`: `xs` (a compact inline action, e.g. beside other chips in a table row) / `sm` / `md` / `lg` (`SiteButton`'s own hero-CTA padding, for app chrome that wants that same weight) / `xl` (one more step up from `lg` - no real spot for it exists in the app yet, so it's an extrapolation of the scale rather than a match for something real). `children`, not `text` - unlike `Alert`, a button routinely needs an icon next to a label, so it stays a real composition slot like every native `<button>`. `type` defaults to `"button"`, not the HTML default of `"submit"`, so one dropped into a `<form>` never submits it by accident. |
+| `Button` | `variant`: `primary` (MAIN red, `.btn-primary`) / `secondary` (neutral outline) / `danger` (alias of `primary` - the brand book uses the same red for both) / `onColor` (white pill for app chrome that itself sits on a solid colored field, e.g. `PageHeader`'s own `actions` slot - no fixed text color, supply it via `style`/`className` since the field it sits on isn't always the same color). `size`: `xs` (a compact inline action, e.g. beside other chips in a table row) / `sm` / `md` / `lg` (`SiteButton`'s own hero-CTA padding, for app chrome that wants that same weight) / `xl` (one more step up from `lg` - no real spot for it exists in the app yet, so it's an extrapolation of the scale rather than a match for something real). `children`, not `text` - unlike `Alert`, a button routinely needs an icon next to a label, so it stays a real composition slot like every native `<button>`. `type` defaults to `"button"`, not the HTML default of `"submit"`, so one dropped into a `<form>` never submits it by accident. |
 | `Card` | Bordered rounded container. `padding` defaults to **false**. |
 | `Alert` | Inline banner. `variant`: `error` / `success` / `warning` / `info`, each with its own icon and left-edge accent. `text`, not `children` - every real use is one line of message text, not a composition slot. |
 | `FormLabel` | `text`, not `children` - always the field's own name, never a composition slot. `required` adds a red asterisk, `optional` adds a "(optional)" hint. |
 | `FieldError` | Renders nothing without a `message`. Validation text under a field. |
 | `CountBadge` | Small red pill for a total, e.g. next to a `PageHeader` title. |
-| `StatusBadge` | Capitalized pill; caller supplies `colorClass` for the variant. Optional `style` passthrough for a color that isn't a Tailwind class at all (an arbitrary brand color, e.g. `RankBadge`'s filled top step). |
+| `StatusBadge` | Capitalized pill. `tone`: `success` / `warning` / `error` / `neutral` cover the four standard colors with no Tailwind classes to write - defaults to `neutral` when neither `tone` nor `colorClass` is given. `colorClass` stays for anything outside those four (an app's own semantic wrapper, e.g. `RoleBadge`/`TimesheetStatusBadge`, still owns its own status vocabulary) and wins when both are given. Optional `style` passthrough for a color that isn't a Tailwind class at all (an arbitrary brand color, e.g. `RankBadge`'s filled top step). |
 | `StatusDot` | Three-state access dot (`active` + optional `identityActive`). `variant="presence"` pins it to an avatar's corner. |
 | `RankBadge` | One badge out of an ordered ramp - a role, a priority, a tier - where each step should read as more or less weight than its neighbors. Give it `levels` (your values, ordered low to high) for the built-in on-brand ramp - the exact one the app's own role badges use, outline opacity/ink weight stepping up with a filled `color` (defaults to Premium red) on the last, top entry - with no Tailwind classes to write. Pass `styles` instead (value -> Tailwind classes) for full manual control, e.g. a sister brand with its own complete color system. A value missing from either still renders, as a neutral outline pill, rather than coming out unstyled. |
 | `Pagination` | Range + total (`.pmg-figure` numerals), Prev/Next. Hides itself at 1 page unless `children` is given. |
 | `Modal` | Centered overlay, closes on Escape or backdrop click. Optional `title` + `description` cover the confirm/edit-modal shape every real one already hand-rolls (an `<h3>`, sometimes a `<p>` under it, both inside a `p-6` wrapper) - `title` alone gets a looser bottom margin than `title` + `description` together, matching the two spacings real modals split between. `children` still renders under them for the actual body (a form, a confirm/cancel row); omit `title`/`description` and build your own header in `children` for anything richer. `maxWidth` / `zIndex` overridable. |
 | `SearchInput` | Debounced text input with a clear button, `.input-field` styling. |
-| `PageHeader` | The red band shell every real page opens with - `.pmg-field` + `.pmg-bars`, rounded at the top, with an optional back-link row (arrow + `backLabel`, omit `onBack` for a page with nothing to go back to). `title`/`count`/`actions` cover the common index-page row (an item-start layout, so a taller `actions` button never pushes the title down away from the back-link; `actions` itself wraps onto its own line rather than overflowing when it holds more than one control on a narrow screen). `children`, given, replaces that row entirely - the escape hatch for a detail page's avatar+status pill or a form page's eyebrow date line, which don't fit the same three props. |
+| `PageHeader` | The red band shell every real page opens with - `.pmg-field` + `.pmg-bars`, rounded at the top, with an optional back-link row (arrow + `backLabel`, omit `onBack` for a page with nothing to go back to). `title`/`count`/`actions` cover the common index-page row (an item-start layout, so a taller `actions` button never pushes the title down away from the back-link; `actions` itself wraps onto its own line rather than overflowing when it holds more than one control on a narrow screen). `children`, given, replaces that row entirely - the escape hatch for a detail page's avatar+status pill or a form page's eyebrow date line, which don't fit the same three props. `color`/`barsColor` override the field and the bars independently (any CSS color) - same device and reason as `ColorField`'s own `color`/`barsColor`, a sister brand reusing this shell with its own palette. `countColor` styles the count figure independently of all three - its default `white/70` assumes a dark-enough field, which a custom `color` doesn't guarantee. |
 | `SortableColumnHeader` | `<th>` with a sort toggle button and up/down indicator. |
 | `TablePlaceholderRow` | Single centered `<tr>` for a table's loading/empty state. `loading` shows a spinning `FiRefreshCw` above `loadingText` - the same icon the app already hand-rolls next to a loading table, here built in instead of copied at every call site. `size`: `sm` (14px icon) / `md` (18px, default) both match real spinners elsewhere in the app; `lg` (24px) is one step extrapolated, no real spot for it yet. |
 | `FilterLabel` | Tiny uppercase facet label. `text`, not `children`. |
@@ -111,7 +111,7 @@ function Example() {
 | `OverflowMenu` | "More actions" popover; `items` vs `dangerItems` (divided, red). `onDark` inverts the trigger for a red field. Narrower (`w-56`) below the `sm` breakpoint - the trigger is usually one of several icon buttons clustered together rather than flush against the screen's own right edge, so the full `w-64` can push the menu's left edge past x=0 on a narrow phone. Its own wrapper is `inline-block`, not a bare `<div>` - see the note below the table on why that matters for where the dropdown actually lands. `align` (`"right"` default / `"left"`, same contract as `WeekNav`'s own `align`) picks which edge the menu grows from - a trigger near the left edge of its own container needs `"left"`, or `"right"` pushes the menu off-screen. |
 | `ScrollableTable` | Wraps a table with fade edges + chevron nudge buttons on overflowing sides. |
 | `FieldGroup` | `.pmg-bracket` section heading + `Card` panel, with an optional footnote. |
-| `ErrorBoundary` | Class boundary with a branded fallback; auto-reloads once on a stale deployed-chunk error. |
+| `ErrorBoundary` | Class boundary with a branded fallback; auto-reloads once on a stale deployed-chunk error. `background`/`lineColor` override the fallback's ground and texture color independently (any CSS color) - a sister brand reusing the same shell (corner bracket, texture, one action) with its own palette instead of a second fallback component. |
 | `DarkModeToggle` | Sun/moon icon button. Controlled - pair it with `useDarkMode`. |
 | `PremiumLogo` | The Premium wordmark itself (bundled as inline assets - no files to copy into a consuming app's `public/`). `size`: `sm`/`md`/`lg`/`xl`. `variant`: `stacked`/`horizontal`. `mode="auto"` (default) watches `html.dark` and swaps artwork with the theme; `mode="light"`/`"dark"` pins it instead, for a surface whose own color is fixed regardless of theme (a solid-red band, a footer that's always Premium Black). |
 | `Toaster` + `ToastProvider` | A full toast subsystem, not just the display component: wrap the app in `ToastProvider` once, mount `Toaster` once, call `useToast().toast(message, variant)` anywhere. `emitToast(...)` fires one from outside React (an axios interceptor, a top-level handler) - a no-op if no provider is mounted yet. `Toaster` itself takes no props - correctly, not a gap - since it only ever displays whatever the context currently holds; its own story's four buttons (each colored to match the variant it fires) are the closest thing to a Controls panel it has. |
@@ -124,7 +124,7 @@ function Example() {
 | `Layout` | The shell every *other* page sits in: brand-neutral background + `<main>` padding. Takes your app's own navbar as the `navbar` prop rather than owning one. |
 | `Navbar` + `NAV_TONES` | The navbar's shell: logo, one of three brand-dark tones (`tone`: `black`/`dark`/`steel`, `NAV_TONES` carries the rationale for each), the hi-vis stripe underneath. No nav items of its own - compose it with `DarkModeToggle`, `NotificationBell` and your own buttons via `children`, then hand the result to `Layout`'s `navbar` prop. See its `AllTones` story for the three side by side. |
 | `UnitField` + `DEFAULT_UNIT_OPTIONS` | A `<select>` that also accepts a value outside its own list - picking "Other…" swaps in a plain text input, with a "back to list" undo. `options` defaults to a common physical-units list but takes any string list, so the same "pick one, or type your own" behavior reuses for other closed-but-extensible lists. `capitalize` (defaults **on**) title-cases the display of every option and the typed-custom value, without changing what's actually stored - pass `false` for a list of abbreviations (`kg`, `ft`, `gal`) that read oddly title-cased. |
-| `StatCard` | A small at-a-glance figure - label, `pmg-figure` value, optional hint, colored left edge (`accent="amber"` for a "needs attention" state). Renders as a real `<button>` when `onClick` is given, a plain `<div>` otherwise. |
+| `StatCard` | A small at-a-glance figure - label, optional `icon`, `pmg-figure` value, optional `hint`, colored left edge (`accent="amber"` for a "needs attention" state). `hint` takes a real element, not just a caption string - a `MonthNav`/`WeekNav` period picker replacing the caption in place (see their own `InAStatCard` stories); omit `onClick` when doing this, since a real `<button>` can't contain another interactive control. Renders as a real `<button>` when `onClick` is given, a plain `<div>` otherwise. |
 | `NavTile` | A big clickable destination tile for a dashboard's "go here" grid - icon in a tinted square, arrow that slides on hover, a 45deg corner notch and a growing left accent bar. |
 | `Reveal` | Fades a section in, once, the first time it scrolls into view. `motion-safe:` respects `prefers-reduced-motion`; a 1.5s deadman-switch timeout reveals the content anyway if `IntersectionObserver` never fires, so a landing page's copy is never silently invisible. |
 | `Eyebrow` | The small uppercase micro-caps label above a marketing section title. `text`, not `children`. `tone`: `red` (default) / `white` (on a dark/solid field) / `amber`. |
@@ -134,7 +134,7 @@ function Example() {
 | `LanguageToggle` | The actual EN/FR segmented switch built on the two flags above - both languages always visible, the live one filled. Not a single icon that toggles to show only the other language, which is the pattern that makes half a bilingual audience guess which state they're in. Each flag ships at `w-6 h-4.5` - big enough that the Acadian flag's own gold star (the one detail that keeps it from reading as a plain France tricolor) is actually visible, not just present in the SVG. |
 | `Hero` | A full-bleed landing-page hero: eyebrow + headline + subhead, up to two `SiteButton` actions, an optional caption line. `imageSrc` and `videoSrc` are both optional and independent - image alone, video alone (no poster attribute), both (the image becomes the video's poster, and what a `prefers-reduced-motion` visitor gets instead of ever downloading the video), or neither (a plain dark field behind the copy). `overlay`: `"scrim"` (default, plain black, carries the industrial `.pmg-texture` hatch) or `"acadian"` (Acadian blue-to-red with the flag's own gold star blended into the blue side via `mix-blend-screen` - not `overlay`, whose effect flips direction with the base color and would go invisible on the blue half; no `.pmg-texture` here, since the flag gradient is already its own two-color material and gains nothing from a second layer) - from `/design/otoshi`'s hero. `wedge` (off by default) is Premium's own 45deg brand device - opt in only for a genuinely Premium-branded page, not a sister brand or client site. Never wrapped in `Reveal` anywhere it's used - it's the largest contentful paint on the page. |
 | `SegmentedControl` | A row of 2-3 mutually-exclusive choices where picking one changes what else the form needs (e.g. Delivery vs. Pickup deciding whether an address field appears) - worth reading at a glance rather than two checkboxes that were really one choice. Generic over its option type; icons optional per option. |
-| `ColorField` | A bold solid-color field with the 45deg diagonal bars running through it - "solid blocks of color that command attention" (BRAND.md pg. 16). `color` defaults to Premium's own secondary red, but takes any CSS color: the device (field + bars) is what's brand-specific, not the color itself, so a sister brand gets the same component with its own color rather than a second one. Compose content inside with `Eyebrow` (`tone="white"`) and `SiteButton` (`variant="onRed"`). |
+| `ColorField` | A bold solid-color field with the 45deg diagonal bars running through it - "solid blocks of color that command attention" (BRAND.md pg. 16). `color` defaults to Premium's own secondary red, but takes any CSS color: the device (field + bars) is what's brand-specific, not the color itself, so a sister brand gets the same component with its own color rather than a second one. `barsColor` overrides the bars independently of the field - the brand book's own semi-transparent white reads fine on a dark saturated color but not on every color, so a paler or differently-toned field can give the bars their own color instead. Compose content inside with `Eyebrow` (`tone="white"`) and `SiteButton` (`variant="onRed"`). |
 | `PortraitFigure` | A team-member/founder photo with a name+role tag cut into its corner at the brand's own 45deg angle. `color` defaults to Premium's secondary red, same as `ColorField` - any CSS color works for a sister brand. |
 | `SiteFooter` + `FooterColumn` | The dark marketing-site footer shell: a responsive column grid on Premium Black, a copyright bar below a hairline. Ships the real grid/bar structure (unlike `Navbar`'s empty shell) since that part is genuinely the same across most marketing sites - only the column *content* (which services are listed, contact details, a newsletter form's own state) is composed in via `children`/`FooterColumn`. |
 | `FeatureCard` | An icon (centered in its own slot) + bold title + one line of body copy - the "why us" tile from a landing page's features grid. Pass any react-icons element; its own size/color come along unchanged. `align`: `"left"` (default, stacked) / `"center"` (icon and text all centered) - the second matches OtoshiProposalPage's own "Community" tile layout. |
@@ -278,6 +278,47 @@ next step in order, giving a middle level the WRONG weight compared to the real 
 match exactly. Fixed by using each predefined step directly whenever there are few enough levels
 to have one each, and only interpolating across the fixed set for a `levels` list longer than
 that.
+
+Building a live component catalog (a branded docs site, not just Storybook) surfaced a batch of
+real gaps and bugs, since every demo now runs as the actual installed component instead of being
+eyeballed one story at a time:
+
+- `Button` had no `inline-flex`/`items-center` of its own - Tailwind's preflight sets `svg {
+  display: block }`, so an icon passed via `children` (its own real composition slot, see above)
+  stacked above the label instead of sitting beside it. Every other button-shaped component here
+  already carried its own flex layout for the same reason; `Button` just hadn't needed one until
+  an icon+label demo actually exercised it. Added `onColor` at the same time - a white pill for
+  app chrome that itself sits on a solid colored field (`PageHeader`'s own `actions` slot), which
+  every real instance had to hand-roll the same shape for otherwise.
+- `NavTile`'s arrow stayed grey on hover in dark mode: `dark:text-gray-600` and
+  `group-hover:text-(--premium-red)` are two single-variant utilities with equal specificity, and
+  Tailwind's dark: rule happened to sort after group-hover:'s in the sheet - a `dark:group-hover:`
+  compound variant is what actually wins that tie, not stacking two plain variants and hoping the
+  cascade favors the one you want.
+- `MediaCard`'s title had no `wrap-break-word` - a single long word (no space to wrap at)
+  overflowed a narrow grid column instead of wrapping, invisibly, since the card's own
+  `overflow-hidden` (needed to clip the image's rounded corners) silently clipped that overflow
+  instead of showing it.
+- `StatCard`'s `overflow-hidden` (there to clip its own accent bar flush with the rounded corners)
+  also clipped any real dropdown composed into it - `MonthNav`/`WeekNav` sitting in `hint` never
+  opened visibly. Fixed by rounding the accent bar itself (`rounded-l-xl`) instead of relying on
+  the card's overflow to clip it, so the card no longer needs `overflow-hidden` at all. Also
+  gained `icon` and widened `hint` to accept a real element - the exact "sibling stat-card with an
+  icon and a period-picker action slot" gap this README used to flag as not-yet-ported from
+  `OverviewPage.tsx` (see `MonthNav`).
+- `StatusBadge` gained `tone` (the four standard colors) - every real use before this was already
+  one of the same four `colorClass` strings copied by hand each time.
+- `ColorField`/`PageHeader`/`ErrorBoundary` gained independent color overrides (`barsColor`;
+  `color`/`barsColor`/`countColor`; `background`/`lineColor`) - the same "sister brand reuses this
+  shell with its own palette" reasoning `color` already existed for on `ColorField`, extended to
+  the props that were still hardcoded to Premium's own palette on each of these.
+- Several stories were reconstructing another real component's exact markup by hand instead of
+  composing it: `Navbar`'s own example navbar hand-rolled icon+badge buttons that are just
+  `NotificationBell`; `PageHeader`'s detail-page demo hand-rolled the pill that's just
+  `StatusBadge`; `MonthNav`/`WeekNav`'s "inside a stat card" demos hand-rolled the card that's
+  `StatCard`; both also hand-rolled the page-header band that's just `PageHeader`. All four now
+  compose the real component instead - partly a docs-accuracy fix, partly what surfaced the
+  `StatCard` overflow bug above in the first place.
 
 ## Develop
 
