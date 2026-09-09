@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger';
-export type ButtonSize = 'sm' | 'md';
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 // 'secondary' consolidates a pattern that was hand-repeated across dozens of
 // confirm/cancel modals in timesheet-payroll-system (PurchaseOrderDetailPage,
@@ -20,16 +20,40 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
+  // The compact size real toolbars actually use for an inline action sitting
+  // beside other chips (a table row, a filter bar) - not a guess, the exact
+  // padding/text-size pair repeated across those spots in the app.
+  xs: 'px-3 py-1.5 text-xs',
   sm: 'px-3 py-2 text-sm',
   md: 'px-4 py-2.5 text-sm',
+  // `px-6 py-3 text-sm` is `SiteButton`'s own size - the real hero-CTA size
+  // this brand actually ships, not a guess, just given here too for app
+  // chrome that wants that same weight without switching components.
+  lg: 'px-6 py-3 text-sm',
+  // No real xl button exists anywhere in the app today - this one extra
+  // step is extrapolated from the rest of the scale (one more padding step,
+  // one more text step up), not matched against a real spot the way every
+  // other size here is.
+  xl: 'px-8 py-3.5 text-base',
 };
 
+// Extends the native button element's own props, so `children` is inherited
+// from there rather than declared here - unlike `Alert`'s `text` (always one
+// line of message), a button's content routinely needs an icon next to a
+// label ("<FiPlus /> Add employee"), so it stays a real composition slot the
+// way every native <button> and every other button component already is.
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  // `type` defaults to 'button', not the HTML default of 'submit' - a plain
+  // <button> inside a <form> submits (and reloads/re-POSTs) that form the
+  // instant it's clicked, which is very rarely what a "Cancel" or an
+  // in-page action button sitting inside some form on the page actually
+  // wants. Pass `type="submit"` explicitly on the one button per form that
+  // should actually submit it.
   { variant = 'primary', size = 'md', className = '', type = 'button', ...rest },
   ref,
 ) {

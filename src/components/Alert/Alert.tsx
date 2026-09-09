@@ -33,17 +33,21 @@ const STYLES: Record<AlertVariant, { cls: string; edge: string; Icon: React.Comp
 
 export interface AlertProps {
   variant?: AlertVariant;
-  children: ReactNode;
+  // A plain message, not a composition slot - every real use of this is one
+  // line of text (an error string, a warning). `text` rather than `children`
+  // so it shows up as a plain text field in Storybook's Controls panel
+  // instead of an opaque "children" prop.
+  text: ReactNode;
   className?: string;
 }
 
-export function Alert({ variant = 'error', children, className = '' }: AlertProps) {
+export function Alert({ variant = 'error', text, className = '' }: AlertProps) {
   const { cls, edge, Icon } = STYLES[variant];
   return (
     <div className={`flex items-center gap-2.5 pl-0 pr-4 py-3 rounded-2xl text-sm overflow-hidden ${cls} ${className}`}>
       <span className="self-stretch w-[3px] shrink-0" style={{ backgroundColor: edge }} />
       <Icon size={15} className="shrink-0" />
-      {children}
+      {text}
     </div>
   );
 }

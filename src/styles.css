@@ -68,6 +68,15 @@
   font-display: swap;
 }
 
+/* Tailwind v4 dropped the v3 preflight rule that gave unstyled buttons
+   cursor: pointer by default (native browser default is cursor: default).
+   Every Button/FilterPill/OverflowMenu/etc. in this package relies on it
+   instead of repeating cursor-pointer on each one. Unlayered, so it wins
+   over Tailwind's own layers regardless of import order. */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 :root {
   /* Primary palette (brand book pg. 12). #E62027 = Premium Red MAIN
      (Pantone EC 2027), for interactive elements. #A51E26 = SECONDARY, for
@@ -110,6 +119,17 @@ html.dark .input-field:focus {
 }
 html.dark input[type='date'].input-field {
   color-scheme: dark;
+}
+
+/* .pmg-texture's 3.5% opacity is mathematically identical in both themes
+   (currentColor at the same alpha either way, measured: ~9/255 luminance
+   step in dark, ~8/255 in light) - but a step that small near pure black is
+   far harder for the eye (and a lot of displays) to resolve than the same
+   step near white, so the exact same rule reads as "missing" in dark mode.
+   Doubling the opacity there compensates for that perceptual gap without
+   the pattern in light mode. */
+html.dark .pmg-texture {
+  opacity: 0.07;
 }
 
 *:focus {
@@ -227,15 +247,17 @@ input[type='number']::-webkit-inner-spin-button {
   }
 
   /* Industrial texture. "Subtle patterns and materials that reflect the
-     tangible, real-world nature of construction" (pg. 16). Deliberately
-     near-invisible: it should register as material, not as pattern. */
+     tangible, real-world nature of construction" (pg. 16) - low-opacity so it
+     registers as material rather than pattern, but same 2px/12px line weight
+     as .pmg-bars below so the two read as one family instead of one bold and
+     one anemic. */
   .pmg-texture {
     background-image: repeating-linear-gradient(
       var(--pmg-angle),
       currentColor 0px,
-      currentColor 1px,
-      transparent 1px,
-      transparent 9px
+      currentColor 2px,
+      transparent 2px,
+      transparent 12px
     );
     opacity: 0.035;
   }

@@ -33,4 +33,19 @@ describe('Button', () => {
     expect(btn.className).toContain('border-gray-200');
     expect(btn.className).not.toContain('btn-primary');
   });
+
+  test('xs size applies the compact padding/text classes', () => {
+    render(<Button size="xs">Reorder</Button>);
+    expect(screen.getByRole('button').className).toContain('text-xs');
+  });
+
+  test('lg size matches SiteButton\'s own hero-CTA padding', () => {
+    render(<Button size="lg">Get an estimate</Button>);
+    expect(screen.getByRole('button').className).toContain('px-6');
+  });
+
+  test('xl size steps up once more from lg', () => {
+    render(<Button size="xl">Get an estimate</Button>);
+    expect(screen.getByRole('button').className).toContain('text-base');
+  });
 });

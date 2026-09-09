@@ -12,7 +12,7 @@ export default meta;
 
 type Story = StoryObj<typeof Alert>;
 
-export const Error: Story = { args: { variant: 'error', children: 'Something needs your attention.' } };
-export const Success: Story = { args: { variant: 'success', children: 'Purchase order approved.' } };
-export const Warning: Story = { args: { variant: 'warning', children: 'This timesheet is over budget.' } };
-export const Info: Story = { args: { variant: 'info', children: 'Backdated timesheets are disabled for this division.' } };
+export const Error: Story = { args: { variant: 'error', text: 'Something needs your attention.' } };
+export const Success: Story = { args: { variant: 'success', text: 'Purchase order approved.' } };
+export const Warning: Story = { args: { variant: 'warning', text: 'This timesheet is over budget.' } };
+export const Info: Story = { args: { variant: 'info', text: 'Backdated timesheets are disabled for this division.' } };

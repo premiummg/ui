@@ -1,0 +1,27 @@
+import { ReactNode } from 'react';
+
+export interface ColorFieldProps {
+  // Any CSS color - a hex value, a CSS var, whatever the calling brand uses.
+  // Defaults to Premium's own SECONDARY red (#A51E26/--premium-red-dark) -
+  // every full-bleed red panel in the brand book itself fills with this, not
+  // MAIN red, which vibrates at large sizes.
+  color?: string;
+  className?: string;
+  children: ReactNode;
+}
+
+// A bold solid-color field with the 45deg diagonal bars running through it -
+// "solid blocks of color that command attention and create visual hierarchy"
+// (BRAND.md pg. 16). Premium's own use of this is always red, but the field
+// itself is just a color decision: a sister brand (Otoshi's navy, say) gets
+// the same device with its own color, not a second component. Compose the
+// content inside with `Eyebrow` (`tone="white"`) and `SiteButton`
+// (`variant="onRed"` reads correctly on any dark-enough field color).
+export function ColorField({ color = 'var(--premium-red-dark)', className = '', children }: ColorFieldProps) {
+  return (
+    <div className={`relative overflow-hidden text-white ${className}`} style={{ backgroundColor: color }}>
+      <div className="absolute inset-0 pmg-bars pointer-events-none" />
+      <div className="relative">{children}</div>
+    </div>
+  );
+}
