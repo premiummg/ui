@@ -4,6 +4,7 @@ import { FiGrid, FiClipboard, FiMessageSquare, FiBell, FiLogOut } from 'react-ic
 import { Navbar } from './Navbar';
 import { NAV_TONES, NavTone } from './navTone';
 import { DarkModeToggle } from '../DarkModeToggle';
+import { NotificationBell } from '../NotificationBell';
 
 const meta: Meta<typeof Navbar> = {
   title: 'Components/Navbar',
@@ -37,17 +38,30 @@ function ExampleActions() {
       </button>
       <div className="w-px h-5 bg-gray-200 dark:bg-white/15 mx-0.5" />
       <DarkModeToggle isDark={isDark} onToggle={() => setIsDark(d => !d)} />
-      <button className="relative p-2 rounded-lg text-gray-400 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition">
-        <FiClipboard size={16} />
-        <span className="absolute top-1 right-1 w-4 h-4 text-[10px] font-bold text-yellow-900 rounded-full flex items-center justify-center bg-yellow-400">3</span>
-      </button>
-      <button className="p-2 rounded-lg text-gray-400 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition">
-        <FiMessageSquare size={16} />
-      </button>
-      <button className="relative p-2 rounded-lg text-gray-400 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition">
-        <FiBell size={16} />
-        <span className="absolute top-1 right-1 w-4 h-4 text-[10px] font-bold text-white rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--premium-red)' }}>2</span>
-      </button>
+      {/* The real NotificationBell, not a lookalike icon+badge button - it's
+          the exact component this shell exists to have composed into it,
+          see its own PendingReviewCounts/Notifications stories for these
+          same two shapes. */}
+      <NotificationBell icon={FiClipboard} label="Pending review" title="Pending Review" count={3}>
+        <div className="p-2">
+          <button className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-left">
+            <span className="text-sm text-gray-700 dark:text-gray-200">Timesheets</span>
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300">3</span>
+          </button>
+        </div>
+      </NotificationBell>
+      <NotificationBell icon={FiMessageSquare} label="Employee messages" title="Messages" count={1}>
+        <button className="w-full text-left px-4 py-3 flex flex-col gap-0.5 hover:bg-gray-50 dark:hover:bg-white/5 transition">
+          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">New safety policy</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Admin · 3h ago</span>
+        </button>
+      </NotificationBell>
+      <NotificationBell icon={FiBell} label="Notifications" title="Notifications" count={2}>
+        <button className="w-full text-left px-4 py-3 flex flex-col gap-0.5 hover:bg-gray-50 dark:hover:bg-white/5 transition">
+          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Purchase order #4021 approved</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">2m ago</span>
+        </button>
+      </NotificationBell>
       <button className="inline-flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition">
         <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-heading font-bold shrink-0" style={{ backgroundColor: 'var(--premium-red)' }}>
           CO

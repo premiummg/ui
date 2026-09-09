@@ -17,6 +17,18 @@ export interface PageHeaderProps {
   // title/count/actions row entirely, the same escape hatch `Navbar`'s nav
   // items and `SiteFooter`'s columns use.
   children?: ReactNode;
+  // Same device as `ColorField` (`.pmg-field` + `.pmg-bars`, BRAND.md pg. 16)
+  // - color/barsColor exist for exactly the same reason there: a sister
+  // brand's own pages reuse this same header shell with their own palette
+  // instead of a second component.
+  color?: string;
+  barsColor?: string;
+  // The count figure defaults to white/70 - deliberately dimmer than the
+  // title next to it (same "give the bold thing something to step up from"
+  // idea as Eyebrow's own white/60), which assumes a dark-enough field.
+  // A sister brand's own color (or just a lighter field) can need the count
+  // in something else entirely to still read against it.
+  countColor?: string;
   className?: string;
 }
 
@@ -24,10 +36,18 @@ export interface PageHeaderProps {
 // `.pmg-bars` (BRAND.md pg. 16's "solid blocks of color that command
 // attention", the same device as `ColorField`), rounded at the top to sit
 // flush above a page's own white/dark content panel.
-export function PageHeader({ backLabel, onBack, title, count, actions, children, className = '' }: PageHeaderProps) {
+export function PageHeader({ backLabel, onBack, title, count, actions, children, color, barsColor, countColor, className = '' }: PageHeaderProps) {
   return (
-    <div className={`relative pmg-field rounded-t-2xl px-6 py-5 ${className}`}>
-      <div className="absolute inset-0 pmg-bars rounded-t-2xl pointer-events-none" />
+    <div
+      className={`relative pmg-field rounded-t-2xl px-6 py-5 ${className}`}
+      style={color ? { backgroundColor: color } : undefined}
+    >
+      <div
+        className="absolute inset-0 pmg-bars rounded-t-2xl pointer-events-none"
+        style={barsColor ? {
+          backgroundImage: `repeating-linear-gradient(var(--pmg-angle), ${barsColor} 0px, ${barsColor} 2px, transparent 2px, transparent 12px)`,
+        } : undefined}
+      />
       <div className="relative">
         {onBack && backLabel && (
           <button
@@ -46,7 +66,14 @@ export function PageHeader({ backLabel, onBack, title, count, actions, children,
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-baseline gap-2.5">
               <h1 className="font-heading font-black text-2xl text-white leading-none">{title}</h1>
-              {count != null && <span className="pmg-figure text-lg text-white/70">{count}</span>}
+              {count != null && (
+                <span
+                  className={`pmg-figure text-lg ${countColor ? '' : 'text-white/70'}`}
+                  style={countColor ? { color: countColor } : undefined}
+                >
+                  {count}
+                </span>
+              )}
             </div>
             {/* flex-wrap, no shrink-0: `shrink-0` disables the browser's
                 default flex-shrink, which is what lets this div size itself

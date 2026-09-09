@@ -1,0 +1,1645 @@
+{
+  "Alert": [
+    {
+      "name": "variant",
+      "type": "AlertVariant",
+      "required": false,
+      "defaultValue": "error",
+      "description": null
+    },
+    {
+      "name": "text",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "AuthShell": [
+    {
+      "name": "eyebrow",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "Button": [
+    {
+      "name": "variant",
+      "type": "ButtonVariant",
+      "required": false,
+      "defaultValue": "primary",
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "ButtonSize",
+      "required": false,
+      "defaultValue": "md",
+      "description": null
+    }
+  ],
+  "Card": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "padding",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": "Defaults to false - pass `padding` to get the standard p-6."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "style",
+      "type": "CSSProperties",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "ColorField": [
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "defaultValue": "var(--premium-red-dark)",
+      "description": null
+    },
+    {
+      "name": "barsColor",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "CountBadge": [
+    {
+      "name": "count",
+      "type": "string | number",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "DarkModeToggle": [
+    {
+      "name": "isDark",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onToggle",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "defaultValue": 16,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "DashedAddButton": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "DatePicker": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(v: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Select date",
+      "description": null
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "maxDate",
+      "type": "Date",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "minDate",
+      "type": "Date",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "unavailableDates",
+      "type": "string[]",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "ErrorBoundary": [
+    {
+      "name": "fallback",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "background",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "lineColor",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "Eyebrow": [
+    {
+      "name": "text",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "tone",
+      "type": "EyebrowTone",
+      "required": false,
+      "defaultValue": "red",
+      "description": null
+    }
+  ],
+  "FeatureCard": [
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "align",
+      "type": "\"left\" | \"center\"",
+      "required": false,
+      "defaultValue": "left",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "FieldError": [
+    {
+      "name": "message",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "FieldGroup": [
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "note",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "FilterLabel": [
+    {
+      "name": "text",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "FilterPill": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "active",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "FilterRow": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "options",
+      "type": "(string | EntityOption)[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "selected",
+      "type": "string[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onToggle",
+      "type": "(value: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClear",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "capitalize",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "labelWidth",
+      "type": "string",
+      "required": false,
+      "defaultValue": "w-20",
+      "description": null
+    }
+  ],
+  "FlagCanada": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "FlagAcadian": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "AcadianStar": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "FormLabel": [
+    {
+      "name": "text",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "htmlFor",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "required",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "optional",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    }
+  ],
+  "Hero": [
+    {
+      "name": "eyebrow",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "eyebrowTone",
+      "type": "EyebrowTone",
+      "required": false,
+      "defaultValue": "amber",
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "sub",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "imageSrc",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "videoSrc",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "primaryAction",
+      "type": "HeroAction",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "secondaryAction",
+      "type": "HeroAction",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "caption",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "overlay",
+      "type": "HeroOverlay",
+      "required": false,
+      "defaultValue": "scrim",
+      "description": null
+    },
+    {
+      "name": "wedge",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "LanguageToggle": [
+    {
+      "name": "lang",
+      "type": "Lang",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(lang: Lang) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "names",
+      "type": "Record<Lang, string>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "Layout": [
+    {
+      "name": "navbar",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "MediaCard": [
+    {
+      "name": "imageSrc",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "imageAlt",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "eyebrow",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "eyebrowColor",
+      "type": "string",
+      "required": false,
+      "defaultValue": "var(--premium-red-dark)",
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "Modal": [
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "description",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "maxWidth",
+      "type": "string",
+      "required": false,
+      "defaultValue": "max-w-md",
+      "description": null
+    },
+    {
+      "name": "zIndex",
+      "type": "string",
+      "required": false,
+      "defaultValue": "z-50",
+      "description": null
+    }
+  ],
+  "MonthNav": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "months",
+      "type": "string[]",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fetching",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(month: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "variant",
+      "type": "\"default\" | \"hero\"",
+      "required": false,
+      "defaultValue": "default",
+      "description": null
+    }
+  ],
+  "Navbar": [
+    {
+      "name": "tone",
+      "type": "NavTone",
+      "required": false,
+      "defaultValue": "black",
+      "description": null
+    }
+  ],
+  "NavTile": [
+    {
+      "name": "icon",
+      "type": "IconType",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "NotificationBell": [
+    {
+      "name": "icon",
+      "type": "IconType",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "headerAction",
+      "type": "{ label: string; onClick: () => void; }",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "footer",
+      "type": "{ label: string; onClick: () => void; }",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "width",
+      "type": "string",
+      "required": false,
+      "defaultValue": "w-80",
+      "description": null
+    }
+  ],
+  "NumberedCard": [
+    {
+      "name": "number",
+      "type": "string | number",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "defaultValue": "var(--premium-red)",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "OverflowMenu": [
+    {
+      "name": "items",
+      "type": "OverflowItem[]",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "dangerItems",
+      "type": "OverflowItem[]",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onDark",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "defaultValue": "More actions",
+      "description": null
+    },
+    {
+      "name": "align",
+      "type": "\"left\" | \"right\"",
+      "required": false,
+      "defaultValue": "right",
+      "description": null
+    }
+  ],
+  "PageHeader": [
+    {
+      "name": "backLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onBack",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "count",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "actions",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "barsColor",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "countColor",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "Pagination": [
+    {
+      "name": "page",
+      "type": "number",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "totalPages",
+      "type": "number",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "total",
+      "type": "number",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "limit",
+      "type": "number",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onPageChange",
+      "type": "(page: number) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "PasswordInput": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "registration",
+      "type": "any",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "autoComplete",
+      "type": "string",
+      "required": false,
+      "defaultValue": "current-password",
+      "description": null
+    },
+    {
+      "name": "error",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "autoFocus",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "icon",
+      "type": "IconType",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "hint",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "PortraitFigure": [
+    {
+      "name": "imageSrc",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "role",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "defaultValue": "var(--premium-red-dark)",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "PremiumLogo": [
+    {
+      "name": "size",
+      "type": "PremiumLogoSize",
+      "required": false,
+      "defaultValue": "md",
+      "description": null
+    },
+    {
+      "name": "variant",
+      "type": "PremiumLogoVariant",
+      "required": false,
+      "defaultValue": "stacked",
+      "description": null
+    },
+    {
+      "name": "mode",
+      "type": "\"auto\" | \"light\" | \"dark\"",
+      "required": false,
+      "defaultValue": "auto",
+      "description": null
+    }
+  ],
+  "QuoteCard": [
+    {
+      "name": "quote",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "name",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "RankBadge": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "levels",
+      "type": "string[]",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "styles",
+      "type": "Record<string, string>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "defaultValue": "var(--premium-red)",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "Reveal": [
+    {
+      "name": "delay",
+      "type": "number",
+      "required": false,
+      "defaultValue": 0,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "ScrollableTable": [
+    {
+      "name": "maxHeight",
+      "type": "string",
+      "required": false,
+      "defaultValue": "calc(100vh - 320px)",
+      "description": null
+    }
+  ],
+  "SearchInput": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(v: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Search…",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "debounceMs",
+      "type": "number",
+      "required": false,
+      "defaultValue": 350,
+      "description": null
+    }
+  ],
+  "SectionHead": [
+    {
+      "name": "eyebrow",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "sub",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "tone",
+      "type": "\"light\" | \"dark\"",
+      "required": false,
+      "defaultValue": "light",
+      "description": null
+    },
+    {
+      "name": "center",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    }
+  ],
+  "SegmentedControl": [
+    {
+      "name": "options",
+      "type": "readonly SegmentedControlOption<T>[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(value: T) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "SiteButton": [
+    {
+      "name": "variant",
+      "type": "SiteButtonVariant",
+      "required": false,
+      "defaultValue": "primary",
+      "description": null
+    }
+  ],
+  "SiteFooter": [
+    {
+      "name": "copyright",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "legalLinks",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "FooterColumn": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "SortableColumnHeader": [
+    {
+      "name": "col",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "sortBy",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "sortDir",
+      "type": "SortDir",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onSort",
+      "type": "(col: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "StatBlock": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "defaultValue": "var(--premium-red-dark)",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "StatCard": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "hint",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "icon",
+      "type": "IconType",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "accent",
+      "type": "\"amber\"",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "StatusBadge": [
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "tone",
+      "type": "StatusBadgeTone",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "colorClass",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "style",
+      "type": "CSSProperties",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "StatusDot": [
+    {
+      "name": "active",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "identityActive",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "variant",
+      "type": "\"inline\" | \"presence\"",
+      "required": false,
+      "defaultValue": "inline",
+      "description": null
+    }
+  ],
+  "TablePlaceholderRow": [
+    {
+      "name": "colSpan",
+      "type": "number",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "loadingText",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Loading…",
+      "description": null
+    },
+    {
+      "name": "emptyText",
+      "type": "string",
+      "required": false,
+      "defaultValue": "No results found",
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "TablePlaceholderRowSize",
+      "required": false,
+      "defaultValue": "md",
+      "description": null
+    }
+  ],
+  "UnitField": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(v: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "options",
+      "type": "string[]",
+      "required": false,
+      "defaultValue": "['pcs', 'boxes', 'bags', 'rolls', 'sheets', 'lbs', 'kg', 'ft', 'gal', 'hrs']",
+      "description": null
+    },
+    {
+      "name": "capitalize",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": true,
+      "description": null
+    }
+  ],
+  "WeekNav": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "weeks",
+      "type": "string[]",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fetching",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(monday: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "align",
+      "type": "\"left\" | \"right\"",
+      "required": false,
+      "defaultValue": "right",
+      "description": null
+    },
+    {
+      "name": "variant",
+      "type": "\"default\" | \"hero\"",
+      "required": false,
+      "defaultValue": "default",
+      "description": null
+    }
+  ]
+}

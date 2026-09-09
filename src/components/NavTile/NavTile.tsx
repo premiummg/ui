@@ -40,7 +40,13 @@ export function NavTile({ icon: Icon, label, description, onClick }: NavTileProp
         </div>
         <FiArrowRight
           size={15}
-          className="text-gray-300 dark:text-gray-600 group-hover:text-(--premium-red) group-hover:translate-x-0.5 transition-all duration-200 mt-1"
+          // dark:group-hover: (not just group-hover:) is required here: on an
+          // equal-specificity tie between two single-variant utilities both
+          // setting `color` (dark:text-gray-600 vs group-hover:text-red),
+          // Tailwind's dark: rule sorts after group-hover:'s in the sheet and
+          // wins on hover in dark mode too, unless the hover rule is itself
+          // written as the compound dark:group-hover: variant.
+          className="text-gray-300 dark:text-gray-600 group-hover:text-(--premium-red) dark:group-hover:text-(--premium-red) group-hover:translate-x-0.5 transition-all duration-200 mt-1"
         />
       </div>
       <p className="font-heading font-bold text-gray-900 dark:text-gray-100 text-sm leading-snug">{label}</p>

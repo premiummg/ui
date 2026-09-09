@@ -168,10 +168,11 @@ specific API: announcements, employees/divisions). The rows *inside* `Navbar`'s 
 / pending-review / messages dropdowns are the same story - only the shell they share was
 generalizable, see `NotificationBell` above.
 
-Known sibling not yet ported: `OverviewPage.tsx` has its own richer stat-card component (icon,
-an `action` slot for a `MonthNav`/`WeekNav`, a `size="lg"` variant, and a separate "needs your
-attention" render path) - a different, more elaborate component than this package's `StatCard`,
-not a duplicate of it. Flagging it here so it doesn't need re-discovering.
+`OverviewPage.tsx`'s own richer stat-card had an `icon` and an action slot for a `MonthNav`/
+`WeekNav` that this package's `StatCard` didn't - both now ported (`icon` prop, `hint` widened to
+accept a real element, not just a caption string; see `MonthNav`/`WeekNav`'s own `InAStatCard`
+stories for the actual composition). Still not ported: the `size="lg"` variant and the separate
+"needs your attention" render path - flagging those here so they don't need re-discovering.
 
 `PageHeader`'s first version was ported from `components/shared/PageHeader.tsx` - a plain flat
 title bar with no visual relation to any real screen. Turned out that file is dead code, imported

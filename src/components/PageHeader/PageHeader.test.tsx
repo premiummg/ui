@@ -37,6 +37,11 @@ describe('PageHeader', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  test('countColor overrides the count figure\'s default color', () => {
+    render(<PageHeader title="Employees" count={15} countColor="#1A2C6E" />);
+    expect(screen.getByText('15')).toHaveStyle({ color: '#1A2C6E' });
+  });
+
   test('children replaces the title/count/actions row entirely', () => {
     render(
       <PageHeader backLabel="Employees" onBack={() => {}}>

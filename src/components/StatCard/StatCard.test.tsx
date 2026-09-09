@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { FiTrendingUp } from 'react-icons/fi';
 import { StatCard } from './StatCard';
 
 describe('StatCard', () => {
@@ -21,6 +22,21 @@ describe('StatCard', () => {
     render(<StatCard label="Pending" value="3" onClick={onClick} />);
     await userEvent.click(screen.getByRole('button'));
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('renders the icon when given', () => {
+    const { container } = render(<StatCard label="Hours this month" value="142.5" icon={FiTrendingUp} />);
+    expect(container.querySelector('svg')).toBeInTheDocument();
+  });
+
+  test('hint accepts a real element, not just a caption string', () => {
+    render(<StatCard label="Hours this month" value="142.5" hint={<button>Change period</button>} />);
+    expect(screen.getByRole('button', { name: 'Change period' })).toBeInTheDocument();
+  });
+
+  test('does not clip its own overflow, so a real dropdown in hint (MonthNav/WeekNav) can render past its edges', () => {
+    const { container } = render(<StatCard label="Hours this month" value="142.5" hint="September 2026" />);
+    expect(container.firstChild).not.toHaveClass('overflow-hidden');
   });
 
   test('accent="amber" uses the hi-vis stripe class instead of the inline red background', () => {

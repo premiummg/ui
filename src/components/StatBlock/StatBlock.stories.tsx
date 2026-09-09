@@ -29,10 +29,13 @@ export const Row: Story = {
   ),
 };
 
+// Otoshi's navy, the same sister-brand color ColorField/PortraitFigure use
+// in their own CustomColor stories - a color plainly different from the
+// default red, not a slightly darker shade of it.
 export const CustomColor: Story = {
   render: () => (
     <div style={{ maxWidth: 200, background: '#F2F2F2', padding: 24 }}>
-      <StatBlock value="56%" label="Openness to new ideas" color="#7A2E2E" />
+      <StatBlock value="56%" label="Openness to new ideas" color="#1A2C6E" />
     </div>
   ),
 };

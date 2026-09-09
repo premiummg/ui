@@ -62,3 +62,14 @@ export const Blue: Story = {
     </ColorField>
   ),
 };
+
+// barsColor overrides the bars independently of the field - the brand
+// book's own semi-transparent white reads fine on a dark saturated color
+// but disappears (or looks wrong) on a paler or differently-toned one.
+export const CustomBars: Story = {
+  render: () => (
+    <ColorField color="#FAAD00" barsColor="rgba(0,0,0,0.15)">
+      <CtaContent />
+    </ColorField>
+  ),
+};

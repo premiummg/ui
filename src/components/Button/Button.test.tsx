@@ -27,6 +27,13 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
+  test('onColor variant applies the white-pill classes, not btn-primary', () => {
+    render(<Button variant="onColor">Add employee</Button>);
+    const btn = screen.getByRole('button');
+    expect(btn.className).toContain('bg-white');
+    expect(btn.className).not.toContain('btn-primary');
+  });
+
   test('secondary variant applies the neutral outline classes, not btn-primary', () => {
     render(<Button variant="secondary">Cancel</Button>);
     const btn = screen.getByRole('button');

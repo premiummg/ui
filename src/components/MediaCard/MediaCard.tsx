@@ -33,7 +33,12 @@ export function MediaCard({
         />
       </div>
       <div className="p-5">
-        <h3 className="font-heading font-extrabold text-lg text-(--premium-black) dark:text-white">{title}</h3>
+        {/* break-words: without it, a single long word (no space for the
+            browser's default wrapping to break at) overflows a narrow grid
+            column instead of wrapping - invisibly, since the card's own
+            overflow-hidden (needed to clip the image's rounded corners and
+            hover-scale) silently clips that overflow instead of showing it. */}
+        <h3 className="font-heading font-extrabold text-lg text-(--premium-black) dark:text-white wrap-break-word">{title}</h3>
         {eyebrow && (
           <p className="pmg-eyebrow mt-1" style={{ color: eyebrowColor }}>
             {eyebrow}

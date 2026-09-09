@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'onColor';
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 // 'secondary' consolidates a pattern that was hand-repeated across dozens of
@@ -17,6 +17,16 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   danger: 'btn-primary',
   secondary:
     'rounded-xl border border-gray-200 dark:border-white/20 font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition disabled:opacity-60',
+  // A white pill for app chrome that itself sits on a solid colored field -
+  // PageHeader's own `actions` slot is exactly this (a real page IS on a
+  // .pmg-field band), which every real instance had to hand-roll the same
+  // "bg-white ... hover:bg-white/90" shape for otherwise. No fixed text
+  // color here on purpose: unlike primary/secondary/danger, the field this
+  // sits on isn't always the same color (PageHeader's own `color` prop can
+  // be anything), so the caller supplies it via `className`/`style`, same
+  // as SiteButton's onRed/onDark do for the marketing-page equivalent of
+  // this same idea.
+  onColor: 'rounded-lg bg-white font-semibold hover:bg-white/90 transition disabled:opacity-60',
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
@@ -61,7 +71,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     <button
       ref={ref}
       type={type}
-      className={`${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
+      // inline-flex items-center gap-2: Tailwind's preflight sets svg {
+      // display: block }, so an icon passed in `children` next to a text
+      // label (the whole reason `children` stays a real composition slot,
+      // see above) would otherwise stack above the label instead of sitting
+      // beside it - every other button-shaped component here already
+      // includes its own flex layout for exactly this reason.
+      className={`inline-flex items-center gap-2 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
       {...rest}
     />
   );

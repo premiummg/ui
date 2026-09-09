@@ -1,0 +1,260 @@
+{
+  "Alert": {
+    "Error": "<Alert variant=\"error\" text=\"Something needs your attention.\" />",
+    "Success": "<Alert variant=\"success\" text=\"Purchase order approved.\" />",
+    "Warning": "<Alert variant=\"warning\" text=\"This timesheet is over budget.\" />",
+    "Info": "<Alert variant=\"info\" text=\"Backdated timesheets are disabled for this division.\" />"
+  },
+  "AuthShell": {
+    "SignIn": "<AuthShell eyebrow=\"Sign in\">{(\n      <div className=\"space-y-4\">\n        <input className=\"input-field w-full\" placeholder=\"Email\" />\n        <input className=\"input-field w-full\" type=\"password\" placeholder=\"Password\" />\n        <button className=\"btn-primary w-full py-2.5\">Sign in</button>\n      </div>\n    )}</AuthShell>",
+    "WithError": "<AuthShell eyebrow=\"Sign in\">{(\n      <div className=\"space-y-4\">\n        <AuthError message=\"Incorrect email or password.\" />\n        <input className=\"input-field w-full\" placeholder=\"Email\" />\n        <input className=\"input-field w-full\" type=\"password\" placeholder=\"Password\" />\n        <button className=\"btn-primary w-full py-2.5\">Sign in</button>\n      </div>\n    )}</AuthShell>",
+    "TwoFactor": "<AuthShell eyebrow=\"Two-factor authentication\">{(\n      <div className=\"space-y-4\">\n        <p className=\"text-sm text-gray-500 dark:text-gray-400\">Enter the 6-digit code from your authenticator app.</p>\n        <input className=\"input-field w-full text-center tracking-[0.5em]\" placeholder=\"000000\" maxLength={6} />\n        <button className=\"btn-primary w-full py-2.5\">Verify</button>\n      </div>\n    )}</AuthShell>"
+  },
+  "Button": {
+    "Primary": "<Button variant=\"primary\">Save changes</Button>",
+    "Secondary": "<Button variant=\"secondary\">Cancel</Button>",
+    "Danger": "<Button variant=\"danger\">Delete</Button>",
+    "OnColor": "<div className=\"pmg-field p-6 rounded-xl\">\n  <Button variant=\"onColor\" style={{ color: 'var(--premium-red-dark)' }}>Add employee</Button>\n</div>",
+    "Small": "<Button size=\"sm\">Save changes</Button>",
+    "ExtraSmall": "<Button size=\"xs\">Reorder</Button>",
+    "Large": "<Button size=\"lg\">Get an estimate</Button>",
+    "ExtraLarge": "<Button size=\"xl\">Get an estimate</Button>",
+    "Disabled": "<Button disabled>Save changes</Button>",
+    "WithIcon": "<Button>\n  <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" strokeWidth=\"2\">\n    <path d=\"M12 5v14M5 12h14\" />\n  </svg>\n  Add employee\n</Button>"
+  },
+  "Card": {
+    "Default": "<Card padding>Card content goes here.</Card>",
+    "NoPadding": "<Card padding={false}>{<div className=\"p-2\">Custom padding</div>}</Card>"
+  },
+  "ColorField": {
+    "Red": "<ColorField>\n  <CtaContent />\n</ColorField>",
+    "Blue": "<ColorField color=\"#1A2C6E\">\n  <CtaContent />\n</ColorField>",
+    "CustomBars": "<ColorField color=\"#FAAD00\" barsColor=\"rgba(0,0,0,0.15)\">\n  <CtaContent />\n</ColorField>"
+  },
+  "CountBadge": {
+    "Default": "<CountBadge count={128} />",
+    "Overflow": "<CountBadge count=\"99+\" />"
+  },
+  "DarkModeToggle": {
+    "Default": "function Demo() {\n  const [isDark, setIsDark] = useState(false);\n  return <DarkModeToggle isDark={isDark} onToggle={() => setIsDark(d => !d)} />;\n}\nreturn <Demo />;"
+  },
+  "DashedAddButton": {
+    "Default": "<DashedAddButton label=\"Add line item\" onClick={() => {}} />",
+    "Disabled": "<DashedAddButton label=\"Add line item\" onClick={() => {}} disabled />"
+  },
+  "DatePicker": {
+    "Default": "function Demo() {\n  const [value, setValue] = useState('2026-03-15');\n  return <DatePicker value={value} onChange={setValue} className=\"max-w-xs\" />;\n}\nreturn <Demo />;",
+    "WithUnavailableDates": "function Demo() {\n  const [value, setValue] = useState('');\n  return (\n    <DatePicker\n      value={value}\n      onChange={setValue}\n      className=\"max-w-xs\"\n      unavailableDates={['2026-03-10', '2026-03-11', '2026-03-20']}\n    />\n  );\n}\nreturn <Demo />;",
+    "Disabled": "<DatePicker value=\"2026-03-15\" onChange={() => {}} disabled className=\"max-w-xs\" />"
+  },
+  "ErrorBoundary": {
+    "DefaultFallback": "<ErrorBoundary>{<Bomb />}</ErrorBoundary>",
+    "CustomFallback": "<ErrorBoundary fallback={<p className=\"p-8\">Custom fallback content.</p>}>{<Bomb />}</ErrorBoundary>",
+    "CustomPalette": "<ErrorBoundary background=\"#1A2C6E\" lineColor=\"#FFFFFF\">{<Bomb />}</ErrorBoundary>"
+  },
+  "Eyebrow": {
+    "Red": "<div className=\"w-full p-6 bg-white dark:bg-(--premium-dark-grey)\">\n  <Eyebrow text=\"Our approach\" tone=\"red\" />\n  <h2 className=\"font-heading font-black text-2xl text-gray-900 dark:text-gray-100 mt-1\">Built on trust</h2>\n</div>",
+    "White": "<div className=\"w-full p-6 bg-(--premium-black)\">\n  <Eyebrow text=\"Our approach\" tone=\"white\" />\n  <h2 className=\"font-heading font-black text-2xl text-white mt-1\">Built on trust</h2>\n</div>",
+    "Amber": "<div className=\"w-full p-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/60\">\n  <Eyebrow text=\"Limited spots\" tone=\"amber\" />\n  <h2 className=\"font-heading font-black text-2xl text-gray-900 dark:text-gray-100 mt-1\">Enrollment closes soon</h2>\n</div>"
+  },
+  "FeatureCard": {
+    "Default": "<div style={{ maxWidth: 280 }}>\n  <FeatureCard icon={<FiMapPin size={22} style={{ color: 'var(--premium-red)' }} />} title=\"Local expertise\">\n    Based nearby, active across the whole region. Your job is a drive, not a mobilization.\n  </FeatureCard>\n</div>",
+    "Centered": "<div style={{ maxWidth: 280 }}>\n  <FeatureCard icon={<FiMapPin size={22} style={{ color: 'var(--premium-red)' }} />} title=\"Local expertise\" align=\"center\">\n    Based nearby, active across the whole region. Your job is a drive, not a mobilization.\n  </FeatureCard>\n</div>",
+    "Grid": "const items = [\n  { icon: FiMapPin, title: 'Local expertise', body: 'Based nearby, active across the whole region. Your job is a drive, not a mobilization.' },\n  { icon: FiAward, title: 'Licensed and insured', body: 'Fully licensed, bonded, and insured on every job we take on.' },\n  { icon: FiCheckCircle, title: 'Free estimates', body: 'A free site visit and evaluation before we commit to a number.' },\n  { icon: FiTag, title: 'Transparent pricing', body: 'Quoted from the plans, in writing, before any work begins.' },\n];\nreturn (\n  <div className=\"grid sm:grid-cols-2 lg:grid-cols-4 gap-5\" style={{ background: '#F2F2F2', padding: 24 }}>\n    {items.map(({ icon: Icon, title, body }) => (\n      <FeatureCard key={title} icon={<Icon size={22} style={{ color: 'var(--premium-red)' }} />} title={title}>\n        {body}\n      </FeatureCard>\n    ))}\n  </div>\n);"
+  },
+  "FieldError": {
+    "Default": "<FieldError message=\"This field is required.\" />",
+    "Empty": "<FieldError message={undefined} />"
+  },
+  "FieldGroup": {
+    "Default": "<FieldGroup title=\"Compensation\" note=\"Visible to admins and finance only.\">{(\n      <div className=\"space-y-3\">\n        <input className=\"input-field w-full\" placeholder=\"Hourly rate\" />\n        <input className=\"input-field w-full\" placeholder=\"Overtime rate\" />\n      </div>\n    )}</FieldGroup>"
+  },
+  "FilterLabel": {
+    "Default": "<FilterLabel text=\"Status\" />"
+  },
+  "FilterPill": {
+    "Active": "<FilterPill label=\"Admin\" onClick={() => {}} active />",
+    "Inactive": "<FilterPill label=\"Admin\" onClick={() => {}} active={false} />"
+  },
+  "FilterRow": {
+    "PlainStringOptions": "function Demo() {\n  const [selected, setSelected] = useState<string[]>(['admin']);\n  return (\n    <FilterRow\n      label=\"Role\"\n      options={['admin', 'manager', 'foreman', 'finance']}\n      selected={selected}\n      onToggle={v => setSelected(s => (s.includes(v) ? s.filter(x => x !== v) : [...s, v]))}\n      onClear={() => setSelected([])}\n      capitalize\n    />\n  );\n}\nreturn <Demo />;",
+    "IdKeyedOptions": "<FilterRow label=\"Division\" options={[{ value: 'd1', label: 'Concrete' }, { value: 'd2', label: 'Aggregates' }]} selected={['d1']} onToggle={() => {}} onClear={() => {}} />"
+  },
+  "Flags": {
+    "Both": "<div className=\"flex items-center gap-4\">\n  <FlagCanada className=\"w-8 h-6 rounded-sm shadow-sm\" />\n  <FlagAcadian className=\"w-8 h-6 rounded-sm shadow-sm\" />\n</div>",
+    "Star": "<AcadianStar className=\"w-16 h-16\" />"
+  },
+  "FormLabel": {
+    "Default": "<FormLabel text=\"Employee name\" />",
+    "Required": "<FormLabel text=\"Employee name\" required />",
+    "Optional": "<FormLabel text=\"Employee name\" optional />"
+  },
+  "Hero": {
+    "WithVideo": "<Hero imageSrc={heroPoster} videoSrc={heroVideo} />",
+    "PosterOnly": "<Hero imageSrc={heroPoster} />",
+    "WithBrandWedge": "<Hero imageSrc={heroPoster} videoSrc={heroVideo} wedge />",
+    "TextOnly": "<Hero />",
+    "AcadianOverlay": "<Hero imageSrc={heroPoster} videoSrc={heroVideo} overlay=\"acadian\" />"
+  },
+  "LanguageToggle": {
+    "Default": "function Demo() {\n  const [lang, setLang] = useState<Lang>('en');\n  return <LanguageToggle names={{ en: 'English', fr: 'Acadian French' }} lang={lang} onChange={setLang} />;\n}\nreturn <Demo />;"
+  },
+  "Layout": {
+    "WithNavbar": "<Layout navbar={<ExampleNavbar />}>\n  <div className=\"bg-white dark:bg-(--premium-dark-grey) rounded-2xl border border-gray-100 dark:border-white/10 p-6\">\n    Page content\n  </div>\n</Layout>",
+    "NoNavbar": "<Layout>{(\n      <div className=\"bg-white dark:bg-(--premium-dark-grey) rounded-2xl border border-gray-100 dark:border-white/10 p-6\">\n        A navbar-less page (e.g. a public design preview)\n      </div>\n    )}</Layout>"
+  },
+  "MediaCard": {
+    "Static": "<div style={{ maxWidth: 260 }}>\n  <MediaCard imageSrc={PLACEHOLDER} imageAlt=\"Adult\" eyebrow=\"Ages 14+\" title=\"Adult\">\n    All levels welcomed. Strength, discipline, and real self-defense, on your own schedule.\n  </MediaCard>\n</div>",
+    "Clickable": "<div style={{ maxWidth: 260 }}>\n  <MediaCard imageSrc={PLACEHOLDER} imageAlt=\"Adult\" eyebrow=\"Ages 14+\" title=\"Adult\" onClick={() => alert('go to contact')}>\n    All levels welcomed. Strength, discipline, and real self-defense, on your own schedule.\n  </MediaCard>\n</div>",
+    "Grid": "const items = [\n  { name: 'Beginner', ages: 'Ages 6-13', body: 'New to judo. Falling safely, balance, and the first throws.' },\n  { name: 'Intermediate', ages: 'Ages 8-13', body: 'A few years of experience, sharpening technique.' },\n  { name: 'Elite', ages: 'Ages 13+', body: 'The competitive program.' },\n  { name: 'Adult', ages: 'Ages 14+', body: 'All levels welcomed, on your own schedule.' },\n];\nreturn (\n  <div className=\"grid sm:grid-cols-2 lg:grid-cols-4 gap-5\" style={{ background: '#fff', padding: 24 }}>\n    {items.map(p => (\n      <MediaCard key={p.name} imageSrc={PLACEHOLDER} imageAlt={p.name} eyebrow={p.ages} title={p.name} onClick={() => {}}>\n        {p.body}\n      </MediaCard>\n    ))}\n  </div>\n);"
+  },
+  "Modal": {
+    "ConfirmDelete": "<Modal onClose={() => {}} title=\"Delete this employee?\" description=\"This cannot be undone.\">\n  <div className=\"flex gap-2\">\n    <button className=\"flex-1 py-2.5 rounded-xl text-white text-sm font-semibold\" style={{ backgroundColor: 'var(--premium-red)' }}>\n      Delete\n    </button>\n    <button className=\"flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/20 text-sm font-medium text-gray-600 dark:text-gray-300\">\n      Cancel\n    </button>\n  </div>\n</Modal>",
+    "TitleOnly": "<Modal onClose={() => {}} title=\"Manage Companies\">\n  <p className=\"text-sm text-gray-500 dark:text-gray-400\">Add, rename, or remove companies here.</p>\n</Modal>",
+    "CustomChildren": "<Modal onClose={() => {}}>\n  <div className=\"flex items-start gap-3 mb-4\">\n    <div className=\"w-10 h-10 rounded-full grid place-items-center shrink-0\" style={{ backgroundColor: 'var(--premium-red)' }}>\n      <FiAlertTriangle size={18} className=\"text-white\" />\n    </div>\n    <div>\n      <h2 className=\"font-heading font-bold text-gray-900 dark:text-gray-100\">Delete this project?</h2>\n      <p className=\"text-xs text-gray-400 dark:text-gray-500 mt-0.5\">This also removes its 12 linked timesheets.</p>\n    </div>\n  </div>\n  <div className=\"flex gap-2\">\n    <button className=\"flex-1 py-2.5 rounded-xl text-white text-sm font-semibold\" style={{ backgroundColor: 'var(--premium-red)' }}>\n      Delete\n    </button>\n    <button className=\"flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/20 text-sm font-medium text-gray-600 dark:text-gray-300\">\n      Cancel\n    </button>\n  </div>\n</Modal>",
+    "WideMaxWidth": "<Modal onClose={() => {}} title=\"Delete this employee?\" description=\"This cannot be undone.\" maxWidth=\"max-w-lg\">\n  <div className=\"flex gap-2\">\n    <button className=\"flex-1 py-2.5 rounded-xl text-white text-sm font-semibold\" style={{ backgroundColor: 'var(--premium-red)' }}>\n      Delete\n    </button>\n    <button className=\"flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/20 text-sm font-medium text-gray-600 dark:text-gray-300\">\n      Cancel\n    </button>\n  </div>\n</Modal>"
+  },
+  "MonthNav": {
+    "InAHeroPageHeader": "function Demo() {\n  const [value, setValue] = useState<string | null>(null);\n  return (\n    <div className=\"w-full max-w-2xl\">\n      <PageHeader>\n        <div className=\"flex flex-wrap items-end justify-between gap-4\">\n          <div>\n            <p className=\"pmg-eyebrow text-white/70 mb-1.5\">My dashboard</p>\n            <h1 className=\"font-heading font-black text-2xl text-white leading-none\">September 2026</h1>\n          </div>\n          <MonthNav value={value} months={['2026-08', '2026-07', '2026-06']} onChange={setValue} variant=\"hero\" />\n        </div>\n      </PageHeader>\n      <div className=\"pmg-stripe h-0.75\" />\n    </div>\n  );\n}\nreturn <Demo />;",
+    "InAStatCard": "function Demo() {\n  const [value, setValue] = useState<string | null>(null);\n  return (\n    <div className=\"w-72\">\n      <StatCard\n        label=\"Hours this month\"\n        value=\"142.5\"\n        icon={FiTrendingUp}\n        hint={<div className=\"-ml-1\"><MonthNav value={value} months={['2026-08', '2026-07']} onChange={setValue} /></div>}\n      />\n    </div>\n  );\n}\nreturn <Demo />;",
+    "BareControl": "function Demo() {\n  const [value, setValue] = useState<string | null>(null);\n  return <MonthNav value={value} onChange={setValue} />;\n}\nreturn <Demo />;",
+    "RestrictedToAvailableMonths": "function Demo() {\n  const [value, setValue] = useState<string | null>(null);\n  return <MonthNav value={value} months={['2026-01', '2025-12', '2025-11']} onChange={setValue} />;\n}\nreturn <Demo />;"
+  },
+  "Navbar": {
+    "FullyComposed": "<Navbar tone=\"black\">\n  <ExampleActions />\n</Navbar>",
+    "AllTones": "<div className=\"dark bg-(--premium-black) p-6 space-y-6 rounded-2xl\">\n  {(Object.keys(NAV_TONES) as NavTone[]).map(tone => (\n    <div key={tone}>\n      <p className=\"pmg-eyebrow text-gray-100 mb-2\">{NAV_TONES[tone].name}</p>\n      <div className=\"rounded-2xl overflow-hidden border border-white/10\">\n        <Navbar tone={tone}>\n          <ExampleActions />\n        </Navbar>\n      </div>\n      <p className=\"text-xs text-gray-400 mt-2 max-w-2xl leading-relaxed\">{NAV_TONES[tone].why}</p>\n    </div>\n  ))}\n</div>"
+  },
+  "NavTile": {
+    "Default": "<NavTile onClick={() => {}} icon={FiUsers} label=\"Employees\" description=\"Manage team members\" />",
+    "Grid": "<div className=\"grid grid-cols-2 gap-3 w-full max-w-lg\">\n  <NavTile icon={FiUsers} label=\"Employees\" description=\"Manage team members\" onClick={() => {}} />\n  <NavTile icon={FiBriefcase} label=\"Projects\" description=\"View and manage projects\" onClick={() => {}} />\n  <NavTile icon={FiShoppingCart} label=\"Purchase Orders\" description=\"Manage purchase orders\" onClick={() => {}} />\n  <NavTile icon={FiClock} label=\"Create Timesheet\" description=\"Log hours for you or a team member\" onClick={() => {}} />\n</div>"
+  },
+  "NotificationBell": {
+    "Notifications": "<NotificationBell icon={FiBell} label=\"Notifications\" title=\"Notifications\" count={3} headerAction={{ label: 'Mark all read', onClick: () => {} }}>{(\n      <>\n        <button className=\"w-full text-left px-4 py-3 flex flex-col gap-0.5 border-b border-gray-50 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition bg-red-50/40 dark:bg-red-900/10\">\n          <span className=\"text-sm font-medium text-gray-900 dark:text-gray-100\">Purchase order #4021 approved</span>\n          <span className=\"text-xs text-gray-500 dark:text-gray-400\">2m ago</span>\n        </button>\n        <button className=\"w-full text-left px-4 py-3 flex flex-col gap-0.5 hover:bg-gray-50 dark:hover:bg-white/5 transition bg-red-50/40 dark:bg-red-900/10\">\n          <span className=\"text-sm font-medium text-gray-900 dark:text-gray-100\">Timesheet rejected - see comments</span>\n          <span className=\"text-xs text-gray-500 dark:text-gray-400\">1h ago</span>\n        </button>\n      </>\n    )}</NotificationBell>",
+    "Empty": "<NotificationBell icon={FiBell} label=\"Notifications\" title=\"Notifications\">{<NotificationBellEmpty>No notifications</NotificationBellEmpty>}</NotificationBell>",
+    "PendingReviewCounts": "<NotificationBell icon={FiClipboard} label=\"Pending review\" title=\"Pending Review\" count={7}>{(\n      <div className=\"p-2\">\n        <button className=\"w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-left\">\n          <span className=\"text-sm text-gray-700 dark:text-gray-200\">Timesheets</span>\n          <span className=\"text-xs font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300\">5</span>\n        </button>\n        <button className=\"w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition text-left\">\n          <span className=\"text-sm text-gray-700 dark:text-gray-200\">Purchase Orders</span>\n          <span className=\"text-xs font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300\">2</span>\n        </button>\n      </div>\n    )}</NotificationBell>",
+    "MessagesWithFooter": "<NotificationBell icon={FiMessageSquare} label=\"Employee messages\" title=\"Messages\" count={1} footer={{ label: 'View all messages', onClick: () => {} }}>{(\n      <button className=\"w-full text-left px-4 py-3 flex flex-col gap-0.5 hover:bg-gray-50 dark:hover:bg-white/5 transition\">\n        <div className=\"flex items-center justify-between gap-2\">\n          <span className=\"text-sm font-medium text-gray-900 dark:text-gray-100\">New safety policy</span>\n          <span className=\"text-[11px] font-bold shrink-0 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300\">1 unread</span>\n        </div>\n        <span className=\"text-xs text-gray-500 dark:text-gray-400 leading-snug\">Please review the updated PPE requirements.</span>\n        <span className=\"text-[11px] text-gray-400 dark:text-gray-500 mt-0.5\">Admin · 3h ago</span>\n      </button>\n    )}</NotificationBell>"
+  },
+  "NumberedCard": {
+    "Steps": "const items = [\n  { title: 'Contact and evaluation', body: 'Free consultation and site evaluation. We quote from the plans and visit the building before committing to a number.' },\n  { title: 'Proposal and scheduling', body: 'A written quote with a clear scope, then a start date that works around your own schedule.' },\n  { title: 'The work, and the walkthrough', body: 'The crew shows up on the day agreed. A final walkthrough before we call it done.' },\n];\nreturn (\n  <div className=\"grid md:grid-cols-3 gap-5\" style={{ background: '#fff', padding: 24 }}>\n    {items.map((p, i) => (\n      <NumberedCard key={p.title} number={i + 1} title={p.title}>{p.body}</NumberedCard>\n    ))}\n  </div>\n);",
+    "CustomColor": "<div style={{ maxWidth: 280, background: '#fff', padding: 24 }}>\n  <NumberedCard number={1} title=\"Try a class\" color=\"#1A2C6E\">\n    Book a free trial class, no commitment required.\n  </NumberedCard>\n</div>"
+  },
+  "OverflowMenu": {
+    "Default": "<OverflowMenu />",
+    "AlignLeft": "<OverflowMenu align=\"left\" />",
+    "OnDark": "<OverflowMenu onDark />"
+  },
+  "PageHeader": {
+    "IndexPage": "<PageHeader backLabel=\"Dashboard\" onBack={() => {}} title=\"Employees\" count={15} actions={(\n      <Button variant=\"onColor\" size=\"sm\" style={{ color: 'var(--premium-red-dark)' }}>\n        <FiPlus size={16} /> Add employee\n      </Button>\n    )} />",
+    "NoActions": "<PageHeader backLabel=\"Dashboard\" onBack={() => {}} title=\"Employees\" count={15} />",
+    "DetailPage": "<PageHeader backLabel=\"Employees\" onBack={() => {}} className=\"py-4\">\n  <div className=\"flex flex-wrap items-start gap-3.5 min-w-0\">\n    <div className=\"w-12 h-12 rounded-xl bg-white/15 grid place-items-center text-white text-lg font-heading font-bold shrink-0\">\n      KJ\n    </div>\n    <div className=\"min-w-0\">\n      <div className=\"flex flex-wrap items-center gap-2 mb-1\">\n        <h1 className=\"font-heading font-black text-2xl text-white leading-none truncate\">Kris Jenkins</h1>\n        {/* The real StatusBadge, not a hand-rolled lookalike pill - just\n            inverted (colorClass) for contrast on the red field. */}\n        <StatusBadge label=\"Foreman\" colorClass=\"bg-white/20 text-white\" />\n      </div>\n      <p className=\"text-sm text-white/75 truncate\">kris.jenkins@premiummg.ca</p>\n    </div>\n  </div>\n</PageHeader>",
+    "CustomPalette": "<PageHeader title=\"Employees\" count={15} color=\"#1A2C6E\" barsColor=\"rgba(0,0,0,0.15)\" />",
+    "CustomCount": "<PageHeader title=\"Employees\" count={15} color=\"#1A2C6E\" countColor=\"#FAAD00\" />",
+    "NoBackLink": "<PageHeader className=\"py-4\">\n  <div className=\"flex flex-wrap items-center gap-3.5 min-w-0\">\n    <div className=\"w-12 h-12 rounded-xl bg-white/15 grid place-items-center text-white text-lg font-heading font-bold shrink-0\">\n      KJ\n    </div>\n    <div className=\"min-w-0\">\n      <h1 className=\"font-heading font-black text-2xl text-white leading-none truncate\">Kris Jenkins</h1>\n      <p className=\"text-sm text-white/75 truncate\">Foreman</p>\n    </div>\n  </div>\n</PageHeader>"
+  },
+  "Pagination": {
+    "Default": "function Demo() {\n  const [page, setPage] = useState(2);\n  return <Pagination page={page} totalPages={5} total={98} limit={20} onPageChange={setPage} />;\n}\nreturn <Demo />;",
+    "SinglePage": "<div>\n  <p className=\"text-xs text-gray-400 mb-2\">Nothing renders below this line:</p>\n  <Pagination page={1} totalPages={1} total={8} limit={20} onPageChange={() => {}} />\n</div>",
+    "SinglePageWithChildren": "<Pagination page={1} totalPages={1} total={8} limit={20} onPageChange={() => {}}>\n  <button className=\"text-(--premium-red) hover:underline font-medium\">Export all</button>\n</Pagination>"
+  },
+  "PasswordInput": {
+    "Default": "<PasswordInput label=\"Password\" registration={{ name: 'password' }} />",
+    "WithIcon": "<PasswordInput label=\"Password\" registration={{ name: 'password' }} icon={FiLock} />",
+    "WithError": "<PasswordInput label=\"Password\" registration={{ name: 'password' }} error=\"Incorrect password\" />",
+    "WithHint": "<PasswordInput label=\"Password\" registration={{ name: 'password' }} hint=\"8 of 12 characters\" />"
+  },
+  "PortraitFigure": {
+    "Red": "<PortraitFigure imageSrc={PLACEHOLDER} name=\"Denis Collin\" role=\"Founder\" />",
+    "CustomColor": "<PortraitFigure imageSrc={PLACEHOLDER} name=\"Denis Collin\" role=\"Founder\" color=\"#1A2C6E\" />"
+  },
+  "PremiumLogo": {
+    "Stacked": "<PremiumLogo variant=\"stacked\" size=\"lg\" />",
+    "Horizontal": "<PremiumLogo variant=\"horizontal\" size=\"md\" />",
+    "PinnedDarkOnAFixedSurface": "<PremiumLogo variant=\"horizontal\" size=\"sm\" mode=\"dark\" />"
+  },
+  "QuoteCard": {
+    "Single": "<div style={{ maxWidth: 340 }}>\n  <QuoteCard quote=\"Called them for a quote and they showed up without hesitation.\" name=\"Kris J.\" />\n</div>",
+    "Grid": "const items = [\n  { quote: 'Called them for a quote and they showed up without hesitation.', name: 'Kris J.' },\n  { quote: 'Quality workmanship and a smooth process from start to finish.', name: 'Jaclyn M.' },\n  { quote: 'As a bystander during the replumbing of our building, I was impressed.', name: 'John H.' },\n  { quote: 'Had caulking done to my house. It gives me peace of mind.', name: 'Brittany G.' },\n];\nreturn (\n  <div className=\"grid sm:grid-cols-2 gap-5\" style={{ background: '#F2F2F2', padding: 24 }}>\n    {items.map(r => (\n      <QuoteCard key={r.name} quote={r.quote} name={r.name} />\n    ))}\n  </div>\n);"
+  },
+  "RankBadge": {
+    "RoleRamp": "<div className=\"flex flex-wrap gap-2\">\n  {ROLE_LEVELS.map(role => (\n    <RankBadge key={role} value={role} levels={ROLE_LEVELS} />\n  ))}\n</div>",
+    "CustomRamp": "<div className=\"flex flex-wrap gap-2\">\n  {PRIORITY_LEVELS.map(p => (\n    <RankBadge key={p} value={p} levels={PRIORITY_LEVELS} color=\"#1A2C6E\" />\n  ))}\n</div>",
+    "UnmappedValue": "<RankBadge value=\"contractor\" levels={ROLE_LEVELS} />",
+    "ManualStyles": "<div className=\"flex flex-wrap gap-2\">\n  <RankBadge value=\"low\" label=\"Low\" styles={MANUAL_STYLES} />\n  <RankBadge value=\"medium\" label=\"Medium\" styles={MANUAL_STYLES} />\n  <RankBadge value=\"high\" label=\"High\" styles={MANUAL_STYLES} />\n  <RankBadge value=\"urgent\" label=\"Urgent\" styles={MANUAL_STYLES} />\n</div>"
+  },
+  "Reveal": {
+    "Default": "<Reveal>{(\n      <div className=\"p-6 rounded-2xl bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 max-w-sm\">\n        <p className=\"font-heading font-bold text-gray-900 dark:text-gray-100\">Revealed content</p>\n        <p className=\"text-sm text-gray-500 dark:text-gray-400 mt-1\">Fades and lifts in once, the first time this scrolls into view.</p>\n      </div>\n    )}</Reveal>",
+    "Staggered": "<div className=\"space-y-3\">\n  {[0, 150, 300].map(delay => (\n    <Reveal key={delay} delay={delay} className=\"block\">\n      <div className=\"p-4 rounded-xl bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 max-w-sm\">\n        delay={delay}ms\n      </div>\n    </Reveal>\n  ))}\n</div>"
+  },
+  "ScrollableTable": {
+    "Default": "<ScrollableTable maxHeight=\"200px\">{(\n      <table>\n        <tbody>\n          {Array.from({ length: 20 }, (_, i) => (\n            <tr key={i}><td className=\"px-4 py-2 whitespace-nowrap\">Row {i + 1} - a fairly wide cell of content</td></tr>\n          ))}\n        </tbody>\n      </table>\n    )}</ScrollableTable>"
+  },
+  "SearchInput": {
+    "Default": "function Demo() {\n  const [value, setValue] = useState('');\n  return <SearchInput value={value} onChange={setValue} placeholder=\"Search employees…\" />;\n}\nreturn <Demo />;"
+  },
+  "SectionHead": {
+    "Default": "<SectionHead eyebrow=\"Our approach\" title=\"Built with heart, run with discipline.\" sub=\"Every project gets the same crew, the same standards, and a straight answer when something changes.\" />",
+    "Centered": "<SectionHead eyebrow=\"Our approach\" title=\"Built with heart, run with discipline.\" sub=\"Every project gets the same crew, the same standards, and a straight answer when something changes.\" center />",
+    "DarkTone": "<SectionHead eyebrow=\"Our approach\" title=\"Built with heart, run with discipline.\" sub=\"Every project gets the same crew, the same standards, and a straight answer when something changes.\" tone=\"dark\" />"
+  },
+  "SegmentedControl": {
+    "FulfillmentMethod": "function Demo() {\n  const [value, setValue] = useState<'delivery' | 'pickup' | null>(null);\n  return (\n    <SegmentedControl\n      options={[\n        { value: 'delivery', label: 'Delivery', icon: FiTruck },\n        { value: 'pickup', label: 'Pickup', icon: FiPackage },\n      ]}\n      value={value}\n      onChange={setValue}\n    />\n  );\n}\nreturn <Demo />;",
+    "NoIcons": "function Demo() {\n  const [value, setValue] = useState<'weekly' | 'biweekly' | 'monthly' | null>('weekly');\n  return (\n    <SegmentedControl\n      options={[\n        { value: 'weekly', label: 'Weekly' },\n        { value: 'biweekly', label: 'Biweekly' },\n        { value: 'monthly', label: 'Monthly' },\n      ]}\n      value={value}\n      onChange={setValue}\n    />\n  );\n}\nreturn <Demo />;"
+  },
+  "SiteButton": {
+    "Primary": "<SiteButton variant=\"primary\">Get an estimate</SiteButton>",
+    "Ghost": "<SiteButton variant=\"ghost\">Get an estimate</SiteButton>",
+    "OnRed": "<SiteButton variant=\"onRed\">Get an estimate</SiteButton>",
+    "OnDark": "<SiteButton variant=\"onDark\">Get an estimate</SiteButton>"
+  },
+  "SiteFooter": {
+    "FourColumns": "<SiteFooter\n  copyright={`© ${new Date().getFullYear()} Premium MG. All rights reserved.`}\n  legalLinks={\n    <>\n      <button className=\"hover:text-white/80 transition\">Terms</button>\n      <button className=\"hover:text-white/80 transition\">Privacy</button>\n    </>\n  }\n>\n  <FooterColumn>\n    <p className=\"font-heading font-black text-white text-lg mb-5\">PREMIUM</p>\n    <p className=\"text-sm leading-relaxed\">123 Main St, Moncton, NB</p>\n    <p className=\"pmg-eyebrow text-white/40 mt-6 mb-2\">Service area</p>\n    <p className=\"text-sm leading-relaxed\">Atlantic Canada / the Maritimes</p>\n  </FooterColumn>\n\n  <FooterColumn label=\"Services\">\n    <ul className=\"space-y-2.5 text-sm\">\n      <li><button className=\"hover:text-white transition\">Framing</button></li>\n      <li><button className=\"hover:text-white transition\">Drywall</button></li>\n      <li><button className=\"hover:text-white transition\">Painting</button></li>\n    </ul>\n  </FooterColumn>\n\n  <FooterColumn label=\"Contact\">\n    <ul className=\"space-y-2.5 text-sm\">\n      <li><a href=\"tel:+18665315402\" className=\"inline-flex items-center gap-2 hover:text-white transition\"><FiPhone size={14} /> +1 866 531 5402</a></li>\n      <li><a href=\"mailto:info@premiummg.ca\" className=\"inline-flex items-center gap-2 hover:text-white transition\"><FiMail size={14} /> info@premiummg.ca</a></li>\n    </ul>\n  </FooterColumn>\n\n  <FooterColumn label=\"Newsletter\">\n    <p className=\"text-sm leading-relaxed mb-4\">Get project tips and company news.</p>\n    <div className=\"flex gap-2\">\n      <input placeholder=\"Email address\" className=\"min-w-0 flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/15 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-white/40 transition\" />\n      <button className=\"shrink-0 px-3.5 py-2 rounded-lg bg-(--premium-red) hover:bg-(--premium-red-dark) text-white text-sm font-heading font-bold transition\">Sign up</button>\n    </div>\n  </FooterColumn>\n</SiteFooter>"
+  },
+  "SortableColumnHeader": {
+    "Active": "<SortableColumnHeader col=\"name\" label=\"Name\" sortBy=\"name\" sortDir=\"asc\" onSort={() => {}} />",
+    "Inactive": "<SortableColumnHeader col=\"name\" label=\"Name\" sortBy=\"date\" sortDir=\"asc\" onSort={() => {}} />"
+  },
+  "StatBlock": {
+    "Row": "<div className=\"grid sm:grid-cols-3 gap-5\" style={{ maxWidth: 480, background: '#F2F2F2', padding: 24 }}>\n  <StatBlock value=\"56%\" label=\"Openness to new ideas\" />\n  <StatBlock value=\"43%\" label=\"Confidence under pressure\" />\n  <StatBlock value=\"61%\" label=\"Discipline and focus\" />\n</div>",
+    "CustomColor": "<div style={{ maxWidth: 200, background: '#F2F2F2', padding: 24 }}>\n  <StatBlock value=\"56%\" label=\"Openness to new ideas\" color=\"#1A2C6E\" />\n</div>"
+  },
+  "StatCard": {
+    "Grid": "<>\n  <StatCard label=\"Hours this week\" value=\"38.2\" hint=\"this week\" />\n  <StatCard label=\"Hours this month\" value=\"142.5\" hint=\"this month\" />\n  <StatCard label=\"Pending\" value=\"3\" hint=\"awaiting review\" accent=\"amber\" onClick={() => {}} />\n  <StatCard label=\"Flagged\" value=\"0\" hint=\"still open\" />\n</>",
+    "Default": "<StatCard label=\"Hours this week\" value=\"38.2\" hint=\"this week\" />",
+    "Amber": "<StatCard label=\"Pending\" value=\"3\" hint=\"awaiting review\" accent=\"amber\" />",
+    "Clickable": "<StatCard label=\"Open POs\" value=\"5\" hint=\"in progress\" onClick={() => {}} />",
+    "WithIcon": "<StatCard label=\"Hours this month\" value=\"142.5\" icon={FiTrendingUp} />"
+  },
+  "StatusBadge": {
+    "Approved": "<StatusBadge label=\"approved\" tone=\"success\" />",
+    "Pending": "<StatusBadge label=\"pending\" tone=\"warning\" />",
+    "Rejected": "<StatusBadge label=\"rejected\" tone=\"error\" />",
+    "Inactive": "<StatusBadge label=\"inactive\" tone=\"neutral\" />",
+    "CustomColorClass": "<StatusBadge label=\"flagged\" colorClass=\"bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400\" />"
+  },
+  "StatusDot": {
+    "Active": "<StatusDot active />",
+    "Inactive": "<StatusDot active={false} />",
+    "GloballyDeactivated": "<StatusDot active identityActive={false} />",
+    "Presence": "<div className=\"relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-(--premium-red) text-white text-sm font-heading font-bold\">\n  KJ\n  <StatusDot active variant=\"presence\" />\n</div>"
+  },
+  "TablePlaceholderRow": {
+    "Empty": "<TablePlaceholderRow colSpan={4} />",
+    "Loading": "<TablePlaceholderRow colSpan={4} loading />",
+    "LoadingSmall": "<TablePlaceholderRow colSpan={4} loading size=\"sm\" />",
+    "LoadingLarge": "<TablePlaceholderRow colSpan={4} loading size=\"lg\" />"
+  },
+  "Toaster": {
+    "Default": "function Demo() {\n  const { toast } = useToast();\n  return (\n    <div className=\"flex gap-2\">\n      <button className={`${BUTTON_CLASSES.success} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Purchase order approved.', 'success')}>Success</button>\n      <button className={`${BUTTON_CLASSES.error} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Something needs your attention.', 'error')}>Error</button>\n      <button className={`${BUTTON_CLASSES.warning} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('This timesheet is over budget.', 'warning')}>Warning</button>\n      <button className={`${BUTTON_CLASSES.info} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Backdated timesheets are disabled.', 'info')}>Info</button>\n      <Toaster />\n    </div>\n  );\n}\nreturn <Demo />;"
+  },
+  "UnitField": {
+    "Default": "function Demo() {\n  const [value, setValue] = useState('pcs');\n  return <UnitField value={value} onChange={setValue} className=\"input-field\" />;\n}\nreturn <Demo />;",
+    "CustomOptionsList": "function Demo() {\n  const [value, setValue] = useState('each');\n  return <UnitField value={value} onChange={setValue} className=\"input-field\" options={['each', 'dozen', 'gross', 'pallet']} />;\n}\nreturn <Demo />;",
+    "AlreadyACustomValue": "function Demo() {\n  const [value, setValue] = useState('shipping containers');\n  return <UnitField value={value} onChange={setValue} className=\"input-field\" />;\n}\nreturn <Demo />;",
+    "Lowercase": "function Demo() {\n  const [value, setValue] = useState('kg');\n  return <UnitField value={value} onChange={setValue} className=\"input-field\" capitalize={false} />;\n}\nreturn <Demo />;"
+  },
+  "WeekNav": {
+    "InAHeroPageHeader": "function Demo() {\n  const [value, setValue] = useState<string | null>(null);\n  return (\n    <div className=\"w-full max-w-2xl\">\n      <PageHeader>\n        <div className=\"flex flex-wrap items-end justify-between gap-4\">\n          <div>\n            <p className=\"pmg-eyebrow text-white/70 mb-1.5\">My dashboard</p>\n            <h1 className=\"font-heading font-black text-2xl text-white leading-none\">This week</h1>\n          </div>\n          <WeekNav value={value} onChange={setValue} variant=\"hero\" align=\"left\" />\n        </div>\n      </PageHeader>\n      <div className=\"pmg-stripe h-0.75\" />\n    </div>\n  );\n}\nreturn <Demo />;",
+    "InAStatCard": "function Demo() {\n  const [value, setValue] = useState<string | null>(null);\n  return (\n    <div className=\"w-72\">\n      <StatCard\n        label=\"Hours this week\"\n        value=\"38.2\"\n        icon={FiClock}\n        hint={<div className=\"-ml-1\"><WeekNav value={value} onChange={setValue} align=\"left\" /></div>}\n      />\n    </div>\n  );\n}\nreturn <Demo />;",
+    "BareControl": "function Demo() {\n  const [value, setValue] = useState<string | null>(null);\n  return <WeekNav value={value} onChange={setValue} />;\n}\nreturn <Demo />;"
+  }
+}

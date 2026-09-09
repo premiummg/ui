@@ -6,7 +6,7 @@ const meta: Meta<typeof Button> = {
   component: Button,
   args: { children: 'Save changes' },
   argTypes: {
-    variant: { control: 'select', options: ['primary', 'secondary', 'danger'] },
+    variant: { control: 'select', options: ['primary', 'secondary', 'danger', 'onColor'] },
     size: { control: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
   },
 };
@@ -17,6 +17,18 @@ type Story = StoryObj<typeof Button>;
 export const Primary: Story = { args: { variant: 'primary' } };
 export const Secondary: Story = { args: { variant: 'secondary', children: 'Cancel' } };
 export const Danger: Story = { args: { variant: 'danger', children: 'Delete' } };
+
+// A white pill for app chrome that itself sits on a solid colored field
+// (PageHeader's own `actions` slot, see its own IndexPage story) - no fixed
+// text color on the variant itself, so it's supplied here via style, the
+// same way SiteButton's onRed/onDark do for the marketing-page equivalent.
+export const OnColor: Story = {
+  render: () => (
+    <div className="pmg-field p-6 rounded-xl">
+      <Button variant="onColor" style={{ color: 'var(--premium-red-dark)' }}>Add employee</Button>
+    </div>
+  ),
+};
 export const Small: Story = { args: { size: 'sm' } };
 export const ExtraSmall: Story = { args: { size: 'xs', children: 'Reorder' } };
 // Same size SiteButton's own hero CTA ships today, just available on this

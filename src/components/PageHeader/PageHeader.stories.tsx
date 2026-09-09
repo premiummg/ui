@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { FiPlus } from 'react-icons/fi';
 import { PageHeader } from './PageHeader';
+import { StatusBadge } from '../StatusBadge';
+import { Button } from '../Button';
 
 const meta: Meta<typeof PageHeader> = {
   title: 'Components/PageHeader',
@@ -27,13 +29,13 @@ export const IndexPage: Story = {
     onBack: () => {},
     title: 'Employees',
     count: 15,
+    // The real Button, variant="onColor" - not a hand-rolled white pill.
+    // No fixed text color on the variant itself (the field it sits on isn't
+    // always red - see CustomPalette below), so it's supplied here via style.
     actions: (
-      <button
-        className="inline-flex items-center gap-2 px-3 h-9 rounded-lg bg-white text-sm font-semibold hover:bg-white/90 transition"
-        style={{ color: 'var(--premium-red-dark)' }}
-      >
+      <Button variant="onColor" size="sm" style={{ color: 'var(--premium-red-dark)' }}>
         <FiPlus size={16} /> Add employee
-      </button>
+      </Button>
     ),
   },
 };
@@ -55,15 +57,33 @@ export const DetailPage: Story = {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="font-heading font-black text-2xl text-white leading-none truncate">Kris Jenkins</h1>
-            <span className="inline-block px-2.5 py-1 rounded-full bg-white/20 text-white font-heading font-bold uppercase tracking-wider text-[10px] leading-none">
-              Foreman
-            </span>
+            {/* The real StatusBadge, not a hand-rolled lookalike pill - just
+                inverted (colorClass) for contrast on the red field. */}
+            <StatusBadge label="Foreman" colorClass="bg-white/20 text-white" />
           </div>
           <p className="text-sm text-white/75 truncate">kris.jenkins@premiummg.ca</p>
         </div>
       </div>
     </PageHeader>
   ),
+};
+
+// A sister brand's own palette on the same shell - color/barsColor take any
+// CSS color, independent of each other, same idea as ColorField's own
+// color/barsColor.
+export const CustomPalette: Story = {
+  args: {
+    title: 'Employees', count: 15, color: '#1A2C6E', barsColor: 'rgba(0,0,0,0.15)',
+  },
+};
+
+// countColor styles the count independently of title/color/barsColor - the
+// default white/70 assumes a dark-enough field, which isn't guaranteed once
+// color itself is customized.
+export const CustomCount: Story = {
+  args: {
+    title: 'Employees', count: 15, color: '#1A2C6E', countColor: '#FAAD00',
+  },
 };
 
 // No drill-down to go back to (e.g. a top-level account/profile page) -

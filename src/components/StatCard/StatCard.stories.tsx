@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { FiTrendingUp } from 'react-icons/fi';
 import { StatCard } from './StatCard';
 
 const meta: Meta<typeof StatCard> = {
@@ -24,3 +25,8 @@ export const Grid: Story = {
 export const Default: Story = { args: { label: 'Hours this week', value: '38.2', hint: 'this week' } };
 export const Amber: Story = { args: { label: 'Pending', value: '3', hint: 'awaiting review', accent: 'amber' } };
 export const Clickable: Story = { args: { label: 'Open POs', value: '5', hint: 'in progress', onClick: () => {} } };
+
+// icon is purely decorative; hint takes a real element, not just a caption
+// string - see MonthNav/WeekNav's own InAStatCard stories for the actual
+// reason that matters: a period picker replacing the caption in place.
+export const WithIcon: Story = { args: { label: 'Hours this month', value: '142.5', icon: FiTrendingUp } };

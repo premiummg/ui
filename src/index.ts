@@ -17,7 +17,7 @@ export { CountBadge } from './components/CountBadge';
 export type { CountBadgeProps } from './components/CountBadge';
 
 export { StatusBadge } from './components/StatusBadge';
-export type { StatusBadgeProps } from './components/StatusBadge';
+export type { StatusBadgeProps, StatusBadgeTone } from './components/StatusBadge';
 
 export { StatusDot } from './components/StatusDot';
 export type { StatusDotProps } from './components/StatusDot';

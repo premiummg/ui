@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+@import "../../src/styles.css";
+
+body {
+  @apply bg-[#F2F2F2] dark:bg-(--premium-black) text-gray-900 dark:text-gray-100;
+}
+
+/* Code blocks stay dark regardless of the site's own light/dark mode - the
+   same choice most docs sites (and editors) make, since syntax colors are
+   themselves tuned for one background, not both. Font matches the rest of
+   the codebase's own monospace choice (ui-monospace stack), not Prism's
+   default serif-adjacent fallback. */
+.code-block {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #d4d4d4;
+}
+.code-block .token.comment { color: #6a9955; }
+.code-block .token.string,
+.code-block .token.attr-value { color: #ce9178; }
+.code-block .token.keyword { color: #569cd6; }
+.code-block .token.boolean,
+.code-block .token.number { color: #b5cea8; }
+.code-block .token.function { color: #dcdcaa; }
+.code-block .token.tag,
+.code-block .token.class-name { color: #4ec9b0; }
+.code-block .token.attr-name { color: #9cdcfe; }
+.code-block .token.punctuation,
+.code-block .token.operator { color: #d4d4d4; }
+.code-block .token.plain-text { color: #d4d4d4; }
