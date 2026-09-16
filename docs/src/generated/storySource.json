@@ -5,10 +5,20 @@
     "Warning": "<Alert variant=\"warning\" text=\"This timesheet is over budget.\" />",
     "Info": "<Alert variant=\"info\" text=\"Backdated timesheets are disabled for this division.\" />"
   },
+  "AttachmentTile": {
+    "Pdf": "<div className=\"max-w-sm\"><AttachmentTile onDownload={() => {}} name=\"Q3-report.pdf\" size=\"1.2 MB\" type=\"pdf\" /></div>",
+    "ImagePlaceholder": "<div className=\"max-w-sm\"><AttachmentTile onDownload={() => {}} name=\"site-photo.jpg\" size=\"840 KB\" type=\"image\" /></div>",
+    "OtherType": "<div className=\"max-w-sm\"><AttachmentTile onDownload={() => {}} name=\"notes.txt\" size=\"2 KB\" type=\"other\" /></div>"
+  },
   "AuthShell": {
     "SignIn": "<AuthShell eyebrow=\"Sign in\">{(\n      <div className=\"space-y-4\">\n        <input className=\"input-field w-full\" placeholder=\"Email\" />\n        <input className=\"input-field w-full\" type=\"password\" placeholder=\"Password\" />\n        <button className=\"btn-primary w-full py-2.5\">Sign in</button>\n      </div>\n    )}</AuthShell>",
     "WithError": "<AuthShell eyebrow=\"Sign in\">{(\n      <div className=\"space-y-4\">\n        <AuthError message=\"Incorrect email or password.\" />\n        <input className=\"input-field w-full\" placeholder=\"Email\" />\n        <input className=\"input-field w-full\" type=\"password\" placeholder=\"Password\" />\n        <button className=\"btn-primary w-full py-2.5\">Sign in</button>\n      </div>\n    )}</AuthShell>",
     "TwoFactor": "<AuthShell eyebrow=\"Two-factor authentication\">{(\n      <div className=\"space-y-4\">\n        <p className=\"text-sm text-gray-500 dark:text-gray-400\">Enter the 6-digit code from your authenticator app.</p>\n        <input className=\"input-field w-full text-center tracking-[0.5em]\" placeholder=\"000000\" maxLength={6} />\n        <button className=\"btn-primary w-full py-2.5\">Verify</button>\n      </div>\n    )}</AuthShell>"
+  },
+  "Avatar": {
+    "Default": "<Avatar fullName=\"Jordan Reid\" />",
+    "Sizes": "<div className=\"flex items-end gap-3\">\n  <Avatar fullName=\"Jordan Reid\" size={24} />\n  <Avatar fullName=\"Jordan Reid\" size={32} />\n  <Avatar fullName=\"Jordan Reid\" size={40} />\n  <Avatar fullName=\"Jordan Reid\" size={56} />\n</div>",
+    "CustomColors": "<div className=\"flex items-end gap-3\">\n  <Avatar fullName=\"Jordan Reid\" color=\"#2563eb\" />\n  <Avatar fullName=\"Alex Chen\" color=\"#059669\" />\n  <Avatar fullName=\"Sam Okafor\" color=\"#d97706\" />\n</div>"
   },
   "Button": {
     "Primary": "<Button variant=\"primary\">Save changes</Button>",
@@ -31,6 +41,11 @@
     "Blue": "<ColorField color=\"#1A2C6E\">\n  <CtaContent />\n</ColorField>",
     "CustomBars": "<ColorField color=\"#FAAD00\" barsColor=\"rgba(0,0,0,0.15)\">\n  <CtaContent />\n</ColorField>"
   },
+  "ConfirmDialog": {
+    "Danger": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"danger\" onClick={() => setOpen(true)}>Delete employee</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        tone=\"danger\"\n        icon={FiTrash2}\n        title=\"Delete this employee?\"\n        message=\"This removes their access immediately. Their timesheet history is kept.\"\n        confirmLabel=\"Delete\"\n      />\n    </>\n  );\n}\nreturn <Demo />;",
+    "Caution": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Deactivate account</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        tone=\"caution\"\n        icon={FiAlertTriangle}\n        title=\"Deactivate this account?\"\n        message=\"They can be reactivated later from the same page.\"\n        confirmLabel=\"Deactivate\"\n      />\n    </>\n  );\n}\nreturn <Demo />;",
+    "CustomActions": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Close without saving</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        tone=\"caution\"\n        icon={FiSave}\n        title=\"Unsaved changes\"\n        message=\"You have changes that haven't been saved yet.\"\n        actions={[\n          { label: 'Save draft', variant: 'primary', onClick: () => setOpen(false) },\n          { label: 'Discard', variant: 'danger', onClick: () => setOpen(false) },\n          { label: 'Cancel', variant: 'secondary', onClick: () => setOpen(false) },\n        ]}\n      />\n    </>\n  );\n}\nreturn <Demo />;"
+  },
   "CountBadge": {
     "Default": "<CountBadge count={128} />",
     "Overflow": "<CountBadge count=\"99+\" />"
@@ -50,7 +65,7 @@
   "ErrorBoundary": {
     "DefaultFallback": "<ErrorBoundary>{<Bomb />}</ErrorBoundary>",
     "CustomFallback": "<ErrorBoundary fallback={<p className=\"p-8\">Custom fallback content.</p>}>{<Bomb />}</ErrorBoundary>",
-    "CustomPalette": "<ErrorBoundary background=\"#1A2C6E\" lineColor=\"#FFFFFF\">{<Bomb />}</ErrorBoundary>"
+    "CustomPalette": "<ErrorBoundary color=\"#1A2C6E\" barsColor=\"#FFFFFF\">{<Bomb />}</ErrorBoundary>"
   },
   "Eyebrow": {
     "Red": "<div className=\"w-full p-6 bg-white dark:bg-(--premium-dark-grey)\">\n  <Eyebrow text=\"Our approach\" tone=\"red\" />\n  <h2 className=\"font-heading font-black text-2xl text-gray-900 dark:text-gray-100 mt-1\">Built on trust</h2>\n</div>",
@@ -69,6 +84,13 @@
   "FieldGroup": {
     "Default": "<FieldGroup title=\"Compensation\" note=\"Visible to admins and finance only.\">{(\n      <div className=\"space-y-3\">\n        <input className=\"input-field w-full\" placeholder=\"Hourly rate\" />\n        <input className=\"input-field w-full\" placeholder=\"Overtime rate\" />\n      </div>\n    )}</FieldGroup>"
   },
+  "FileDropzone": {
+    "Default": "function Demo() {\n  const [files, setFiles] = useState<File[]>([]);\n  return (\n    <div className=\"space-y-3 max-w-sm\">\n      <FileDropzone onFiles={picked => setFiles(prev => [...prev, ...picked])} />\n      {files.map((f, i) => (\n        <FilePill key={i} name={f.name} onRemove={() => setFiles(prev => prev.filter((_, j) => j !== i))} />\n      ))}\n    </div>\n  );\n}\nreturn <Demo />;",
+    "WithSizeLimit": "function Demo() {\n  const [files, setFiles] = useState<File[]>([]);\n  return (\n    <div className=\"space-y-3 max-w-sm\">\n      <FileDropzone\n        onFiles={picked => setFiles(prev => [...prev, ...picked])}\n        maxSizeMB={5}\n        hint=\"PDF, images… up to 5MB each\"\n      />\n      {files.map((f, i) => (\n        <FilePill key={i} name={f.name} onRemove={() => setFiles(prev => prev.filter((_, j) => j !== i))} />\n      ))}\n    </div>\n  );\n}\nreturn <Demo />;"
+  },
+  "FilePill": {
+    "Default": "<div className=\"max-w-xs\">\n  <FilePill name=\"Q3-invoice.pdf\" onRemove={() => {}} />\n</div>"
+  },
   "FilterLabel": {
     "Default": "<FilterLabel text=\"Status\" />"
   },
@@ -82,6 +104,7 @@
   },
   "Flags": {
     "Both": "<div className=\"flex items-center gap-4\">\n  <FlagCanada className=\"w-8 h-6 rounded-sm shadow-sm\" />\n  <FlagAcadian className=\"w-8 h-6 rounded-sm shadow-sm\" />\n</div>",
+    "FrenchAlternatives": "<div className=\"flex items-center gap-4\">\n  <FlagAcadian className=\"w-8 h-6 rounded-sm shadow-sm\" />\n  <FlagQuebec className=\"w-8 h-6 rounded-sm shadow-sm\" />\n</div>",
     "Star": "<AcadianStar className=\"w-16 h-16\" />"
   },
   "FormLabel": {
@@ -97,7 +120,8 @@
     "AcadianOverlay": "<Hero imageSrc={heroPoster} videoSrc={heroVideo} overlay=\"acadian\" />"
   },
   "LanguageToggle": {
-    "Default": "function Demo() {\n  const [lang, setLang] = useState<Lang>('en');\n  return <LanguageToggle names={{ en: 'English', fr: 'Acadian French' }} lang={lang} onChange={setLang} />;\n}\nreturn <Demo />;"
+    "Default": "function Demo() {\n  const [lang, setLang] = useState<Lang>('en');\n  return <LanguageToggle names={{ en: 'English', fr: 'Acadian French' }} lang={lang} onChange={setLang} />;\n}\nreturn <Demo />;",
+    "QuebecFlag": "function Demo() {\n  const [lang, setLang] = useState<Lang>('fr');\n  return <LanguageToggle names={{ en: 'English', fr: 'Français' }} quebecFlag lang={lang} onChange={setLang} />;\n}\nreturn <Demo />;"
   },
   "Layout": {
     "WithNavbar": "<Layout navbar={<ExampleNavbar />}>\n  <div className=\"bg-white dark:bg-(--premium-dark-grey) rounded-2xl border border-gray-100 dark:border-white/10 p-6\">\n    Page content\n  </div>\n</Layout>",
@@ -127,6 +151,11 @@
   "NavTile": {
     "Default": "<NavTile onClick={() => {}} icon={FiUsers} label=\"Employees\" description=\"Manage team members\" />",
     "Grid": "<div className=\"grid grid-cols-2 gap-3 w-full max-w-lg\">\n  <NavTile icon={FiUsers} label=\"Employees\" description=\"Manage team members\" onClick={() => {}} />\n  <NavTile icon={FiBriefcase} label=\"Projects\" description=\"View and manage projects\" onClick={() => {}} />\n  <NavTile icon={FiShoppingCart} label=\"Purchase Orders\" description=\"Manage purchase orders\" onClick={() => {}} />\n  <NavTile icon={FiClock} label=\"Create Timesheet\" description=\"Log hours for you or a team member\" onClick={() => {}} />\n</div>"
+  },
+  "NewsTicker": {
+    "Default": "<NewsTicker items={[\n      { id: 1, title: 'New parking policy effective September 1', important: false },\n      { id: 2, title: 'Q3 all-hands moved to the Dieppe head office', important: true },\n      { id: 3, title: 'Benefits enrollment closes Friday', important: false },\n      { id: 4, title: 'Site safety audit results published', important: false },\n    ]} />",
+    "CustomLabel": "<NewsTicker items={[\n      { id: 1, title: 'New parking policy effective September 1', important: false },\n      { id: 2, title: 'Q3 all-hands moved to the Dieppe head office', important: true },\n      { id: 3, title: 'Benefits enrollment closes Friday', important: false },\n      { id: 4, title: 'Site safety audit results published', important: false },\n    ]} label=\"Announcements\" />",
+    "WithLinks": "<NewsTicker items={[\n      { id: 1, title: 'New parking policy effective September 1', href: '#' },\n      { id: 2, title: 'Q3 all-hands moved to the Dieppe head office', important: true, href: '#' },\n      { id: 3, title: 'Benefits enrollment closes Friday' },\n    ]} />"
   },
   "NotificationBell": {
     "Notifications": "<NotificationBell icon={FiBell} label=\"Notifications\" title=\"Notifications\" count={3} headerAction={{ label: 'Mark all read', onClick: () => {} }}>{(\n      <>\n        <button className=\"w-full text-left px-4 py-3 flex flex-col gap-0.5 border-b border-gray-50 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition bg-red-50/40 dark:bg-red-900/10\">\n          <span className=\"text-sm font-medium text-gray-900 dark:text-gray-100\">Purchase order #4021 approved</span>\n          <span className=\"text-xs text-gray-500 dark:text-gray-400\">2m ago</span>\n        </button>\n        <button className=\"w-full text-left px-4 py-3 flex flex-col gap-0.5 hover:bg-gray-50 dark:hover:bg-white/5 transition bg-red-50/40 dark:bg-red-900/10\">\n          <span className=\"text-sm font-medium text-gray-900 dark:text-gray-100\">Timesheet rejected - see comments</span>\n          <span className=\"text-xs text-gray-500 dark:text-gray-400\">1h ago</span>\n        </button>\n      </>\n    )}</NotificationBell>",
@@ -191,6 +220,9 @@
   "SearchInput": {
     "Default": "function Demo() {\n  const [value, setValue] = useState('');\n  return <SearchInput value={value} onChange={setValue} placeholder=\"Search employees…\" />;\n}\nreturn <Demo />;"
   },
+  "SearchPicker": {
+    "Default": "function Demo() {\n  const [value, setValue] = useState<PickerItem | null>(null);\n  return <div className=\"max-w-sm\"><SearchPicker placeholder=\"Search employees…\" groups={[\n  {\n    label: 'Foremen',\n    items: [\n      { id: '1', label: 'Michael Stafford', sub: 'Drywall' },\n      { id: '2', label: 'Rodrigo Bustos', sub: 'Drywall' },\n    ],\n  },\n  {\n    label: 'Workers',\n    items: [\n      { id: '3', label: 'Dev Worker', sub: 'Drywall' },\n      { id: '4', label: 'Dev Worker 2', sub: 'Drywall' },\n    ],\n  },\n]} value={value} onChange={setValue} /></div>;\n}\nreturn <Demo />;"
+  },
   "SectionHead": {
     "Default": "<SectionHead eyebrow=\"Our approach\" title=\"Built with heart, run with discipline.\" sub=\"Every project gets the same crew, the same standards, and a straight answer when something changes.\" />",
     "Centered": "<SectionHead eyebrow=\"Our approach\" title=\"Built with heart, run with discipline.\" sub=\"Every project gets the same crew, the same standards, and a straight answer when something changes.\" center />",
@@ -218,9 +250,9 @@
     "CustomColor": "<div style={{ maxWidth: 200, background: '#F2F2F2', padding: 24 }}>\n  <StatBlock value=\"56%\" label=\"Openness to new ideas\" color=\"#1A2C6E\" />\n</div>"
   },
   "StatCard": {
-    "Grid": "<>\n  <StatCard label=\"Hours this week\" value=\"38.2\" hint=\"this week\" />\n  <StatCard label=\"Hours this month\" value=\"142.5\" hint=\"this month\" />\n  <StatCard label=\"Pending\" value=\"3\" hint=\"awaiting review\" accent=\"amber\" onClick={() => {}} />\n  <StatCard label=\"Flagged\" value=\"0\" hint=\"still open\" />\n</>",
+    "Grid": "<>\n  <StatCard label=\"Hours this week\" value=\"38.2\" hint=\"this week\" />\n  <StatCard label=\"Hours this month\" value=\"142.5\" hint=\"this month\" />\n  <StatCard label=\"Pending\" value=\"3\" hint=\"awaiting review\" tone=\"amber\" onClick={() => {}} />\n  <StatCard label=\"Flagged\" value=\"0\" hint=\"still open\" />\n</>",
     "Default": "<StatCard label=\"Hours this week\" value=\"38.2\" hint=\"this week\" />",
-    "Amber": "<StatCard label=\"Pending\" value=\"3\" hint=\"awaiting review\" accent=\"amber\" />",
+    "Amber": "<StatCard label=\"Pending\" value=\"3\" hint=\"awaiting review\" tone=\"amber\" />",
     "Clickable": "<StatCard label=\"Open POs\" value=\"5\" hint=\"in progress\" onClick={() => {}} />",
     "WithIcon": "<StatCard label=\"Hours this month\" value=\"142.5\" icon={FiTrendingUp} />"
   },

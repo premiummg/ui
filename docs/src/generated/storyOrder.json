@@ -5,10 +5,20 @@
     "Warning",
     "Info"
   ],
+  "AttachmentTile": [
+    "Pdf",
+    "ImagePlaceholder",
+    "OtherType"
+  ],
   "AuthShell": [
     "SignIn",
     "WithError",
     "TwoFactor"
+  ],
+  "Avatar": [
+    "Default",
+    "Sizes",
+    "CustomColors"
   ],
   "Button": [
     "Primary",
@@ -30,6 +40,11 @@
     "Red",
     "Blue",
     "CustomBars"
+  ],
+  "ConfirmDialog": [
+    "Danger",
+    "Caution",
+    "CustomActions"
   ],
   "CountBadge": [
     "Default",
@@ -69,6 +84,13 @@
   "FieldGroup": [
     "Default"
   ],
+  "FileDropzone": [
+    "Default",
+    "WithSizeLimit"
+  ],
+  "FilePill": [
+    "Default"
+  ],
   "FilterLabel": [
     "Default"
   ],
@@ -82,6 +104,7 @@
   ],
   "Flags": [
     "Both",
+    "FrenchAlternatives",
     "Star"
   ],
   "FormLabel": [
@@ -97,7 +120,8 @@
     "AcadianOverlay"
   ],
   "LanguageToggle": [
-    "Default"
+    "Default",
+    "QuebecFlag"
   ],
   "Layout": [
     "WithNavbar",
@@ -127,6 +151,11 @@
   "NavTile": [
     "Default",
     "Grid"
+  ],
+  "NewsTicker": [
+    "Default",
+    "CustomLabel",
+    "WithLinks"
   ],
   "NotificationBell": [
     "Notifications",
@@ -189,6 +218,9 @@
     "Default"
   ],
   "SearchInput": [
+    "Default"
+  ],
+  "SearchPicker": [
     "Default"
   ],
   "SectionHead": [

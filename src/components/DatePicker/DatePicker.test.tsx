@@ -1,5 +1,5 @@
-import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, test, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DatePicker } from './DatePicker';
 
@@ -47,5 +47,18 @@ describe('DatePicker', () => {
     const day20 = screen.getByText('20');
     expect(day20.closest('button')).toBeDisabled();
     expect(day20.closest('button')!.className).toContain('line-through');
+  });
+
+  describe('when the default (today) view is already past maxDate, in a different year', () => {
+    afterEach(() => { vi.useRealTimers(); });
+
+    test('Next stays disabled instead of wrongly re-enabling across the year boundary', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2027, 0, 15)); // "today" defaults viewMonth to Jan 2027
+      render(<DatePicker value="" onChange={() => {}} maxDate={new Date(2025, 5, 10)} />);
+      fireEvent.click(screen.getByText('Select date'));
+      const header = screen.getByText('January 2027');
+      expect(header.nextElementSibling).toBeDisabled();
+    });
   });
 });

@@ -1,6 +1,7 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode } from 'react';
 import type { IconType } from 'react-icons';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { usePopover } from '../../hooks/usePopover';
+import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 export interface NotificationBellProps {
   icon: IconType;
@@ -27,9 +28,7 @@ export interface NotificationBellProps {
 // caller via `children`, since a notification row and a "3 timesheets
 // pending" row don't share a shape worth forcing into one prop.
 export function NotificationBell({ icon: Icon, label, count, title, headerAction, children, footer, width = 'w-80' }: NotificationBellProps) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useOutsideClick(ref, () => setOpen(false), open);
+  const { open, setOpen, ref } = usePopover<HTMLDivElement>();
 
   return (
     // inline-block, not a bare block div: see OverflowMenu's identical fix -
@@ -54,7 +53,7 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
       </button>
 
       {open && (
-        <div className={`absolute right-0 top-full mt-2 ${width} bg-white dark:bg-(--premium-dark-grey) rounded-2xl shadow-xl border border-gray-200 dark:border-white/10 z-50 overflow-hidden`}>
+        <div className={`absolute right-0 top-full mt-2 ${width} ${POPOVER_PANEL} bg-white dark:bg-(--premium-dark-grey) border border-gray-200 dark:border-white/10 overflow-hidden`}>
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</span>
             {headerAction && (

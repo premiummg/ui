@@ -1,4 +1,5 @@
 import { CSSProperties } from 'react';
+import { WARNING_TEXT_CLASS } from '../../lib/severityColors';
 
 export type StatusBadgeTone = 'success' | 'warning' | 'error' | 'neutral';
 
@@ -10,7 +11,7 @@ export type StatusBadgeTone = 'success' | 'warning' | 'error' | 'neutral';
 // of this package because a different app's status vocabulary is its own).
 const TONE_CLASSES: Record<StatusBadgeTone, string> = {
   success: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  warning: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  warning: `bg-amber-100 dark:bg-amber-900/30 ${WARNING_TEXT_CLASS}`,
   error: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   neutral: 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400',
 };

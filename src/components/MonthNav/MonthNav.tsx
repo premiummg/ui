@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { usePopover } from '../../hooks/usePopover';
+import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const YEARS_PER_PAGE = 12;
@@ -50,23 +51,24 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
   const displayYM = value ?? cur;
   const [displayYear] = displayYM.split('-').map(Number);
 
-  const [open, setOpen]     = useState(false);
   const [view, setView]     = useState<View>('months');
   const [viewYear, setViewYear] = useState(displayYear);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const close = () => { setOpen(false); setView('months'); };
-
-  useOutsideClick(containerRef, close, open);
+  const { open, setOpen, ref: containerRef, close } = usePopover<HTMLDivElement>(() => setView('months'));
 
   // ── Outer arrow buttons (month-by-month navigation) ─────────────────────────
 
   let canGoPrev: boolean;
   let canGoNext: boolean;
 
+  // When value is null, the displayed month is `cur` - not necessarily
+  // months[0] (the current month may have no data yet). Resolving null to
+  // cur's own position in the list (rather than always months[0]) is what
+  // lets "prev" step to the month actually before what's on screen instead
+  // of sometimes re-selecting the same month that's already displayed.
   if (months) {
-    const selIdx = value ? months.indexOf(value) : -1;
-    canGoPrev = value === null ? months.length > 0 : selIdx < months.length - 1;
+    const curIdx = months.indexOf(cur);
+    const selIdx = value !== null ? months.indexOf(value) : curIdx;
+    canGoPrev = selIdx === -1 ? months.length > 0 : selIdx < months.length - 1;
     canGoNext = value !== null;
   } else {
     canGoPrev = true;
@@ -75,8 +77,9 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
 
   const goPrev = () => {
     if (months) {
-      const selIdx = value ? months.indexOf(value) : -1;
-      if (value === null) onChange(months[0]);
+      const curIdx = months.indexOf(cur);
+      const selIdx = value !== null ? months.indexOf(value) : curIdx;
+      if (selIdx === -1) onChange(months[0]);
       else if (selIdx < months.length - 1) onChange(months[selIdx + 1]);
     } else {
       onChange(shiftMonth(displayYM, -1));
@@ -86,7 +89,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
   const goNext = () => {
     if (months) {
       const selIdx = value ? months.indexOf(value) : -1;
-      onChange(selIdx === 0 ? null : months[selIdx - 1]);
+      onChange(selIdx <= 0 ? null : months[selIdx - 1]);
     } else {
       const nxt = shiftMonth(displayYM, 1);
       onChange(nxt >= cur ? null : nxt);
@@ -194,7 +197,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-50 mt-2 right-0 w-60 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+        <div className={`absolute mt-2 right-0 w-60 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
 
           {/* Picker header — shared by both views */}
           <div className="flex items-center justify-between px-4 pt-3 pb-2">

@@ -18,10 +18,24 @@ consuming app's `.npmrc` (or `~/.npmrc`):
 
 You'll also need a GitHub personal access token with `read:packages` scope available as
 `NODE_AUTH_TOKEN` (or in `~/.npmrc` as `//npm.pkg.github.com/:_authToken=...`) to install it.
+`~/.npmrc` means a `.npmrc` file in **your own user home directory** - not the project's own
+`.npmrc` (the one with just the `@premiummg:registry=...` line above), and not committed to any
+repo. Concretely:
+
+- macOS/Linux: `~/.npmrc` → `/home/<you>/.npmrc` (or `/Users/<you>/.npmrc` on macOS)
+- Windows: `~/.npmrc` → `C:\Users\<you>\.npmrc`
+
+So the token line goes in a file at, e.g., `C:\Users\jsmith\.npmrc` (Windows) or
+`/home/jsmith/.npmrc` (Linux) - create the file if it doesn't exist yet. Putting the token in the
+*project's* `.npmrc` instead would commit it to git the next time someone runs `git add`.
 
 ```bash
 npm install @premiummg/ui
 ```
+
+`react` and `react-dom` (`^19.0.0`) are **peer dependencies**, not bundled - the consuming
+app supplies its own copy rather than getting a second React instance. Every current
+Premium app already has this.
 
 ## Set up Tailwind
 
@@ -84,7 +98,7 @@ function Example() {
 }
 ```
 
-## Components (v0.3.0)
+## Components (v0.4.0)
 
 | Component | Notes |
 |---|---|
@@ -111,7 +125,7 @@ function Example() {
 | `OverflowMenu` | "More actions" popover; `items` vs `dangerItems` (divided, red). `onDark` inverts the trigger for a red field. Narrower (`w-56`) below the `sm` breakpoint - the trigger is usually one of several icon buttons clustered together rather than flush against the screen's own right edge, so the full `w-64` can push the menu's left edge past x=0 on a narrow phone. Its own wrapper is `inline-block`, not a bare `<div>` - see the note below the table on why that matters for where the dropdown actually lands. `align` (`"right"` default / `"left"`, same contract as `WeekNav`'s own `align`) picks which edge the menu grows from - a trigger near the left edge of its own container needs `"left"`, or `"right"` pushes the menu off-screen. |
 | `ScrollableTable` | Wraps a table with fade edges + chevron nudge buttons on overflowing sides. |
 | `FieldGroup` | `.pmg-bracket` section heading + `Card` panel, with an optional footnote. |
-| `ErrorBoundary` | Class boundary with a branded fallback; auto-reloads once on a stale deployed-chunk error. `background`/`lineColor` override the fallback's ground and texture color independently (any CSS color) - a sister brand reusing the same shell (corner bracket, texture, one action) with its own palette instead of a second fallback component. |
+| `ErrorBoundary` | Class boundary with a branded fallback; auto-reloads once on a stale deployed-chunk error. `color`/`barsColor` override the fallback's ground and texture color independently (any CSS color) - a sister brand reusing the same shell (corner bracket, texture, one action) with its own palette instead of a second fallback component. |
 | `DarkModeToggle` | Sun/moon icon button. Controlled - pair it with `useDarkMode`. |
 | `PremiumLogo` | The Premium wordmark itself (bundled as inline assets - no files to copy into a consuming app's `public/`). `size`: `sm`/`md`/`lg`/`xl`. `variant`: `stacked`/`horizontal`. `mode="auto"` (default) watches `html.dark` and swaps artwork with the theme; `mode="light"`/`"dark"` pins it instead, for a surface whose own color is fixed regardless of theme (a solid-red band, a footer that's always Premium Black). |
 | `Toaster` + `ToastProvider` | A full toast subsystem, not just the display component: wrap the app in `ToastProvider` once, mount `Toaster` once, call `useToast().toast(message, variant)` anywhere. `emitToast(...)` fires one from outside React (an axios interceptor, a top-level handler) - a no-op if no provider is mounted yet. `Toaster` itself takes no props - correctly, not a gap - since it only ever displays whatever the context currently holds; its own story's four buttons (each colored to match the variant it fires) are the closest thing to a Controls panel it has. |
@@ -124,7 +138,7 @@ function Example() {
 | `Layout` | The shell every *other* page sits in: brand-neutral background + `<main>` padding. Takes your app's own navbar as the `navbar` prop rather than owning one. |
 | `Navbar` + `NAV_TONES` | The navbar's shell: logo, one of three brand-dark tones (`tone`: `black`/`dark`/`steel`, `NAV_TONES` carries the rationale for each), the hi-vis stripe underneath. No nav items of its own - compose it with `DarkModeToggle`, `NotificationBell` and your own buttons via `children`, then hand the result to `Layout`'s `navbar` prop. See its `AllTones` story for the three side by side. |
 | `UnitField` + `DEFAULT_UNIT_OPTIONS` | A `<select>` that also accepts a value outside its own list - picking "Other…" swaps in a plain text input, with a "back to list" undo. `options` defaults to a common physical-units list but takes any string list, so the same "pick one, or type your own" behavior reuses for other closed-but-extensible lists. `capitalize` (defaults **on**) title-cases the display of every option and the typed-custom value, without changing what's actually stored - pass `false` for a list of abbreviations (`kg`, `ft`, `gal`) that read oddly title-cased. |
-| `StatCard` | A small at-a-glance figure - label, optional `icon`, `pmg-figure` value, optional `hint`, colored left edge (`accent="amber"` for a "needs attention" state). `hint` takes a real element, not just a caption string - a `MonthNav`/`WeekNav` period picker replacing the caption in place (see their own `InAStatCard` stories); omit `onClick` when doing this, since a real `<button>` can't contain another interactive control. Renders as a real `<button>` when `onClick` is given, a plain `<div>` otherwise. |
+| `StatCard` | A small at-a-glance figure - label, optional `icon`, `pmg-figure` value, optional `hint`, colored left edge (`tone="amber"` for a "needs attention" state). `hint` takes a real element, not just a caption string - a `MonthNav`/`WeekNav` period picker replacing the caption in place (see their own `InAStatCard` stories); omit `onClick` when doing this, since a real `<button>` can't contain another interactive control. Renders as a real `<button>` when `onClick` is given, a plain `<div>` otherwise. |
 | `NavTile` | A big clickable destination tile for a dashboard's "go here" grid - icon in a tinted square, arrow that slides on hover, a 45deg corner notch and a growing left accent bar. |
 | `Reveal` | Fades a section in, once, the first time it scrolls into view. `motion-safe:` respects `prefers-reduced-motion`; a 1.5s deadman-switch timeout reveals the content anyway if `IntersectionObserver` never fires, so a landing page's copy is never silently invisible. |
 | `Eyebrow` | The small uppercase micro-caps label above a marketing section title. `text`, not `children`. `tone`: `red` (default) / `white` (on a dark/solid field) / `amber`. |
@@ -142,6 +156,20 @@ function Example() {
 | `QuoteCard` | A customer quote with the brand's own `.pmg-bracket` corner mark instead of a generic quotation glyph. Render several side by side, not in a carousel - nothing should slide sideways while it's being read. |
 | `StatBlock` | One big centered figure with a short label underneath (e.g. "56% / Openness to new ideas") - a headline number a marketing page leads with. Not the dashboard `StatCard` above (left-accented, left-aligned, meant for a data table's summary row) - a different, unrelated component that happens to share the word "stat". `color` defaults to Premium's secondary red. |
 | `MediaCard` | A square photo over a title, a colored eyebrow line, and a body line - a program/category tile (e.g. "Adult, Ages 14+, all levels welcomed"). Renders as a real `<button>` with a hover lift when `onClick` is given, a plain non-interactive card otherwise. |
+| `Avatar` | Initials-only avatar (no photo upload exists anywhere yet) - `fullName`, `size`. `color` overrides the default Steel Grey fill, e.g. to give each person a stable distinct color. |
+| `ConfirmDialog` | A centered icon + title + message + confirm/cancel pair, composed on top of `Modal` rather than reimplementing its overlay/Escape-key handling. `tone`: `danger` (default, MAIN red) / `caution` (amber). Most apps here still compose confirmations from `Modal` directly per-flow (see `timesheet-payroll-system/frontend/BRAND.md`'s "what is intentionally not here") - this is for a consumer that wants the packaged shape instead. Pass `actions` (an array of `{label, onClick, variant}`) to replace the default confirm/cancel pair entirely, for a flow that needs a different button count or wording ("Save draft" / "Discard" / "Cancel"). |
+| `NewsTicker` | A continuously-scrolling marquee of headlines (an intranet home page's "Latest News" strip) - the list repeats several times back to back for a seamless loop, and the loop pauses on hover so a headline holds still long enough to read or click. `important` items get a solid red pill instead of plain text. An item's optional `href` renders it as a real link (opened in a new tab) instead of a plain button; `onItemClick` still fires alongside it if given, e.g. for click tracking. |
+| `FileDropzone` | A drag-or-click file picker - dropping a file and clicking through to the native file dialog both feed the same `onFiles(File[])` callback, so a consumer never branches on how the file arrived. `maxSizeMB` drops oversized files from that callback and names them in an inline error instead of silently handing them to the caller. |
+| `FilePill` | A picked-but-not-yet-uploaded file in a list under `FileDropzone` - name plus a remove control, nothing else. |
+| `AttachmentTile` | A collapsible row for one already-uploaded file - name/size, an optional download action, and (expanded by default) a preview body. Pass `previewUrl` for a real image preview; `pdf`/`other` fall back to a placeholder body, since rendering an actual PDF needs a viewer library this package deliberately doesn't bundle. |
+| `SearchPicker` | A search-then-select combobox - a plain text box until focused, then a grouped/filterable dropdown, collapsing to a selected-value chip (with its own clear button) once something's picked. Controlled (`value`/`onChange`), unlike the intranet proposal's original uncontrolled version, so a consumer can reset or sync it with form state the same way every other picker in this package already works. The shape behind "find and pick one" generally - a project search, an employee picker, a vendor picker - that `SearchInput` above doesn't cover (no dropdown, no groups, no selection state). |
+
+`Avatar`, `ConfirmDialog`, `NewsTicker`, `FileDropzone`, `FilePill`, `AttachmentTile`, and `SearchPicker`
+came from `timesheet-payroll-system/frontend/src/pages/design/IntranetProposalsPage.tsx` (and its shared
+`shared.tsx`) - a design proposal, not that app's real code, which is why they weren't caught in the
+sweep the paragraph below describes. `AttachmentTile` is a simplified stand-in for the proposal's
+own mock: the real app's equivalent (`components/shared/AttachmentGrid.jsx`) renders actual
+image/PDF previews from a fetched blob URL, which needs live data this package can't carry.
 
 Also exported: `useOutsideClick` (closes a menu/dropdown on an outside mousedown),
 `useDarkMode` (reads/toggles `html.dark`, persists the choice to `localStorage` - pair it with
@@ -319,6 +347,43 @@ eyeballed one story at a time:
   `StatCard`; both also hand-rolled the page-header band that's just `PageHeader`. All four now
   compose the real component instead - partly a docs-accuracy fix, partly what surfaced the
   `StatCard` overflow bug above in the first place.
+
+**v0.4.0** - a pass over real bugs, perf, and consistency, prompted by actually running a
+multi-angle review of the library:
+- Fixed real bugs: `WeekNav`'s month quick-jump derived "the current month" from the current
+  week's Monday instead of today's real date (wrong on the ~5/7 months where the 1st isn't a
+  Monday); `DatePicker`'s `maxDate`/`minDate` chevron-disabling broke across a year boundary;
+  `MonthNav.goNext` could call `onChange(undefined)` instead of `null`; `FileDropzone`'s
+  `multiple={false}` wasn't enforced on the drag-and-drop path; `SearchInput` fired a spontaneous
+  `onChange` shortly after mount when given a non-empty initial value; `ScrollableTable` never
+  updated its overflow indicators on a pure resize (no `children` change); `Pagination` showed
+  "1–0 of 0" for an empty result set.
+- Security: `FileDropzone`'s `accept` only ever limited the native file-picker dialog - a dropped
+  file bypassed it entirely, and `maxSizeMB` was the only thing actually enforced. `accept` (by
+  extension, exact MIME type, or `type/*` wildcard) is now enforced on both the click-to-browse and
+  drag-and-drop paths, with rejected files named in the same inline error `maxSizeMB` already used.
+- Performance: `docs/scripts/generate-props.mjs` now runs one TypeScript program across every
+  component instead of one fresh program per component (was ~60x the compilation work);
+  `tsup.config.ts` now minifies the published bundle; `WeekNav`/`DatePicker`'s calendar-grid math
+  and `SearchPicker`'s filtering are memoized instead of recomputing on every render; every
+  dropdown-shaped component's shared `useOutsideClick` no longer tears down and re-adds its
+  document listener on every render.
+- Consistency: `OverflowMenu`, `SearchPicker`, `DatePicker`, `MonthNav`, `WeekNav`, and
+  `NotificationBell` had each hand-rolled their own open-state/outside-click/panel-chrome wiring,
+  with the panel's z-index/corner-radius/shadow independently drifting between them (z-30 vs z-50,
+  `rounded-xl` vs `rounded-2xl`, `shadow-lg`/`xl`/`2xl`) - all six now share a `usePopover` hook and
+  a `POPOVER_PANEL` chrome constant. `StatusBadge`'s `warning` tone and `ConfirmDialog`'s `caution`
+  tone, meant to be the same brand amber, had drifted a full Tailwind shade apart - now share one
+  color constant. `FilterPill`'s active-state fill moved from an inline `style` to a plain
+  `bg-(--premium-red)` class - the inline-style workaround this and a few other components use
+  exists to get around Tailwind's real "no opacity modifier on a `var()` color" limitation (Known
+  caveats, below), which doesn't apply here since this fill has no opacity modifier at all.
+- Two breaking renames, both for naming consistency and both unreleased-to-consumers as of this
+  writing (safe to make now, not later): `ErrorBoundary`'s color-override props
+  `background`/`lineColor` -> `color`/`barsColor` (matches `ColorField`/`PageHeader`'s naming for
+  the identical "sister brand overrides the field and its decorative overlay" concept), and
+  `StatCard`'s `accent?: 'amber'` -> `tone?: StatCardTone` (matches every other tone-bearing
+  component - `StatusBadge`, `Eyebrow`, `ConfirmDialog`).
 
 ## Develop
 

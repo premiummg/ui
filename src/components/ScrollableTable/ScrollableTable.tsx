@@ -30,6 +30,18 @@ export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children }:
 
   useEffect(() => { requestAnimationFrame(update); }, [children]);
 
+  // Also recompute on resize (sidebar toggling, window resize, a breakpoint
+  // shift) - none of those change `children`, so without this the fade/
+  // chevron affordances can go stale even though the container's actual
+  // overflow just changed.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => update());
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="relative">
       {s.left && (

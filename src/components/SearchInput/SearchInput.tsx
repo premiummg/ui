@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 
 export interface SearchInputProps {
@@ -17,8 +17,13 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
     if (value === '') setInputValue('');
   }, [value]);
 
-  // Debounce: call onChange after the user stops typing.
+  // Debounce: call onChange after the user stops typing. Skipped on the
+  // mount run - otherwise a non-empty initial `value` (e.g. from a URL
+  // query param) re-fires onChange with the same value a moment after
+  // mount, with no actual user input behind it.
+  const mounted = useRef(false);
   useEffect(() => {
+    if (!mounted.current) { mounted.current = true; return; }
     const t = setTimeout(() => onChange(inputValue), debounceMs);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps

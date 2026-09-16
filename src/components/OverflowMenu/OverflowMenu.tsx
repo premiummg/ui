@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
 import { FiMoreHorizontal } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { usePopover } from '../../hooks/usePopover';
+import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 export interface OverflowItem {
   icon: IconType;
@@ -32,9 +32,7 @@ export interface OverflowMenuProps {
 // Destructive entries sit below a divider and take brand red only there, so
 // MAIN red keeps meaning "the one thing you can act on" everywhere else.
 export function OverflowMenu({ items, dangerItems, onDark = false, label = 'More actions', align = 'right' }: OverflowMenuProps) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  useOutsideClick(ref, () => setOpen(false), open);
+  const { open, setOpen, ref } = usePopover<HTMLDivElement>();
 
   const all = [...(items ?? []), ...(dangerItems ?? [])];
   if (all.length === 0) return null;
@@ -71,7 +69,7 @@ export function OverflowMenu({ items, dangerItems, onDark = false, label = 'More
           own right edge, so anchoring a full w-64 (256px) here can push its
           left edge a little past x=0 on a narrow phone. */}
       {open && (
-        <div className={`absolute top-full mt-2 ${align === 'left' ? 'left-0' : 'right-0'} w-56 sm:w-64 z-30 rounded-xl border border-gray-200 dark:border-white/15 bg-white dark:bg-(--premium-steel-grey) shadow-lg py-1.5 overflow-hidden`}>
+        <div className={`absolute top-full mt-2 ${align === 'left' ? 'left-0' : 'right-0'} w-56 sm:w-64 ${POPOVER_PANEL} border border-gray-200 dark:border-white/15 bg-white dark:bg-(--premium-steel-grey) py-1.5 overflow-hidden`}>
           {items?.map(it => (
             <button
               key={it.label}

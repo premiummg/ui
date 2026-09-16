@@ -13,7 +13,7 @@ export interface PaginationProps {
 export function Pagination({ page, totalPages, total, limit, onPageChange, children }: PaginationProps) {
   if (totalPages <= 1 && !children) return null;
 
-  const from = (page - 1) * limit + 1;
+  const from = total === 0 ? 0 : (page - 1) * limit + 1;
   const to = Math.min(page * limit, total);
 
   return (

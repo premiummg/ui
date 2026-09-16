@@ -14,10 +14,14 @@ export interface StatCardProps {
   icon?: IconType;
   // undefined = the default brand-red accent bar. 'amber' = the same
   // hi-vis stripe used for "needs attention" states elsewhere (a stat
-  // like "Pending" or "Flagged" going above zero).
-  accent?: 'amber';
+  // like "Pending" or "Flagged" going above zero). Named `tone`, not
+  // `accent`, to match every other tone-bearing component in the library
+  // (StatusBadge, Eyebrow, ConfirmDialog).
+  tone?: StatCardTone;
   onClick?: () => void;
 }
+
+export type StatCardTone = 'amber';
 
 // A small at-a-glance figure: a label, the number itself (in the brand's
 // tabular-numeral figure style), an optional one-line hint, and a colored
@@ -26,7 +30,7 @@ export interface StatCardProps {
 // and announced correctly to a screen reader - omit `onClick` when `hint`
 // is itself interactive (a period picker), since a real <button> can't
 // contain another interactive control.
-export function StatCard({ label, value, hint, icon: Icon, accent, onClick }: StatCardProps) {
+export function StatCard({ label, value, hint, icon: Icon, tone, onClick }: StatCardProps) {
   const content = (
     <>
       {/* rounded-l-xl on the bar itself, not overflow-hidden on the card -
@@ -34,8 +38,8 @@ export function StatCard({ label, value, hint, icon: Icon, accent, onClick }: St
           dropdown composed into `hint` (MonthNav/WeekNav's own popover),
           which needs to render past the card's edges to be visible at all. */}
       <span
-        className={`absolute left-0 top-0 bottom-0 w-0.75 rounded-l-xl ${accent === 'amber' ? 'pmg-stripe' : ''}`}
-        style={accent === 'amber' ? undefined : { backgroundColor: 'var(--premium-red)' }}
+        className={`absolute left-0 top-0 bottom-0 w-0.75 rounded-l-xl ${tone === 'amber' ? 'pmg-stripe' : ''}`}
+        style={tone === 'amber' ? undefined : { backgroundColor: 'var(--premium-red)' }}
       />
       <div className="flex items-start justify-between mb-2.5 pl-1">
         <p className="pmg-eyebrow text-gray-400 dark:text-gray-500">{label}</p>

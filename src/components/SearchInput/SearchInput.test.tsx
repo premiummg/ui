@@ -27,6 +27,14 @@ describe('SearchInput', () => {
     expect(onChange).toHaveBeenCalledWith('');
   });
 
+  test('does not spontaneously call onChange after mount when the initial value is non-empty', () => {
+    vi.useFakeTimers();
+    const onChange = vi.fn();
+    render(<SearchInput value="proj" onChange={onChange} debounceMs={300} />);
+    vi.advanceTimersByTime(300);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test('resets to empty when the parent passes value=""', () => {
     const { rerender } = render(<SearchInput value="proj" onChange={() => {}} />);
     rerender(<SearchInput value="" onChange={() => {}} />);

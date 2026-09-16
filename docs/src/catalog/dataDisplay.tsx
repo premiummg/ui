@@ -88,7 +88,7 @@ export const dataDisplay: ComponentDoc[] = [
   },
   {
     name: 'StatCard',
-    summary: 'A small at-a-glance figure - label, .pmg-figure value, optional icon, optional hint, colored left edge (accent="amber" for a "needs attention" state).',
+    summary: 'A small at-a-glance figure - label, .pmg-figure value, optional icon, optional hint, colored left edge (tone="amber" for a "needs attention" state).',
     notes: 'Renders as a real <button> when onClick is given, a plain <div> otherwise - omit onClick when hint is itself interactive (a MonthNav/WeekNav period picker replacing the caption in place, see their own InAStatCard stories), since a real <button> can’t contain another interactive control.',
     demos: demosFromModule(StatCardStories),
   },
@@ -113,7 +113,7 @@ export const dataDisplay: ComponentDoc[] = [
   {
     name: 'ErrorBoundary',
     summary: 'Class boundary with a branded fallback; auto-reloads once on a stale deployed-chunk error.',
-    notes: 'Both demos below intentionally throw inside children, so what you see IS the real fallback UI catching a real error. background/lineColor let a sister brand reuse the same shell (corner bracket, texture, one action) with its own palette instead of a second fallback component.',
+    notes: 'Both demos below intentionally throw inside children, so what you see IS the real fallback UI catching a real error. color/barsColor let a sister brand reuse the same shell (corner bracket, texture, one action) with its own palette instead of a second fallback component.',
     demos: frame(demosFromModule(ErrorBoundaryStories), 340, true),
     wide: true,
   },

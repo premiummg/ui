@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { render } from '@testing-library/react';
-import { FlagCanada, FlagAcadian, AcadianStar } from './Flags';
+import { FlagCanada, FlagAcadian, FlagQuebec, AcadianStar } from './Flags';
 
 describe('Flags', () => {
   test('FlagCanada renders an svg', () => {
@@ -10,6 +10,11 @@ describe('Flags', () => {
 
   test('FlagAcadian renders an svg', () => {
     const { container } = render(<FlagAcadian />);
+    expect(container.querySelector('svg')).toBeInTheDocument();
+  });
+
+  test('FlagQuebec renders an svg', () => {
+    const { container } = render(<FlagQuebec />);
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
 

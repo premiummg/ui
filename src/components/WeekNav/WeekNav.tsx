@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import {
   format, startOfMonth, startOfWeek, endOfWeek, endOfMonth, addDays,
   addMonths, subMonths, isSameMonth, isAfter, parseISO, getYear, setYear, setMonth,
 } from 'date-fns';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { usePopover } from '../../hooks/usePopover';
+import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 export interface WeekNavProps {
   // null = current week; 'YYYY-MM-DD' = Monday of a specific week.
@@ -71,27 +72,29 @@ function decadeStart(year: number) {
 
 export function WeekNav({ value, weeks, fetching = false, onChange, align = 'right', variant = 'default' }: WeekNavProps) {
   const cur = currentWeekMonday();
-  const curYM = cur.slice(0, 7);
+  const curYM = format(new Date(), 'yyyy-MM');
   const curYear = new Date().getFullYear();
   const displayMonday = value ?? cur;
 
-  const [open, setOpen] = useState(false);
   const [view, setView] = useState<View>('weeks');
   const [viewMonth, setViewMonth] = useState<Date>(() => parseISO(displayMonday));
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const close = () => { setOpen(false); setView('weeks'); };
-
-  useOutsideClick(containerRef, close, open);
+  const { open, setOpen, ref: containerRef, close } = usePopover<HTMLDivElement>(() => setView('weeks'));
 
   // ── outer arrows: jump between available weeks, same pattern as MonthNav ───
 
   let canGoPrev: boolean;
   let canGoNext: boolean;
 
+  // When value is null, the displayed week is `cur` - not necessarily
+  // weeks[0] (the current week may have no data yet). Resolving null to
+  // cur's own position in the list (rather than always weeks[0]) is what
+  // lets "prev" step to the week actually before what's on screen instead
+  // of sometimes re-selecting the same week that's already displayed -
+  // same fix as MonthNav's goPrev.
   if (weeks) {
-    const idx = value ? weeks.indexOf(value) : -1;
-    canGoPrev = value === null ? weeks.length > 0 : idx < weeks.length - 1;
+    const curIdx = weeks.indexOf(cur);
+    const idx = value !== null ? weeks.indexOf(value) : curIdx;
+    canGoPrev = idx === -1 ? weeks.length > 0 : idx < weeks.length - 1;
     canGoNext = value !== null;
   } else {
     canGoPrev = true;
@@ -100,8 +103,9 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
 
   const goPrev = () => {
     if (weeks) {
-      const idx = value ? weeks.indexOf(value) : -1;
-      if (value === null) { if (weeks.length) onChange(weeks[0]); }
+      const curIdx = weeks.indexOf(cur);
+      const idx = value !== null ? weeks.indexOf(value) : curIdx;
+      if (idx === -1) { if (weeks.length) onChange(weeks[0]); }
       else if (idx < weeks.length - 1) onChange(weeks[idx + 1]);
     } else {
       onChange(shiftWeek(displayMonday, -1));
@@ -238,7 +242,10 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
     ? 'font-heading font-bold text-sm text-white min-w-[130px] text-center px-2 py-1 rounded-lg hover:bg-white/15 transition select-none'
     : 'text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[130px] text-center px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition select-none';
 
-  const rows = buildWeekRows(viewMonth);
+  // Memoized on viewMonth - this calendar-grid math otherwise reran on every
+  // render (any parent re-render, not just an actual month change), even
+  // while the dropdown is closed and none of it is visible.
+  const rows = useMemo(() => buildWeekRows(viewMonth), [viewMonth]);
 
   return (
     // inline-block, not a bare block div - see MonthNav's identical comment:
@@ -262,7 +269,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
 
       {/* Dropdown */}
       {open && (
-        <div className={`absolute z-50 mt-2 ${align === 'left' ? 'left-0' : 'right-0'} w-72 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden`}>
+        <div className={`absolute mt-2 ${align === 'left' ? 'left-0' : 'right-0'} w-72 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
 
           {/* Picker header - shared by all three views, click cycles weeks -> months -> years */}
           <div className="flex items-center justify-between px-4 pt-3 pb-2">

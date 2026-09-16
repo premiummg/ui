@@ -39,8 +39,8 @@ describe('StatCard', () => {
     expect(container.firstChild).not.toHaveClass('overflow-hidden');
   });
 
-  test('accent="amber" uses the hi-vis stripe class instead of the inline red background', () => {
-    const { container: amber } = render(<StatCard label="Flagged" value="2" accent="amber" />);
+  test('tone="amber" uses the hi-vis stripe class instead of the inline red background', () => {
+    const { container: amber } = render(<StatCard label="Flagged" value="2" tone="amber" />);
     const { container: normal } = render(<StatCard label="Hours" value="38" />);
     expect(amber.querySelector('.pmg-stripe')).toBeInTheDocument();
     expect(normal.querySelector('.pmg-stripe')).not.toBeInTheDocument();

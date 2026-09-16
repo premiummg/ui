@@ -25,6 +25,16 @@ describe('Pagination', () => {
     expect(screen.getByText('45')).toBeInTheDocument();
   });
 
+  test('an empty result set shows "0 of 0", not "1 of 0"', () => {
+    render(
+      <Pagination page={1} totalPages={1} total={0} limit={20} onPageChange={() => {}}>
+        <button>Export</button>
+      </Pagination>,
+    );
+    expect(screen.getAllByText('0')).toHaveLength(3); // from, to, and total all read 0
+    expect(screen.queryByText('1')).not.toBeInTheDocument();
+  });
+
   test('Previous is disabled on page 1, Next is disabled on the last page', () => {
     render(<Pagination page={1} totalPages={2} total={30} limit={20} onPageChange={() => {}} />);
     expect(screen.getByLabelText('Previous page')).toBeDisabled();

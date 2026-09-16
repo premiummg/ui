@@ -26,4 +26,13 @@ describe('LanguageToggle', () => {
     expect(screen.getByLabelText('Acadian French').className).toContain('bg-(--premium-black)');
     expect(screen.getByLabelText('English').className).not.toContain('bg-(--premium-black)');
   });
+
+  test('shows the Acadian flag by default, and Quebec\'s when quebecFlag is set', () => {
+    const acadian = render(<LanguageToggle lang="fr" onChange={() => {}} names={names} />);
+    expect(acadian.getByLabelText('Acadian French').querySelector('svg path')?.getAttribute('fill')).toBe('#002395');
+    acadian.unmount();
+
+    const quebec = render(<LanguageToggle lang="fr" onChange={() => {}} names={names} quebecFlag />);
+    expect(quebec.getByLabelText('Acadian French').querySelector('svg path')?.getAttribute('fill')).toBe('#003DA5');
+  });
 });

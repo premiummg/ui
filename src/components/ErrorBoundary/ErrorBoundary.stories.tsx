@@ -21,8 +21,8 @@ export const CustomFallback: Story = {
   args: { children: <Bomb />, fallback: <p className="p-8">Custom fallback content.</p> },
 };
 
-// A sister brand's own palette on the same shell - background/lineColor
-// take any CSS color, independent of each other and of light/dark mode.
+// A sister brand's own palette on the same shell - color/barsColor take any
+// CSS color, independent of each other and of light/dark mode.
 export const CustomPalette: Story = {
-  args: { children: <Bomb />, background: '#1A2C6E', lineColor: '#FFFFFF' },
+  args: { children: <Bomb />, color: '#1A2C6E', barsColor: '#FFFFFF' },
 };

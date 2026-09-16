@@ -16,14 +16,14 @@ export const Grid: Story = {
     <>
       <StatCard label="Hours this week" value="38.2" hint="this week" />
       <StatCard label="Hours this month" value="142.5" hint="this month" />
-      <StatCard label="Pending" value="3" hint="awaiting review" accent="amber" onClick={() => {}} />
+      <StatCard label="Pending" value="3" hint="awaiting review" tone="amber" onClick={() => {}} />
       <StatCard label="Flagged" value="0" hint="still open" />
     </>
   ),
 };
 
 export const Default: Story = { args: { label: 'Hours this week', value: '38.2', hint: 'this week' } };
-export const Amber: Story = { args: { label: 'Pending', value: '3', hint: 'awaiting review', accent: 'amber' } };
+export const Amber: Story = { args: { label: 'Pending', value: '3', hint: 'awaiting review', tone: 'amber' } };
 export const Clickable: Story = { args: { label: 'Open POs', value: '5', hint: 'in progress', onClick: () => {} } };
 
 // icon is purely decorative; hint takes a real element, not just a caption

@@ -6,9 +6,13 @@ export interface ErrorBoundaryProps {
   // Both default to Premium's own crash-screen look (Light Grey / Premium
   // Black ground, the industrial texture in the page's own ink color) - a
   // sister brand keeps the same shell (corner bracket, texture, one action)
-  // with its own palette instead of a second fallback component.
-  background?: string;
-  lineColor?: string;
+  // with its own palette instead of a second fallback component. Same
+  // color/barsColor naming as ColorField/PageHeader's own override props,
+  // for the same reason - `color` is the field's ground, `barsColor` the
+  // decorative overlay on top of it (the texture pattern here, `.pmg-bars`
+  // there).
+  color?: string;
+  barsColor?: string;
 }
 
 interface State {
@@ -54,15 +58,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
       // rather than a bare exception string, and keeps the brand in the room
       // (corner bracket, industrial texture) instead of a blank grey screen.
       // The raw error still goes to console.error above, for Sentry/support.
-      const { background, lineColor } = this.props;
+      const { color, barsColor } = this.props;
       return (
         <div
-          className={`relative min-h-screen flex items-center justify-center overflow-hidden p-8 ${background ? '' : 'bg-[#F2F2F2] dark:bg-(--premium-black)'}`}
-          style={background ? { backgroundColor: background } : undefined}
+          className={`relative min-h-screen flex items-center justify-center overflow-hidden p-8 ${color ? '' : 'bg-[#F2F2F2] dark:bg-(--premium-black)'}`}
+          style={color ? { backgroundColor: color } : undefined}
         >
           <div
-            className={`absolute inset-0 pmg-texture ${lineColor ? '' : 'text-gray-900 dark:text-white'}`}
-            style={lineColor ? { color: lineColor } : undefined}
+            className={`absolute inset-0 pmg-texture ${barsColor ? '' : 'text-gray-900 dark:text-white'}`}
+            style={barsColor ? { color: barsColor } : undefined}
           />
           <div className="relative text-center max-w-sm">
             <p className="pmg-bracket inline-block font-heading font-black text-lg text-gray-900 dark:text-gray-100 mb-2">

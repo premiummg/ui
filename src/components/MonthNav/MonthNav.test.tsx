@@ -42,4 +42,40 @@ describe('MonthNav', () => {
     await userEvent.click(currentBtn);
     expect(onChange).toHaveBeenCalledWith(null);
   });
+
+  test('Next resolves to null, not undefined, when value is no longer in a restricted `months` list', async () => {
+    const onChange = vi.fn();
+    render(<MonthNav value="2026-05" months={['2026-01']} onChange={onChange} />);
+    const [, , next] = screen.getAllByRole('button');
+    await userEvent.click(next);
+    expect(onChange).toHaveBeenCalledWith(null);
+  });
+
+  test('clicking the header drills into the years view, and picking a year jumps back to months for that year', async () => {
+    render(<MonthNav value="2026-03" onChange={() => {}} />);
+    await userEvent.click(screen.getByText('March 2026'));
+    await userEvent.click(screen.getByText('2026')); // header, in months view
+    expect(screen.getByText('2016 – 2027')).toBeInTheDocument(); // decade page
+    await userEvent.click(screen.getByText('2020'));
+    expect(screen.getByText('2020')).toBeInTheDocument(); // back in months view, header now reads 2020
+    expect(screen.getByText('Mar')).toBeInTheDocument(); // months grid is showing again
+  });
+
+  test('variant="hero" gives the trigger row white-on-transparent chrome', () => {
+    const { container } = render(<MonthNav value={null} onChange={() => {}} variant="hero" />);
+    expect(container.querySelector('.bg-white\\/15')).toBeInTheDocument();
+  });
+
+  test('clicking outside closes the picker', async () => {
+    render(
+      <div>
+        <div data-testid="outside" />
+        <MonthNav value="2026-03" onChange={() => {}} />
+      </div>,
+    );
+    await userEvent.click(screen.getByText('March 2026'));
+    expect(screen.getByText('2026')).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('outside'));
+    expect(screen.queryByText('2026')).not.toBeInTheDocument();
+  });
 });

@@ -6,12 +6,12 @@ import { FilterPill } from './FilterPill';
 describe('FilterPill', () => {
   test('active applies the brand red background', () => {
     render(<FilterPill label="Admin" active onClick={() => {}} />);
-    expect(screen.getByRole('button')).toHaveStyle({ backgroundColor: 'var(--premium-red)' });
+    expect(screen.getByRole('button')).toHaveClass('bg-(--premium-red)');
   });
 
-  test('inactive has no inline background', () => {
+  test('inactive has no brand red background', () => {
     render(<FilterPill label="Admin" active={false} onClick={() => {}} />);
-    expect(screen.getByRole('button').style.backgroundColor).toBe('');
+    expect(screen.getByRole('button')).not.toHaveClass('bg-(--premium-red)');
   });
 
   test('clicking calls onClick', async () => {

@@ -25,3 +25,15 @@ class MemoryStorage implements Storage {
   setItem(key: string, value: string) { this.store.set(key, String(value)); }
 }
 Object.defineProperty(globalThis, 'localStorage', { value: new MemoryStorage(), configurable: true });
+
+// jsdom doesn't implement ResizeObserver at all - components that use it
+// (ScrollableTable) would otherwise throw "ResizeObserver is not defined" in
+// every test, even ones unrelated to resize behavior. A no-op stub is enough
+// since jsdom never actually triggers layout/resize; tests exercise the
+// resize callback directly instead of relying on this firing.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+Object.defineProperty(globalThis, 'ResizeObserver', { value: ResizeObserverStub, configurable: true });

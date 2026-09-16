@@ -8,7 +8,10 @@
 //
 // Canada is the official geometry (the real 11-point leaf path, not a
 // hand-drawn approximation). Acadia is the French tricolour with the gold
-// five-pointed star set in the blue band.
+// five-pointed star set in the blue band. Quebec's fleurdelisé is an
+// opt-in alternative to Acadian for the French side (see FlagQuebec below) -
+// which one a consumer shows is up to it (e.g. a per-division setting), this
+// package never picks on its own.
 
 export interface FlagProps {
   className?: string;
@@ -36,6 +39,29 @@ export function FlagAcadian({ className = '' }: FlagProps) {
         fill="#FFD100"
         points="106,50 120.5,92 165,92.8 129.5,119.6 142.4,162.2 106,136.7 69.6,162.2 82.5,119.6 47,92.8 91.5,92"
       />
+    </svg>
+  );
+}
+
+// Quebec's fleurdelisé: blue field, white cross, a fleur-de-lis in each
+// quadrant. The fleur-de-lis is a simplified straight-edge silhouette
+// (same shape drawn 4 times at different fixed positions) rather than a
+// heraldically precise one - at the small size this actually renders at, the
+// blue/white cross is what reads, and a fussier shape is also more likely
+// to come out warped than a plain one. Every quadrant copy is a full,
+// independent set of points (not a shared shape moved with a transform),
+// so there's no scale/rotation math that could get miscalculated.
+export function FlagQuebec({ className = '' }: FlagProps) {
+  const petal = '20,0 14,20 2,18 10,35 4,50 16,42 16,70 24,70 24,42 36,50 30,35 38,18 26,20';
+  return (
+    <svg viewBox="0 0 640 480" className={className} aria-hidden="true">
+      <path fill="#003DA5" d="M0 0h640v480H0z" />
+      <path fill="#fff" d="M280 0h80v480h-80z" />
+      <path fill="#fff" d="M0 200h640v80H0z" />
+      <polygon fill="#fff" points={petal} transform="translate(120,65)" />
+      <polygon fill="#fff" points={petal} transform="translate(480,65)" />
+      <polygon fill="#fff" points={petal} transform="translate(120,345)" />
+      <polygon fill="#fff" points={petal} transform="translate(480,345)" />
     </svg>
   );
 }

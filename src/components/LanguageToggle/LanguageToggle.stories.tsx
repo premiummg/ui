@@ -20,3 +20,14 @@ export const Default: Story = {
     return <Demo />;
   },
 };
+
+export const QuebecFlag: Story = {
+  args: { names: { en: 'English', fr: 'Français' }, quebecFlag: true },
+  render: (args) => {
+    function Demo() {
+      const [lang, setLang] = useState<Lang>('fr');
+      return <LanguageToggle {...args} lang={lang} onChange={setLang} />;
+    }
+    return <Demo />;
+  },
+};

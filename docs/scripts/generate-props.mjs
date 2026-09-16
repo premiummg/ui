@@ -209,29 +209,38 @@ const result = {};
 const storyOrder = {};
 const storySource = {};
 
-for (const name of readdirSync(componentsDir)) {
+// Collect every component's own file up front so react-docgen-typescript's
+// parse() runs once across all of them, sharing a single TypeScript program
+// (parsing/binding React's + lib.d.ts's types once) instead of paying that
+// cost fresh per component - the previous per-file loop built a brand-new
+// ts.createProgram() ~60 times over, which only gets slower as the library
+// grows.
+const componentNames = readdirSync(componentsDir).filter(name => {
   const dir = path.join(componentsDir, name);
-  if (!statSync(dir).isDirectory()) continue;
-  const file = path.join(dir, `${name}.tsx`);
-  try {
-    statSync(file);
-  } catch {
-    continue; // e.g. an index-only folder
-  }
+  return statSync(dir).isDirectory();
+});
+const componentFiles = componentNames
+  .map(name => path.join(componentsDir, name, `${name}.tsx`))
+  .filter(file => {
+    try { statSync(file); return true; } catch { return false; } // e.g. an index-only folder
+  });
 
-  const docs = parse(file, options);
-  for (const doc of docs) {
-    const props = Object.entries(doc.props ?? {}).map(([propName, p]) => ({
-      name: propName,
-      type: p.type?.name ?? 'unknown',
-      required: p.required,
-      defaultValue: p.defaultValue?.value ?? null,
-      description: p.description || null,
-    }));
-    if (props.length === 0 && doc.displayName !== name) continue;
-    result[doc.displayName] = props;
-  }
+const docs = parse(componentFiles, options);
+for (const doc of docs) {
+  const props = Object.entries(doc.props ?? {}).map(([propName, p]) => ({
+    name: propName,
+    type: p.type?.name ?? 'unknown',
+    required: p.required,
+    defaultValue: p.defaultValue?.value ?? null,
+    description: p.description || null,
+  }));
+  const displayNameMatchesFolder = path.basename(doc.filePath, '.tsx') === doc.displayName;
+  if (props.length === 0 && !displayNameMatchesFolder) continue;
+  result[doc.displayName] = props;
+}
 
+for (const name of componentNames) {
+  const dir = path.join(componentsDir, name);
   const storiesFile = path.join(dir, `${name}.stories.tsx`);
   try {
     const source = readFileSync(storiesFile, 'utf8').replace(/\r\n/g, '\n');

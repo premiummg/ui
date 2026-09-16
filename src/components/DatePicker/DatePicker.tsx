@@ -1,11 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import {
   format, startOfMonth, startOfWeek, addDays, addMonths, subMonths,
   isSameDay, isSameMonth, parseISO, isValid, endOfWeek, endOfMonth,
   setMonth, setYear, getYear, getMonth, isAfter, isBefore, startOfDay,
 } from 'date-fns';
 import { FiCalendar, FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { usePopover } from '../../hooks/usePopover';
+import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 export interface DatePickerProps {
   value: string;
@@ -40,13 +41,12 @@ function yearPageStart(year: number) {
 }
 
 export function DatePicker({ value, onChange, disabled, placeholder = 'Select date', id, className = '', maxDate, minDate, unavailableDates }: DatePickerProps) {
-  const [open, setOpen] = useState(false);
   const [view, setView] = useState<View>('days');
   const [viewMonth, setViewMonth] = useState<Date>(() => {
     const p = value ? parseISO(value) : null;
     return p && isValid(p) ? p : new Date();
   });
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { open, setOpen, ref: containerRef } = usePopover<HTMLDivElement>(() => setView('days'));
 
   const selected: Date | null = value && isValid(parseISO(value)) ? parseISO(value) : null;
   const today = new Date();
@@ -73,16 +73,21 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
     if (minDate && year < getYear(minDate)) return true;
     return false;
   }
+  // Compares (year, month) as a single ordinal so the boundary check holds
+  // across year edges too - separate year/month comparisons ANDed together
+  // (the previous approach) only work while viewMonth and the min/maxDate
+  // share a year, and silently flip to "enabled" once viewMonth is paged
+  // into a different year than the bound.
+  const ym = (d: Date) => getYear(d) * 12 + getMonth(d);
   const nextDisabled =
-    view === 'days'   ? (maxDate ? isAfter(startOfDay(maxDate)!, startOfDay(startOfMonth(viewMonth))) && getMonth(viewMonth) >= getMonth(maxDate) && getYear(viewMonth) >= getYear(maxDate) : false) :
+    view === 'days'   ? (maxDate ? ym(viewMonth) >= ym(maxDate) : false) :
     view === 'months' ? (maxDate ? getYear(viewMonth) >= getYear(maxDate) : false) :
     (maxDate ? yearStart + YEARS_PER_PAGE > getYear(maxDate) : false);
   const prevDisabled =
-    view === 'days'   ? (minDate ? getMonth(viewMonth) <= getMonth(minDate) && getYear(viewMonth) <= getYear(minDate) : false) :
+    view === 'days'   ? (minDate ? ym(viewMonth) <= ym(minDate) : false) :
     view === 'months' ? (minDate ? getYear(viewMonth) <= getYear(minDate) : false) :
     (minDate ? yearStart <= yearPageStart(getYear(minDate)) : false);
 
-  useOutsideClick(containerRef, () => { setOpen(false); setView('days'); }, open);
 
   function toggle() {
     if (disabled) return;
@@ -122,6 +127,11 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
   function handleHeaderClick() {
     setView(v => v === 'days' ? 'months' : v === 'months' ? 'years' : 'years');
   }
+
+  // Memoized on viewMonth - otherwise this calendar-grid math reruns on
+  // every render while the dropdown happens to be open, not just when
+  // viewMonth actually changes.
+  const calendarDays = useMemo(() => buildCalendarDays(viewMonth), [viewMonth]);
 
   const headerLabel =
     view === 'days'   ? format(viewMonth, 'MMMM yyyy') :
@@ -167,7 +177,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-50 mt-2 left-0 w-72 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+        <div className={`absolute mt-2 left-0 w-72 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
 
           {/* Month/year nav */}
           <div className="flex items-center justify-between px-4 pt-4 pb-3">
@@ -209,7 +219,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
               </div>
               {/* Day cells */}
               <div className="grid grid-cols-7 gap-y-0.5">
-                {buildCalendarDays(viewMonth).map((day, i) => {
+                {calendarDays.map((day, i) => {
                   const isSel    = selected ? isSameDay(day, selected) : false;
                   const isT      = isSameDay(day, today);
                   const inMonth  = isSameMonth(day, viewMonth);

@@ -1,5 +1,5 @@
-import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, test, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { WeekNav } from './WeekNav';
 
@@ -44,5 +44,50 @@ describe('WeekNav', () => {
     expect(currentBtn).not.toBeDisabled();
     await userEvent.click(currentBtn);
     expect(onChange).toHaveBeenCalledWith(null);
+  });
+
+  test('the header cycles weeks -> months -> years, and picking a year jumps back to its months view', async () => {
+    render(<WeekNav value="2026-03-16" onChange={() => {}} />);
+    await userEvent.click(screen.getByText('Mar 16 – Mar 22'));
+    await userEvent.click(screen.getByText('March 2026')); // -> months view
+    await userEvent.click(screen.getByText('2026')); // -> years view (decade page)
+    expect(screen.getByText('2016 – 2027')).toBeInTheDocument();
+    await userEvent.click(screen.getByText('2020'));
+    expect(screen.getByText('2020')).toBeInTheDocument(); // back in months view, header now reads 2020
+    expect(screen.getByText('Mar')).toBeInTheDocument(); // months grid is showing again
+  });
+
+  test('variant="hero" gives the trigger row white-on-transparent chrome', () => {
+    const { container } = render(<WeekNav value={null} onChange={() => {}} variant="hero" />);
+    expect(container.querySelector('.bg-white\\/15')).toBeInTheDocument();
+  });
+
+  test('clicking outside closes the picker', async () => {
+    render(
+      <div>
+        <div data-testid="outside" />
+        <WeekNav value="2026-03-16" onChange={() => {}} />
+      </div>,
+    );
+    await userEvent.click(screen.getByText('Mar 16 – Mar 22'));
+    expect(screen.getByText('March 2026')).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('outside'));
+    expect(screen.queryByText('March 2026')).not.toBeInTheDocument();
+  });
+
+  describe('when the current week\'s Monday falls in the previous month', () => {
+    afterEach(() => { vi.useRealTimers(); });
+
+    test('the real current month is not marked unavailable in the months quick-jump', () => {
+      // May 1, 2026 is a Friday, so its week's Monday is Apr 27 - a case
+      // where deriving "the current month" from the week's Monday (instead
+      // of from today's real date) picks April instead of May.
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 4, 1));
+      render(<WeekNav value={null} onChange={() => {}} />);
+      fireEvent.click(screen.getByText('Apr 27 – May 3'));
+      fireEvent.click(screen.getByText('April 2026'));
+      expect(screen.getByText('May')).not.toBeDisabled();
+    });
   });
 });

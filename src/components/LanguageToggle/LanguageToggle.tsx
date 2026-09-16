@@ -1,4 +1,4 @@
-import { FlagCanada, FlagAcadian } from '../Flags';
+import { FlagCanada, FlagAcadian, FlagQuebec } from '../Flags';
 
 export type Lang = 'en' | 'fr';
 
@@ -7,20 +7,27 @@ export interface LanguageToggleProps {
   onChange: (lang: Lang) => void;
   // Names shown in the title/aria-label for each option, e.g. { en: 'English', fr: 'Acadian French' }.
   names: Record<Lang, string>;
+  // Which flag stands for French - Acadian (the default) or Quebec's
+  // fleurdelisé. This package has no state/context of its own, so it can't
+  // look this up itself the way the main app's LanguageToggle reads it from
+  // a per-division feature flag - the consumer decides and passes it in,
+  // same as `names` already is.
+  quebecFlag?: boolean;
 }
 
 // A segmented control with BOTH languages always visible, the live one
 // filled - not a single icon that toggles to show only the other language.
 // That single-icon pattern is exactly the one that makes half a bilingual
 // audience guess which state they're currently in.
-export function LanguageToggle({ lang, onChange, names }: LanguageToggleProps) {
+export function LanguageToggle({ lang, onChange, names, quebecFlag = false }: LanguageToggleProps) {
+  const FrFlag = quebecFlag ? FlagQuebec : FlagAcadian;
   return (
     // inline-flex, not flex: a bare `flex` container is still block-level
     // and stretches to its parent's full width outside a flex/inline
     // context, same as OverflowMenu/MonthNav/WeekNav/NotificationBell had -
     // this one just wasn't caught in that pass.
     <div className="inline-flex items-center rounded-lg border border-gray-200 dark:border-white/15 p-0.5">
-      {([['en', FlagCanada], ['fr', FlagAcadian]] as const).map(([l, Flag]) => (
+      {([['en', FlagCanada], ['fr', FrFlag]] as const).map(([l, Flag]) => (
         <button
           key={l}
           onClick={() => onChange(l)}

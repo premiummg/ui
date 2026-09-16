@@ -104,7 +104,7 @@ export { UnitField, DEFAULT_UNIT_OPTIONS } from './components/UnitField';
 export type { UnitFieldProps } from './components/UnitField';
 
 export { StatCard } from './components/StatCard';
-export type { StatCardProps } from './components/StatCard';
+export type { StatCardProps, StatCardTone } from './components/StatCard';
 
 export { NavTile } from './components/NavTile';
 export type { NavTileProps } from './components/NavTile';
@@ -121,7 +121,7 @@ export type { SectionHeadProps } from './components/SectionHead';
 export { SiteButton } from './components/SiteButton';
 export type { SiteButtonProps, SiteButtonVariant } from './components/SiteButton';
 
-export { FlagCanada, FlagAcadian, AcadianStar } from './components/Flags';
+export { FlagCanada, FlagAcadian, FlagQuebec, AcadianStar } from './components/Flags';
 export type { FlagProps } from './components/Flags';
 
 export { LanguageToggle } from './components/LanguageToggle';
@@ -156,6 +156,27 @@ export type { StatBlockProps } from './components/StatBlock';
 
 export { MediaCard } from './components/MediaCard';
 export type { MediaCardProps } from './components/MediaCard';
+
+export { Avatar } from './components/Avatar';
+export type { AvatarProps } from './components/Avatar';
+
+export { ConfirmDialog } from './components/ConfirmDialog';
+export type { ConfirmDialogProps, ConfirmDialogTone, ConfirmDialogAction } from './components/ConfirmDialog';
+
+export { NewsTicker } from './components/NewsTicker';
+export type { NewsTickerProps, NewsTickerItem } from './components/NewsTicker';
+
+export { FileDropzone } from './components/FileDropzone';
+export type { FileDropzoneProps } from './components/FileDropzone';
+
+export { FilePill } from './components/FilePill';
+export type { FilePillProps } from './components/FilePill';
+
+export { AttachmentTile } from './components/AttachmentTile';
+export type { AttachmentTileProps, AttachmentTileType } from './components/AttachmentTile';
+
+export { SearchPicker } from './components/SearchPicker';
+export type { SearchPickerProps, PickerItem, PickerGroup } from './components/SearchPicker';
 
 export { useOutsideClick } from './hooks/useOutsideClick';
 export { useDarkMode } from './hooks/useDarkMode';

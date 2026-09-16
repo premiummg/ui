@@ -22,12 +22,86 @@
       "description": null
     }
   ],
+  "AttachmentTile": [
+    {
+      "name": "name",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "type",
+      "type": "AttachmentTileType",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "previewUrl",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onDownload",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
   "AuthShell": [
     {
       "name": "eyebrow",
       "type": "string",
       "required": true,
       "defaultValue": null,
+      "description": null
+    }
+  ],
+  "Avatar": [
+    {
+      "name": "fullName",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "defaultValue": 40,
+      "description": null
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
       "description": null
     }
   ],
@@ -97,6 +171,78 @@
       "type": "string",
       "required": false,
       "defaultValue": "",
+      "description": null
+    }
+  ],
+  "ConfirmDialog": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onConfirm",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "tone",
+      "type": "ConfirmDialogTone",
+      "required": false,
+      "defaultValue": "danger",
+      "description": null
+    },
+    {
+      "name": "icon",
+      "type": "IconType",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "confirmLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Confirm",
+      "description": null
+    },
+    {
+      "name": "cancelLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Cancel",
+      "description": null
+    },
+    {
+      "name": "actions",
+      "type": "ConfirmDialogAction[]",
+      "required": false,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -250,14 +396,14 @@
       "description": null
     },
     {
-      "name": "background",
+      "name": "color",
       "type": "string",
       "required": false,
       "defaultValue": null,
       "description": null
     },
     {
-      "name": "lineColor",
+      "name": "barsColor",
       "type": "string",
       "required": false,
       "defaultValue": null,
@@ -332,6 +478,80 @@
       "type": "ReactNode",
       "required": false,
       "defaultValue": null,
+      "description": null
+    }
+  ],
+  "FileDropzone": [
+    {
+      "name": "onFiles",
+      "type": "(files: File[]) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "accept",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "multiple",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": true,
+      "description": null
+    },
+    {
+      "name": "maxSizeMB",
+      "type": "number",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Drag a file here, or click to browse",
+      "description": null
+    },
+    {
+      "name": "hint",
+      "type": "string",
+      "required": false,
+      "defaultValue": "PDF, Word, Excel, PowerPoint, images…",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "FilePill": [
+    {
+      "name": "name",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onRemove",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
       "description": null
     }
   ],
@@ -435,6 +655,15 @@
     }
   ],
   "FlagAcadian": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "FlagQuebec": [
     {
       "name": "className",
       "type": "string",
@@ -588,6 +817,13 @@
       "type": "Record<Lang, string>",
       "required": true,
       "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "quebecFlag",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
       "description": null
     }
   ],
@@ -761,6 +997,36 @@
       "type": "() => void",
       "required": true,
       "defaultValue": null,
+      "description": null
+    }
+  ],
+  "NewsTicker": [
+    {
+      "name": "items",
+      "type": "NewsTickerItem[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Latest News",
+      "description": null
+    },
+    {
+      "name": "onItemClick",
+      "type": "(item: NewsTickerItem) => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
       "description": null
     }
   ],
@@ -1089,7 +1355,7 @@
     },
     {
       "name": "mode",
-      "type": "\"auto\" | \"light\" | \"dark\"",
+      "type": "\"auto\" | \"dark\" | \"light\"",
       "required": false,
       "defaultValue": "auto",
       "description": null
@@ -1224,6 +1490,43 @@
       "description": null
     }
   ],
+  "SearchPicker": [
+    {
+      "name": "groups",
+      "type": "PickerGroup[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "emptyText",
+      "type": "string",
+      "required": false,
+      "defaultValue": "No matches",
+      "description": null
+    },
+    {
+      "name": "value",
+      "type": "PickerItem",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(item: PickerItem) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
   "SectionHead": [
     {
       "name": "eyebrow",
@@ -1248,7 +1551,7 @@
     },
     {
       "name": "tone",
-      "type": "\"light\" | \"dark\"",
+      "type": "\"dark\" | \"light\"",
       "required": false,
       "defaultValue": "light",
       "description": null
@@ -1436,7 +1739,7 @@
       "description": null
     },
     {
-      "name": "accent",
+      "name": "tone",
       "type": "\"amber\"",
       "required": false,
       "defaultValue": null,

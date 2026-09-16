@@ -190,6 +190,24 @@ input[type='number']::-webkit-inner-spin-button {
   }
 }
 
+/* NewsTicker's scrolling track - see that component for why the content is
+   repeated several times over (a seamless -50%→0% loop) and paused on
+   hover (so a headline holds still long enough to read or click). */
+@keyframes news-ticker {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+.news-ticker-track {
+  animation: news-ticker linear infinite;
+}
+.news-ticker-track:hover {
+  animation-play-state: paused;
+}
+
 /* ──────────────────────────────────────────────────────────────────────
    Premium graphic language
 
