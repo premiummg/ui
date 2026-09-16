@@ -3,7 +3,7 @@ import { render, screen, renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ReactNode } from 'react';
 import { Toaster } from './Toaster';
-import { ToastProvider, useToast, emitToast } from './ToastContext';
+import { ToastProvider, useToast, emitToast, ToastType } from './ToastContext';
 
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
@@ -58,5 +58,20 @@ describe('Toaster + ToastProvider', () => {
     const { unmount } = renderHook(() => useToast(), { wrapper });
     unmount();
     expect(() => emitToast('Nobody is listening')).not.toThrow();
+  });
+
+  test('an unrecognized toast type falls back to the info style instead of crashing', async () => {
+    function Demo() {
+      const { toast } = useToast();
+      return (
+        <>
+          <button onClick={() => toast('Odd toast', 'unexpected' as ToastType)}>Fire</button>
+          <Toaster />
+        </>
+      );
+    }
+    render(<Demo />, { wrapper });
+    await userEvent.click(screen.getByText('Fire'));
+    expect(screen.getByText('Odd toast')).toBeInTheDocument();
   });
 });

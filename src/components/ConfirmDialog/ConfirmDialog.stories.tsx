@@ -35,6 +35,27 @@ export const Danger: Story = {
   },
 };
 
+export const NoIcon: Story = {
+  render: () => {
+    function Demo() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <Button variant="secondary" onClick={() => setOpen(true)}>Sign out</Button>
+          <ConfirmDialog
+            open={open}
+            onClose={() => setOpen(false)}
+            title="Sign out?"
+            message="You'll need to sign in again to continue."
+            confirmLabel="Sign out"
+          />
+        </>
+      );
+    }
+    return <Demo />;
+  },
+};
+
 export const Caution: Story = {
   render: () => {
     function Demo() {

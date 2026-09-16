@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Modal } from './Modal';
 
@@ -24,6 +24,20 @@ describe('Modal', () => {
     const onClose = vi.fn();
     render(<Modal onClose={onClose}>content</Modal>);
     await userEvent.click(screen.getByText('content'));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  test('a text selection dragged from the panel out past the backdrop does not call onClose', () => {
+    const onClose = vi.fn();
+    const { container } = render(
+      <Modal onClose={onClose}>
+        <div data-testid="panel">selectable content</div>
+      </Modal>,
+    );
+    const overlay = container.firstChild as Element;
+    const panel = screen.getByTestId('panel');
+    fireEvent.mouseDown(panel);
+    fireEvent.click(overlay);
     expect(onClose).not.toHaveBeenCalled();
   });
 

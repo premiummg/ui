@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 
 export interface ModalProps {
   onClose: () => void;
@@ -20,14 +20,22 @@ export function Modal({ onClose, title, description, children, maxWidth = 'max-w
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  // Selecting text near the modal's edge (mousedown inside the content,
+  // mouseup outside it once the drag crosses the boundary) fires a click
+  // event whose target is the overlay itself - a plain onClick={onClose}
+  // on the overlay would wrongly treat that as an outside click and close
+  // the modal mid-selection. Only close when BOTH the press and the release
+  // happened directly on the overlay, never when either started inside.
+  const pressedOverlay = useRef(false);
+
   return (
     <div
       className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-sm`}
-      onClick={onClose}
+      onMouseDown={e => { pressedOverlay.current = e.target === e.currentTarget; }}
+      onClick={e => { if (e.target === e.currentTarget && pressedOverlay.current) onClose(); }}
     >
       <div
         className={`bg-white dark:bg-(--premium-dark-grey) rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 w-full ${maxWidth}`}
-        onClick={e => e.stopPropagation()}
       >
         <div className="p-6">
           {title && (

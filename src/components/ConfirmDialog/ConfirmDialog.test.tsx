@@ -71,4 +71,19 @@ describe('ConfirmDialog', () => {
     expect(discard).toHaveBeenCalledTimes(1);
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  test('renders without an icon tile when icon is omitted', () => {
+    const { title, message, confirmLabel } = baseProps;
+    const { container } = render(
+      <ConfirmDialog open onClose={() => {}} title={title} message={message} confirmLabel={confirmLabel} />,
+    );
+    expect(screen.getByText('Delete this item?')).toBeInTheDocument();
+    expect(container.querySelector('svg')).not.toBeInTheDocument();
+  });
+
+  test('confirmDisabled disables both the confirm and cancel buttons', () => {
+    render(<ConfirmDialog {...baseProps} open onClose={() => {}} confirmDisabled />);
+    expect(screen.getByText('Delete').closest('button')).toBeDisabled();
+    expect(screen.getByText('Cancel').closest('button')).toBeDisabled();
+  });
 });

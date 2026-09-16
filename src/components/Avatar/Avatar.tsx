@@ -5,6 +5,9 @@ export interface AvatarProps {
   // list a distinct, stable color (hash their id into a palette) instead of
   // every avatar reading the same neutral grey.
   color?: string;
+  // When given, the avatar becomes a real button (cursor-pointer, keyboard
+  // reachable) instead of a purely decorative initials tile.
+  onClick?: () => void;
   className?: string;
 }
 
@@ -14,7 +17,7 @@ export interface AvatarProps {
 // Steel Grey background regardless of theme by default: an avatar is a
 // small, low-contrast UI element next to a name that's already doing the
 // identifying work, not something that needs its own brand-red emphasis.
-export function Avatar({ fullName, size = 40, color, className = '' }: AvatarProps) {
+export function Avatar({ fullName, size = 40, color, onClick, className = '' }: AvatarProps) {
   const initials = fullName
     .trim()
     .split(/\s+/)
@@ -24,7 +27,8 @@ export function Avatar({ fullName, size = 40, color, className = '' }: AvatarPro
     .slice(0, 2);
   return (
     <div
-      className={`shrink-0 rounded-full grid place-items-center font-heading font-bold text-white ${color ? '' : 'bg-(--premium-steel-grey)'} ${className}`}
+      onClick={onClick}
+      className={`shrink-0 rounded-full grid place-items-center font-heading font-bold text-white ${color ? '' : 'bg-(--premium-steel-grey)'} ${onClick ? 'cursor-pointer' : ''} ${className}`}
       style={{ width: size, height: size, fontSize: Math.max(11, size * 0.36), ...(color ? { backgroundColor: color } : {}) }}
     >
       {initials}

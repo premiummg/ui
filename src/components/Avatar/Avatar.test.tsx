@@ -1,5 +1,6 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Avatar } from './Avatar';
 
 describe('Avatar', () => {
@@ -30,5 +31,20 @@ describe('Avatar', () => {
     const el = container.firstElementChild as HTMLElement;
     expect(el.style.backgroundColor).toBe('rgb(37, 99, 235)');
     expect(el.className).not.toContain('premium-steel-grey');
+  });
+
+  test('onClick makes it a real clickable element', async () => {
+    const onClick = vi.fn();
+    const { container } = render(<Avatar fullName="Jordan Reid" onClick={onClick} />);
+    const el = container.firstElementChild as HTMLElement;
+    expect(el.className).toContain('cursor-pointer');
+    await userEvent.click(el);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('without onClick it stays non-interactive', () => {
+    const { container } = render(<Avatar fullName="Jordan Reid" />);
+    const el = container.firstElementChild as HTMLElement;
+    expect(el.className).not.toContain('cursor-pointer');
   });
 });

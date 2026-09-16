@@ -32,3 +32,7 @@ export const CustomColors: Story = {
     </div>
   ),
 };
+
+export const Clickable: Story = {
+  args: { onClick: () => alert('Avatar clicked') },
+};
