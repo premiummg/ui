@@ -13,6 +13,7 @@ import * as MediaCardStories from '../../../src/components/MediaCard/MediaCard.s
 import * as EyebrowStories from '../../../src/components/Eyebrow/Eyebrow.stories';
 import * as SectionHeadStories from '../../../src/components/SectionHead/SectionHead.stories';
 import * as PortraitFigureStories from '../../../src/components/PortraitFigure/PortraitFigure.stories';
+import * as RevealStories from '../../../src/components/Reveal/Reveal.stories';
 
 const frame = (demos: { label: string; node: React.ReactNode }[], height?: number) =>
   demos.map(d => ({ ...d, node: <FramedPreview height={height}>{d.node}</FramedPreview> }));
@@ -85,5 +86,11 @@ export const marketing: ComponentDoc[] = [
     summary: 'A team-member/founder photo with a name+role tag cut into its corner at the brand’s own 45deg angle.',
     notes: 'color defaults to Premium’s secondary red, same as ColorField - any CSS color works for a sister brand.',
     demos: demosFromModule(PortraitFigureStories),
+  },
+  {
+    name: 'Reveal',
+    summary: 'Fades a section in, once, the first time it scrolls into view - the standard landing-page "reveal on scroll" treatment.',
+    notes: 'motion-safe: respects prefers-reduced-motion; a deadman-switch timeout reveals the content anyway if IntersectionObserver never fires, so a landing page’s copy is never silently invisible. This panel already has it in view, so both demos below render already-settled - scroll one out of view and back into a real page to see the transition itself.',
+    demos: demosFromModule(RevealStories),
   },
 ];

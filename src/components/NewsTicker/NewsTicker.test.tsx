@@ -47,4 +47,15 @@ describe('NewsTicker', () => {
     expect(screen.getAllByText('New parking policy')[0].closest('a')).toBeNull();
     expect(screen.getAllByText('New parking policy')[0].closest('button')).not.toBeNull();
   });
+
+  test('scroll speed stays proportional to item count, even for a short list', () => {
+    // No fixed floor: a 1-item list must not take as long to scroll as a
+    // much longer one just because a minimum duration forced it to.
+    const { container: oneItem } = render(<NewsTicker items={[items[0]]} />);
+    const { container: twoItems } = render(<NewsTicker items={items} />);
+    const track1 = oneItem.querySelector('.news-ticker-track') as HTMLElement;
+    const track2 = twoItems.querySelector('.news-ticker-track') as HTMLElement;
+    expect(track1.style.animationDuration).toBe('30s');
+    expect(track2.style.animationDuration).toBe('60s');
+  });
 });

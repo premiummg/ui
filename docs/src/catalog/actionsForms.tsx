@@ -6,12 +6,15 @@ import * as FormLabelStories from '../../../src/components/FormLabel/FormLabel.s
 import * as FieldErrorStories from '../../../src/components/FieldError/FieldError.stories';
 import * as FieldGroupStories from '../../../src/components/FieldGroup/FieldGroup.stories';
 import * as SearchInputStories from '../../../src/components/SearchInput/SearchInput.stories';
+import * as SearchPickerStories from '../../../src/components/SearchPicker/SearchPicker.stories';
 import * as PasswordInputStories from '../../../src/components/PasswordInput/PasswordInput.stories';
 import * as UnitFieldStories from '../../../src/components/UnitField/UnitField.stories';
 import * as DashedAddButtonStories from '../../../src/components/DashedAddButton/DashedAddButton.stories';
 import * as SegmentedControlStories from '../../../src/components/SegmentedControl/SegmentedControl.stories';
 import * as ColorFieldStories from '../../../src/components/ColorField/ColorField.stories';
 import * as DatePickerStories from '../../../src/components/DatePicker/DatePicker.stories';
+import * as FileDropzoneStories from '../../../src/components/FileDropzone/FileDropzone.stories';
+import * as FilePillStories from '../../../src/components/FilePill/FilePill.stories';
 
 export const actionsForms: ComponentDoc[] = [
   {
@@ -39,6 +42,12 @@ export const actionsForms: ComponentDoc[] = [
     name: 'SearchInput',
     summary: 'Debounced text input with a clear button, .input-field styling.',
     demos: demosFromModule(SearchInputStories),
+  },
+  {
+    name: 'SearchPicker',
+    summary: 'A search-then-select combobox - a plain text box until focused, then a grouped/filterable dropdown, collapsing to a selected-value chip (with its own clear button) once something’s picked.',
+    notes: 'Controlled (value/onChange), same as every other picker in this package. The shape behind "find and pick one" generally - a project search, an employee picker, a vendor picker - that SearchInput above doesn’t cover (no dropdown, no groups, no selection state).',
+    demos: demosFromModule(SearchPickerStories),
   },
   {
     name: 'PasswordInput',
@@ -72,5 +81,17 @@ export const actionsForms: ComponentDoc[] = [
     name: 'DatePicker',
     summary: 'Day/month/year calendar dropdown, built on date-fns. minDate/maxDate, plus unavailableDates shown struck-through and unselectable.',
     demos: demosFromModule(DatePickerStories),
+  },
+  {
+    name: 'FileDropzone',
+    summary: 'A drag-or-click file picker - dropping a file and clicking through to the native file dialog both feed the same onFiles(File[]) callback, so a consumer never branches on how the file arrived.',
+    notes: 'accept (extensions, MIME types, or type/* wildcards) and maxSizeMB are both actually enforced on every file, not just hinted to the native picker dialog - a dropped file that fails either check is dropped from the callback and named in an inline error instead of silently reaching the caller.',
+    demos: demosFromModule(FileDropzoneStories),
+  },
+  {
+    name: 'FilePill',
+    summary: 'A picked-but-not-yet-uploaded file in a list under FileDropzone - name plus a remove control, nothing else.',
+    notes: 'No size/preview here - that’s AttachmentTile’s job (Data Display), for a file that’s actually been uploaded.',
+    demos: demosFromModule(FilePillStories),
   },
 ];

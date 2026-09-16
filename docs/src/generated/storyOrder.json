@@ -18,7 +18,8 @@
   "Avatar": [
     "Default",
     "Sizes",
-    "CustomColors"
+    "CustomColors",
+    "Clickable"
   ],
   "Button": [
     "Primary",
@@ -43,6 +44,7 @@
   ],
   "ConfirmDialog": [
     "Danger",
+    "NoIcon",
     "Caution",
     "CustomActions"
   ],

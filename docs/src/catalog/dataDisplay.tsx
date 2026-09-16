@@ -4,6 +4,7 @@ import { FramedPreview } from '../components/doc/Section';
 import { demosFromModule, renderStory } from '../lib/renderStory';
 
 import * as CardStories from '../../../src/components/Card/Card.stories';
+import * as AvatarStories from '../../../src/components/Avatar/Avatar.stories';
 import * as ScrollableTableStories from '../../../src/components/ScrollableTable/ScrollableTable.stories';
 import * as SortableColumnHeaderStories from '../../../src/components/SortableColumnHeader/SortableColumnHeader.stories';
 import * as TablePlaceholderRowStories from '../../../src/components/TablePlaceholderRow/TablePlaceholderRow.stories';
@@ -14,7 +15,9 @@ import * as StatCardStories from '../../../src/components/StatCard/StatCard.stor
 import * as NavTileStories from '../../../src/components/NavTile/NavTile.stories';
 import * as PageHeaderStories from '../../../src/components/PageHeader/PageHeader.stories';
 import * as ModalStories from '../../../src/components/Modal/Modal.stories';
+import * as ConfirmDialogStories from '../../../src/components/ConfirmDialog/ConfirmDialog.stories';
 import * as ErrorBoundaryStories from '../../../src/components/ErrorBoundary/ErrorBoundary.stories';
+import * as AttachmentTileStories from '../../../src/components/AttachmentTile/AttachmentTile.stories';
 import { EmployeeTableDemo } from './demos/EmployeeTableDemo';
 
 const frame = (demos: { label: string; node: React.ReactNode }[], height?: number, center?: boolean) =>
@@ -48,6 +51,12 @@ export const dataDisplay: ComponentDoc[] = [
     name: 'Card',
     summary: 'Bordered rounded container. padding defaults to false.',
     demos: demosFromModule(CardStories),
+  },
+  {
+    name: 'Avatar',
+    summary: 'Initials-only avatar (no photo upload exists anywhere yet) - fullName, size.',
+    notes: 'color overrides the default Steel Grey fill, e.g. to give each person a stable distinct color (hash their id into a palette, at the call site).',
+    demos: demosFromModule(AvatarStories),
   },
   {
     name: 'ScrollableTable',
@@ -111,10 +120,22 @@ export const dataDisplay: ComponentDoc[] = [
     demos: modalDemos,
   },
   {
+    name: 'ConfirmDialog',
+    summary: 'A centered icon + title + message + confirm/cancel pair, composed on top of Modal rather than reimplementing its overlay/Escape-key handling.',
+    notes: 'tone: danger (default, MAIN red) / caution (amber). Most apps here still compose confirmations from Modal directly per-flow - this is for a consumer that wants the packaged shape instead. Pass actions (an array of {label, onClick, variant}) to replace the default confirm/cancel pair entirely, for a flow that needs a different button count or wording ("Save draft" / "Discard" / "Cancel"). icon is optional - plenty of real confirmations are just a title/message with no icon tile at all ("Sign out?").',
+    demos: demosFromModule(ConfirmDialogStories),
+  },
+  {
     name: 'ErrorBoundary',
     summary: 'Class boundary with a branded fallback; auto-reloads once on a stale deployed-chunk error.',
     notes: 'Both demos below intentionally throw inside children, so what you see IS the real fallback UI catching a real error. color/barsColor let a sister brand reuse the same shell (corner bracket, texture, one action) with its own palette instead of a second fallback component.',
     demos: frame(demosFromModule(ErrorBoundaryStories), 340, true),
     wide: true,
+  },
+  {
+    name: 'AttachmentTile',
+    summary: 'A collapsible row for one already-uploaded file - name/size, an optional download action, and (expanded by default) a preview body.',
+    notes: 'Pass previewUrl for a real image preview; pdf/other fall back to a placeholder body, since rendering an actual PDF needs a viewer library this package deliberately doesn’t bundle. Not a picker on its own - FileDropzone + FilePill (Actions & Forms) cover picking files before they’re uploaded, this covers showing one that already has been.',
+    demos: demosFromModule(AttachmentTileStories),
   },
 ];

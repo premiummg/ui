@@ -45,7 +45,12 @@ export function NewsTicker({ items, label = 'Latest News', onItemClick, classNam
       <div className="relative flex-1 overflow-hidden">
         <div
           className="news-ticker-track flex w-max gap-10 whitespace-nowrap py-3 pl-6"
-          style={{ animationDuration: `${Math.max(90, items.length * 30)}s` }}
+          // 30s per item keeps a constant scroll speed at any item count - a
+          // fixed floor here (an earlier version had one) makes a short list
+          // crawl far slower than a long one for the exact same reason a
+          // fixed-duration marquee always does: the same time budget has to
+          // cover less content, so a short list looks like it's dragging.
+          style={{ animationDuration: `${items.length * 30}s` }}
         >
           {repeated.map((item, i) => {
             const linkClassName = `text-xs font-medium transition ${

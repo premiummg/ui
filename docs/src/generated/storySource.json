@@ -18,7 +18,8 @@
   "Avatar": {
     "Default": "<Avatar fullName=\"Jordan Reid\" />",
     "Sizes": "<div className=\"flex items-end gap-3\">\n  <Avatar fullName=\"Jordan Reid\" size={24} />\n  <Avatar fullName=\"Jordan Reid\" size={32} />\n  <Avatar fullName=\"Jordan Reid\" size={40} />\n  <Avatar fullName=\"Jordan Reid\" size={56} />\n</div>",
-    "CustomColors": "<div className=\"flex items-end gap-3\">\n  <Avatar fullName=\"Jordan Reid\" color=\"#2563eb\" />\n  <Avatar fullName=\"Alex Chen\" color=\"#059669\" />\n  <Avatar fullName=\"Sam Okafor\" color=\"#d97706\" />\n</div>"
+    "CustomColors": "<div className=\"flex items-end gap-3\">\n  <Avatar fullName=\"Jordan Reid\" color=\"#2563eb\" />\n  <Avatar fullName=\"Alex Chen\" color=\"#059669\" />\n  <Avatar fullName=\"Sam Okafor\" color=\"#d97706\" />\n</div>",
+    "Clickable": "<Avatar fullName=\"Jordan Reid\" onClick={() => alert('Avatar clicked')} />"
   },
   "Button": {
     "Primary": "<Button variant=\"primary\">Save changes</Button>",
@@ -43,6 +44,7 @@
   },
   "ConfirmDialog": {
     "Danger": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"danger\" onClick={() => setOpen(true)}>Delete employee</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        tone=\"danger\"\n        icon={FiTrash2}\n        title=\"Delete this employee?\"\n        message=\"This removes their access immediately. Their timesheet history is kept.\"\n        confirmLabel=\"Delete\"\n      />\n    </>\n  );\n}\nreturn <Demo />;",
+    "NoIcon": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Sign out</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        title=\"Sign out?\"\n        message=\"You'll need to sign in again to continue.\"\n        confirmLabel=\"Sign out\"\n      />\n    </>\n  );\n}\nreturn <Demo />;",
     "Caution": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Deactivate account</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        tone=\"caution\"\n        icon={FiAlertTriangle}\n        title=\"Deactivate this account?\"\n        message=\"They can be reactivated later from the same page.\"\n        confirmLabel=\"Deactivate\"\n      />\n    </>\n  );\n}\nreturn <Demo />;",
     "CustomActions": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Close without saving</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        tone=\"caution\"\n        icon={FiSave}\n        title=\"Unsaved changes\"\n        message=\"You have changes that haven't been saved yet.\"\n        actions={[\n          { label: 'Save draft', variant: 'primary', onClick: () => setOpen(false) },\n          { label: 'Discard', variant: 'danger', onClick: () => setOpen(false) },\n          { label: 'Cancel', variant: 'secondary', onClick: () => setOpen(false) },\n        ]}\n      />\n    </>\n  );\n}\nreturn <Demo />;"
   },

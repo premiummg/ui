@@ -10,6 +10,7 @@ import * as WeekNavStories from '../../../src/components/WeekNav/WeekNav.stories
 import * as PaginationStories from '../../../src/components/Pagination/Pagination.stories';
 import * as OverflowMenuStories from '../../../src/components/OverflowMenu/OverflowMenu.stories';
 import * as NotificationBellStories from '../../../src/components/NotificationBell/NotificationBell.stories';
+import * as NewsTickerStories from '../../../src/components/NewsTicker/NewsTicker.stories';
 import * as LanguageToggleStories from '../../../src/components/LanguageToggle/LanguageToggle.stories';
 import * as FlagsStories from '../../../src/components/Flags/Flags.stories';
 import { FlagCanada, FlagAcadian } from '../../../src/components/Flags';
@@ -22,7 +23,16 @@ export const navigationChrome: ComponentDoc[] = [
     name: 'Navbar',
     summary: 'The navbar’s shell: logo, one of three brand-dark tones, the hi-vis stripe underneath. No nav items of its own.',
     notes: 'tone: black / dark / steel - NAV_TONES carries the rationale for each (which one is right depends on the ground it sits on, worth being able to re-decide without touching markup). Compose it with DarkModeToggle, NotificationBell and your own buttons via children, then hand the result to Layout’s navbar prop.',
-    demos: frame(demosFromModule(NavbarStories), 280),
+    // FullyComposed (one navbar) and AllTones (all three tones stacked, each
+    // with its own rationale paragraph) need very different frame heights -
+    // one shared height either wastes space under the single navbar or
+    // clips/hides most of the three-tone comparison behind a scrollbar a
+    // reader has no reason to expect. Framing each demo at its own height
+    // fixes that instead of splitting the difference.
+    demos: [
+      ...frame(demosFromModule(NavbarStories).filter(d => d.label === 'FullyComposed'), 140),
+      ...frame(demosFromModule(NavbarStories).filter(d => d.label === 'AllTones'), 620),
+    ],
     wide: true,
   },
   {
@@ -64,6 +74,13 @@ export const navigationChrome: ComponentDoc[] = [
     summary: 'The icon-with-badge-that-opens-a-dropdown shell shared by a notifications bell, a "pending review" counter, and an unread-messages list.',
     notes: 'The body is children, fully custom, since a notification row and a "5 timesheets pending" row don’t share a shape worth forcing into one prop. NotificationBellEmpty is the same shell with no unread count.',
     demos: demosFromModule(NotificationBellStories),
+  },
+  {
+    name: 'NewsTicker',
+    summary: 'A continuously-scrolling marquee of headlines (an intranet home page’s "Latest News" strip) - the list repeats several times back to back for a seamless loop, and the loop pauses on hover so a headline holds still long enough to read or click.',
+    notes: 'important items get a solid red pill instead of plain text. An item’s optional href renders it as a real link (opened in a new tab) instead of a plain button; onItemClick still fires alongside it if given, e.g. for click tracking.',
+    demos: demosFromModule(NewsTickerStories),
+    wide: true,
   },
   {
     name: 'LanguageToggle',
