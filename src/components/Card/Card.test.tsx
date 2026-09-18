@@ -8,17 +8,17 @@ describe('Card', () => {
     expect(screen.getByText('hello')).toBeInTheDocument();
   });
 
-  test('padding defaults to false (no p-6)', () => {
+  test('padding defaults to true (p-6)', () => {
     render(<Card id="c">content</Card>);
-    expect(document.getElementById('c')!.className).not.toContain('p-6');
+    expect(document.getElementById('c')!.className).toContain('p-6');
   });
 
-  test('padding=true adds p-6', () => {
+  test('padding={false} removes p-6', () => {
     render(
-      <Card id="c" padding>
+      <Card id="c" padding={false}>
         content
       </Card>,
     );
-    expect(document.getElementById('c')!.className).toContain('p-6');
+    expect(document.getElementById('c')!.className).not.toContain('p-6');
   });
 });
