@@ -19,8 +19,24 @@ export interface AddressAutocompleteProps {
   attributionLabel?: string;
 }
 
-function flagEmoji(countryCode: string): string {
-  return countryCode.toUpperCase().replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt(0)));
+// Regional-indicator flag emoji (🇨🇦 etc.) render as an actual flag on iOS/
+// macOS/Android, but Windows' system font has never reliably drawn them as
+// pictures - Chrome/Edge on Windows shows the two letter codes side by side
+// or a blank box instead. A real flag image renders identically everywhere,
+// so this uses flagcdn.com (free, no key/signup) instead of the emoji this
+// component used up through 0.11.0.
+function FlagIcon({ countryCode }: { countryCode: string }) {
+  const code = countryCode.toLowerCase();
+  return (
+    <img
+      src={`https://flagcdn.com/16x12/${code}.png`}
+      srcSet={`https://flagcdn.com/32x24/${code}.png 2x`}
+      width={16}
+      height={12}
+      alt=""
+      className="inline-block align-middle mr-1.5 rounded-[2px]"
+    />
+  );
 }
 
 // Free address autocomplete backed by OpenStreetMap/Nominatim - a plain
@@ -139,7 +155,7 @@ export function AddressAutocomplete({
                 i === highlightedIndex ? 'bg-gray-50 dark:bg-white/5' : 'hover:bg-gray-50 dark:hover:bg-white/5'
               } ${i < suggestions.length - 1 ? 'border-b border-gray-100 dark:border-white/5' : ''}`}
             >
-              {s.countryCode ? `${flagEmoji(s.countryCode)} ` : ''}
+              {s.countryCode && <FlagIcon countryCode={s.countryCode} />}
               {s.displayName}
             </button>
           ))}

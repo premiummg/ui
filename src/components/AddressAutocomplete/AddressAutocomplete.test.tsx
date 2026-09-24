@@ -61,6 +61,18 @@ describe('AddressAutocomplete', () => {
     resolveSearch([]);
   });
 
+  test('renders a real flag image for the suggestion, not an emoji', async () => {
+    // Regional-indicator emoji render as an actual flag on iOS/macOS but not
+    // reliably on Windows - a real <img> renders identically everywhere.
+    mockedSearchAddress.mockResolvedValue([suggestion]);
+    render(<AddressAutocomplete value="123 main" onChange={() => {}} onSelect={() => {}} debounceMs={10} />);
+    fireEvent.focus(screen.getByRole('textbox'));
+    await screen.findByText(suggestion.displayName, { exact: false });
+    const flag = document.querySelector('img[src*="flagcdn.com"]');
+    expect(flag).toBeInTheDocument();
+    expect(flag).toHaveAttribute('src', expect.stringContaining('/ca.png'));
+  });
+
   test('renders the required Nominatim attribution line', () => {
     render(<AddressAutocomplete value="" onChange={() => {}} onSelect={() => {}} />);
     expect(screen.getByText('Data from OpenStreetMap contributors')).toBeInTheDocument();
