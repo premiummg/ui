@@ -178,6 +178,9 @@ export type { AttachmentTileProps, AttachmentTileType } from './components/Attac
 export { SearchPicker } from './components/SearchPicker';
 export type { SearchPickerProps, PickerItem, PickerGroup } from './components/SearchPicker';
 
+export { AddressAutocomplete, searchAddress } from './components/AddressAutocomplete';
+export type { AddressAutocompleteProps, AddressSuggestion, SearchAddressOptions } from './components/AddressAutocomplete';
+
 export { useOutsideClick } from './hooks/useOutsideClick';
 export { useDarkMode } from './hooks/useDarkMode';
 export { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
