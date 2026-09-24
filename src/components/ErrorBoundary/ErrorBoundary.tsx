@@ -13,6 +13,12 @@ export interface ErrorBoundaryProps {
   // there).
   color?: string;
   barsColor?: string;
+  // Text overrides for the three default-fallback strings - e.g. translated
+  // copy for a localized consumer. Ignored when `fallback` is set. Each
+  // defaults to the English copy.
+  title?: ReactNode;
+  body?: ReactNode;
+  reloadLabel?: ReactNode;
 }
 
 interface State {
@@ -58,7 +64,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
       // rather than a bare exception string, and keeps the brand in the room
       // (corner bracket, industrial texture) instead of a blank grey screen.
       // The raw error still goes to console.error above, for Sentry/support.
-      const { color, barsColor } = this.props;
+      const { color, barsColor, title = 'This page could not load.', body = 'Nothing you entered was lost. Reload to try again.', reloadLabel = 'Reload' } = this.props;
       return (
         <div
           className={`relative min-h-screen flex items-center justify-center overflow-hidden p-8 ${color ? '' : 'bg-[#F2F2F2] dark:bg-(--premium-black)'}`}
@@ -70,13 +76,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
           />
           <div className="relative text-center max-w-sm">
             <p className="pmg-bracket inline-block font-heading font-black text-lg text-gray-900 dark:text-gray-100 mb-2">
-              This page could not load.
+              {title}
             </p>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-              Nothing you entered was lost. Reload to try again.
+              {body}
             </p>
             <button onClick={() => window.location.reload()} className="btn-primary px-5">
-              Reload
+              {reloadLabel}
             </button>
           </div>
         </div>

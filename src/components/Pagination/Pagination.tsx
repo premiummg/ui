@@ -8,9 +8,17 @@ export interface PaginationProps {
   limit: number;
   onPageChange: (page: number) => void;
   children?: ReactNode;
+  // Text overrides - e.g. translated copy for a localized consumer. Each
+  // defaults to the English copy.
+  ofLabel?: string;
+  prevLabel?: string;
+  nextLabel?: string;
 }
 
-export function Pagination({ page, totalPages, total, limit, onPageChange, children }: PaginationProps) {
+export function Pagination({
+  page, totalPages, total, limit, onPageChange, children,
+  ofLabel = 'of', prevLabel = 'Previous page', nextLabel = 'Next page',
+}: PaginationProps) {
   if (totalPages <= 1 && !children) return null;
 
   const from = total === 0 ? 0 : (page - 1) * limit + 1;
@@ -24,7 +32,7 @@ export function Pagination({ page, totalPages, total, limit, onPageChange, child
         <span className="pmg-figure text-gray-600 dark:text-gray-300">{from}</span>
         {'–'}
         <span className="pmg-figure text-gray-600 dark:text-gray-300">{to}</span>
-        {' of '}
+        {` ${ofLabel} `}
         <span className="pmg-figure text-gray-600 dark:text-gray-300">{total}</span>
         {children && <span className="ml-3">{children}</span>}
       </p>
@@ -33,8 +41,8 @@ export function Pagination({ page, totalPages, total, limit, onPageChange, child
           <button
             onClick={() => onPageChange(page - 1)}
             disabled={page === 1}
-            aria-label="Previous page"
-            title="Previous page"
+            aria-label={prevLabel}
+            title={prevLabel}
             className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent hover:bg-gray-100 dark:hover:bg-white/5 transition"
           >
             <FiChevronLeft size={14} />
@@ -42,8 +50,8 @@ export function Pagination({ page, totalPages, total, limit, onPageChange, child
           <button
             onClick={() => onPageChange(page + 1)}
             disabled={page === totalPages}
-            aria-label="Next page"
-            title="Next page"
+            aria-label={nextLabel}
+            title={nextLabel}
             className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent hover:bg-gray-100 dark:hover:bg-white/5 transition"
           >
             <FiChevronRight size={14} />

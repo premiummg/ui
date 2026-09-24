@@ -20,6 +20,9 @@ export interface FilterRowProps {
   // cased correctly and would be mangled by it.
   capitalize?: boolean;
   labelWidth?: string;
+  // Override for the "Clear" link text - e.g. a translated string for a
+  // localized consumer. Defaults to the English word.
+  clearLabel?: string;
 }
 
 // A label, a row of toggleable pills, and a "Clear" link once anything is
@@ -34,6 +37,7 @@ export function FilterRow({
   onClear,
   capitalize = false,
   labelWidth = 'w-20',
+  clearLabel = 'Clear',
 }: FilterRowProps) {
   if (!options.length) return null;
   const opts = options.map(o => (typeof o === 'string' ? { value: o, label: o } : o));
@@ -51,7 +55,7 @@ export function FilterRow({
       ))}
       {selected.length > 0 && (
         <button onClick={onClear} className="text-xs text-gray-400 underline hover:text-gray-600 dark:hover:text-gray-200">
-          Clear
+          {clearLabel}
         </button>
       )}
     </div>

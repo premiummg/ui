@@ -17,6 +17,10 @@ export interface PasswordInputProps {
   // Rendered under the field, in place of the error, when there is no error
   // (e.g. a live password-length counter).
   hint?: ReactNode;
+  // Toggle-button aria-label overrides - e.g. translated text for a
+  // localized consumer. Each defaults to the English copy.
+  showLabel?: string;
+  hideLabel?: string;
 }
 
 // Password field with a show/hide toggle. tabIndex={-1} on the button keeps
@@ -31,6 +35,8 @@ export function PasswordInput({
   autoFocus,
   icon: Icon,
   hint,
+  showLabel = 'Show password',
+  hideLabel = 'Hide password',
 }: PasswordInputProps) {
   const [show, setShow] = useState(false);
   // registration.name (react-hook-form's register() always sets it) doubles
@@ -60,7 +66,7 @@ export function PasswordInput({
           onClick={() => setShow(s => !s)}
           className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition"
           tabIndex={-1}
-          aria-label={show ? 'Hide password' : 'Show password'}
+          aria-label={show ? hideLabel : showLabel}
         >
           {show ? <FiEye size={18} /> : <FiEyeOff size={18} />}
         </button>

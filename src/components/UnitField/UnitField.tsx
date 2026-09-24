@@ -18,12 +18,20 @@ export interface UnitFieldProps {
   // words rather than shouting or all-lowercase. Defaults on; pass `false`
   // for a list of abbreviations (kg, ft, gal) that read oddly capitalized.
   capitalize?: boolean;
+  // Text overrides - e.g. translated copy for a localized consumer. Each
+  // defaults to the English copy.
+  typeLabel?: string;
+  backLabel?: string;
+  otherLabel?: string;
 }
 
 // A <select> that also accepts a value outside its own list: picking "Other…"
 // swaps it for a plain text input (auto-focused), with a "back to list"
 // button that returns to the dropdown - value isn't lost, just re-typed.
-export function UnitField({ value, onChange, className, disabled, options = DEFAULT_UNIT_OPTIONS, capitalize = true }: UnitFieldProps) {
+export function UnitField({
+  value, onChange, className, disabled, options = DEFAULT_UNIT_OPTIONS, capitalize = true,
+  typeLabel = 'Type unit…', backLabel = 'Back to list', otherLabel = 'Other…',
+}: UnitFieldProps) {
   const [justPickedOther, setJustPickedOther] = useState(false);
   const isCustom = justPickedOther || (value !== '' && !options.includes(value));
   const fieldClassName = `${className ?? ''} ${capitalize ? 'capitalize' : ''}`.trim();
@@ -36,13 +44,13 @@ export function UnitField({ value, onChange, className, disabled, options = DEFA
           value={value}
           onChange={e => onChange(e.target.value)}
           className={fieldClassName}
-          placeholder="Type unit…"
+          placeholder={typeLabel}
           disabled={disabled}
         />
         <button
           type="button"
           onClick={() => { setJustPickedOther(false); onChange(options[0] ?? ''); }}
-          title="Back to list"
+          title={backLabel}
           disabled={disabled}
           className="shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -63,7 +71,7 @@ export function UnitField({ value, onChange, className, disabled, options = DEFA
       disabled={disabled}
     >
       {options.map(u => <option key={u} value={u}>{u}</option>)}
-      <option value={OTHER_SENTINEL}>Other…</option>
+      <option value={OTHER_SENTINEL}>{otherLabel}</option>
     </select>
   );
 }

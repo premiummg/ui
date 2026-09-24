@@ -4,6 +4,7 @@ import {
   isSameDay, isSameMonth, parseISO, isValid, endOfWeek, endOfMonth,
   setMonth, setYear, getYear, getMonth, isAfter, isBefore, startOfDay,
 } from 'date-fns';
+import type { Locale } from 'date-fns';
 import { FiCalendar, FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
 import { usePopover } from '../../hooks/usePopover';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
@@ -19,12 +20,20 @@ export interface DatePickerProps {
   minDate?: Date;
   // 'yyyy-MM-dd' - already taken, shown struck-through and unselectable.
   unavailableDates?: string[];
+  // A date-fns Locale (e.g. `import { fr } from 'date-fns/locale'`) to
+  // localize day/month names and headers - e.g. for a bilingual consumer.
+  // Defaults to date-fns's built-in English formatting.
+  locale?: Locale;
+  // Text overrides for the footer buttons and the unavailable-date tooltip -
+  // e.g. translated copy for a localized consumer. Each defaults to the
+  // English copy.
+  clearLabel?: string;
+  todayLabel?: string;
+  unavailableTitle?: string;
 }
 
 type View = 'days' | 'months' | 'years';
 
-const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const YEARS_PER_PAGE = 12;
 
 function buildCalendarDays(month: Date): Date[] {
@@ -40,8 +49,19 @@ function yearPageStart(year: number) {
   return Math.floor(year / YEARS_PER_PAGE) * YEARS_PER_PAGE;
 }
 
-export function DatePicker({ value, onChange, disabled, placeholder = 'Select date', id, className = '', maxDate, minDate, unavailableDates }: DatePickerProps) {
+export function DatePicker({
+  value, onChange, disabled, placeholder = 'Select date', id, className = '', maxDate, minDate, unavailableDates,
+  locale, clearLabel = 'Clear', todayLabel = 'Today', unavailableTitle = 'Already submitted',
+}: DatePickerProps) {
   const [view, setView] = useState<View>('days');
+  const dayLabels = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => format(addDays(startOfWeek(new Date(2024, 0, 7)), i), 'EEE', { locale }).slice(0, 2)),
+    [locale],
+  );
+  const monthLabels = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => format(new Date(2000, i, 1), 'MMM', { locale })),
+    [locale],
+  );
   const [viewMonth, setViewMonth] = useState<Date>(() => {
     const p = value ? parseISO(value) : null;
     return p && isValid(p) ? p : new Date();
@@ -134,7 +154,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
   const calendarDays = useMemo(() => buildCalendarDays(viewMonth), [viewMonth]);
 
   const headerLabel =
-    view === 'days'   ? format(viewMonth, 'MMMM yyyy') :
+    view === 'days'   ? format(viewMonth, 'MMMM yyyy', { locale }) :
     view === 'months' ? format(viewMonth, 'yyyy') :
     `${yearStart} – ${yearStart + YEARS_PER_PAGE - 1}`;
 
@@ -157,7 +177,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
         `}
       >
         <span className={`truncate ${selected ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>
-          {selected ? format(selected, 'MMM d, yyyy') : placeholder}
+          {selected ? format(selected, 'MMM d, yyyy', { locale }) : placeholder}
         </span>
         <span className="flex items-center gap-1 text-gray-400 dark:text-gray-500 shrink-0">
           {selected && !disabled && (
@@ -211,7 +231,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
             <div className="px-3 pb-3">
               {/* Day labels */}
               <div className="grid grid-cols-7 mb-1">
-                {DAY_LABELS.map(d => (
+                {dayLabels.map(d => (
                   <div key={d} className="text-center text-[10px] font-semibold text-gray-300 dark:text-gray-600 py-1 tracking-wide uppercase">
                     {d}
                   </div>
@@ -231,7 +251,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
                       type="button"
                       disabled={isFuture}
                       onClick={() => !isFuture && selectDay(day)}
-                      title={unavail ? 'Already submitted' : undefined}
+                      title={unavail ? unavailableTitle : undefined}
                       className={`
                         w-8 h-8 mx-auto flex items-center justify-center rounded-lg text-xs font-medium transition-all duration-100
                         ${unavail
@@ -259,7 +279,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
           {/* Months view */}
           {view === 'months' && (
             <div className="grid grid-cols-3 gap-1.5 px-4 pb-4">
-              {MONTH_LABELS.map((label, idx) => {
+              {monthLabels.map((label, idx) => {
                 const isSel    = selected && isSameMonth(selected, setMonth(viewMonth, idx)) && getYear(selected) === getYear(viewMonth);
                 const isT      = isSameMonth(today, setMonth(viewMonth, idx)) && getYear(today) === getYear(viewMonth);
                 const isFuture = isMonthDisabled(idx);
@@ -327,7 +347,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
               onClick={() => { onChange(''); setOpen(false); setView('days'); }}
               className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
             >
-              Clear
+              {clearLabel}
             </button>
             <button
               type="button"
@@ -335,7 +355,7 @@ export function DatePicker({ value, onChange, disabled, placeholder = 'Select da
               className="text-xs font-semibold transition hover:opacity-80"
               style={{ color: 'var(--premium-red)' }}
             >
-              Today
+              {todayLabel}
             </button>
           </div>
 

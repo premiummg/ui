@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { format } from 'date-fns';
+import type { Locale } from 'date-fns';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { usePopover } from '../../hooks/usePopover';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const YEARS_PER_PAGE = 12;
 
 export interface MonthNavProps {
@@ -18,6 +19,13 @@ export interface MonthNavProps {
   // dropdown itself is always a normal light/dark card, since it floats over
   // whatever page content sits below the field.
   variant?: 'default' | 'hero';
+  // A date-fns Locale (e.g. `import { fr } from 'date-fns/locale'`) to
+  // localize month abbreviations and the "Month YYYY" header - e.g. for a
+  // bilingual consumer. Defaults to date-fns's built-in English formatting.
+  locale?: Locale;
+  // Override for the "Current month" footer button text - e.g. a translated
+  // string for a localized consumer. Defaults to the English copy.
+  currentLabel?: string;
 }
 
 type View = 'months' | 'years';
@@ -31,9 +39,9 @@ function toYM(year: number, monthIdx: number) {
   return `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
 }
 
-function formatLong(ym: string) {
+function formatLong(ym: string, locale?: Locale) {
   const [y, m] = ym.split('-').map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString('en-CA', { month: 'long', year: 'numeric' });
+  return format(new Date(y, m - 1, 1), 'MMMM yyyy', { locale });
 }
 
 function shiftMonth(ym: string, delta: number) {
@@ -46,10 +54,14 @@ function decadeStart(year: number) {
   return Math.floor(year / YEARS_PER_PAGE) * YEARS_PER_PAGE;
 }
 
-export function MonthNav({ value, months, fetching = false, onChange, variant = 'default' }: MonthNavProps) {
+export function MonthNav({ value, months, fetching = false, onChange, variant = 'default', locale, currentLabel = 'Current month' }: MonthNavProps) {
   const cur = getCurYM();
   const displayYM = value ?? cur;
   const [displayYear] = displayYM.split('-').map(Number);
+  const monthLabels = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => format(new Date(2000, i, 1), 'MMM', { locale })),
+    [locale],
+  );
 
   const [view, setView]     = useState<View>('months');
   const [viewYear, setViewYear] = useState(displayYear);
@@ -188,7 +200,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
           <FiChevronLeft size={14} />
         </button>
         <button onClick={openPicker} className={triggerLabelCls}>
-          {fetching ? '…' : formatLong(displayYM)}
+          {fetching ? '…' : formatLong(displayYM, locale)}
         </button>
         <button onClick={goNext} disabled={!canGoNext || fetching} className={triggerBtnCls}>
           <FiChevronRight size={14} />
@@ -218,7 +230,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
           {/* Months grid */}
           {view === 'months' && (
             <div className="grid grid-cols-3 gap-1.5 px-4 pb-3">
-              {MONTH_LABELS.map((label, idx) => {
+              {monthLabels.map((label, idx) => {
                 const avail  = isMonthAvailable(viewYear, idx);
                 const sel    = isMonthSelected(viewYear, idx);
                 const todayM = isCurrentMonth(viewYear, idx);
@@ -285,7 +297,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
               className="text-xs font-semibold transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ color: 'var(--premium-red)' }}
             >
-              Current month
+              {currentLabel}
             </button>
           </div>
 

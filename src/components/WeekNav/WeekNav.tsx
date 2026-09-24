@@ -3,6 +3,7 @@ import {
   format, startOfMonth, startOfWeek, endOfWeek, endOfMonth, addDays,
   addMonths, subMonths, isSameMonth, isAfter, parseISO, getYear, setYear, setMonth,
 } from 'date-fns';
+import type { Locale } from 'date-fns';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { usePopover } from '../../hooks/usePopover';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
@@ -25,12 +26,17 @@ export interface WeekNavProps {
   // switch. Only the trigger row changes: the dropdown is always a normal
   // card, since it floats over page content.
   variant?: 'default' | 'hero';
+  // A date-fns Locale (e.g. `import { fr } from 'date-fns/locale'`) to
+  // localize day/month abbreviations and headers - e.g. for a bilingual
+  // consumer. Defaults to date-fns's built-in English formatting.
+  locale?: Locale;
+  // Override for the "Current week" footer button text - e.g. a translated
+  // string for a localized consumer. Defaults to the English copy.
+  currentLabel?: string;
 }
 
 type View = 'weeks' | 'months' | 'years';
 
-const DAY_LABELS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const YEARS_PER_PAGE = 12;
 
 function mondayOf(d: Date): Date {
@@ -45,9 +51,9 @@ function currentWeekMonday(): string {
   return toStr(mondayOf(new Date()));
 }
 
-function formatWeekRange(mondayStr: string): string {
+function formatWeekRange(mondayStr: string, locale?: Locale): string {
   const mon = parseISO(mondayStr);
-  return `${format(mon, 'MMM d')} – ${format(addDays(mon, 6), 'MMM d')}`;
+  return `${format(mon, 'MMM d', { locale })} – ${format(addDays(mon, 6), 'MMM d', { locale })}`;
 }
 
 function shiftWeek(mondayStr: string, deltaWeeks: number): string {
@@ -70,11 +76,19 @@ function decadeStart(year: number) {
   return Math.floor(year / YEARS_PER_PAGE) * YEARS_PER_PAGE;
 }
 
-export function WeekNav({ value, weeks, fetching = false, onChange, align = 'right', variant = 'default' }: WeekNavProps) {
+export function WeekNav({ value, weeks, fetching = false, onChange, align = 'right', variant = 'default', locale, currentLabel = 'Current week' }: WeekNavProps) {
   const cur = currentWeekMonday();
   const curYM = format(new Date(), 'yyyy-MM');
   const curYear = new Date().getFullYear();
   const displayMonday = value ?? cur;
+  const dayLabels = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => format(addDays(startOfWeek(new Date(2024, 0, 1), { weekStartsOn: 1 }), i), 'EEE', { locale }).slice(0, 2)),
+    [locale],
+  );
+  const monthLabels = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => format(new Date(2000, i, 1), 'MMM', { locale })),
+    [locale],
+  );
 
   const [view, setView] = useState<View>('weeks');
   const [viewMonth, setViewMonth] = useState<Date>(() => parseISO(displayMonday));
@@ -213,7 +227,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
     : pgStart + YEARS_PER_PAGE > curYear;
 
   const headerLabel =
-    view === 'weeks'  ? format(viewMonth, 'MMMM yyyy') :
+    view === 'weeks'  ? format(viewMonth, 'MMMM yyyy', { locale }) :
     view === 'months' ? String(getYear(viewMonth)) :
     `${pgStart} – ${pgStart + YEARS_PER_PAGE - 1}`;
 
@@ -260,7 +274,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
           <FiChevronLeft size={14} />
         </button>
         <button onClick={openPicker} className={triggerLabelCls}>
-          {fetching ? '…' : formatWeekRange(displayMonday)}
+          {fetching ? '…' : formatWeekRange(displayMonday, locale)}
         </button>
         <button onClick={goNext} disabled={!canGoNext || fetching} className={triggerBtnCls}>
           <FiChevronRight size={14} />
@@ -292,7 +306,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
           {view === 'weeks' && (
             <div className="px-3 pb-3">
               <div className="grid grid-cols-7 mb-1">
-                {DAY_LABELS.map(d => (
+                {dayLabels.map(d => (
                   <div key={d} className="text-center text-[10px] font-semibold text-gray-300 dark:text-gray-600 py-1 tracking-wide uppercase">
                     {d}
                   </div>
@@ -354,7 +368,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
               it does not complete the selection (the user still needs a week). */}
           {view === 'months' && (
             <div className="grid grid-cols-3 gap-1.5 px-4 pb-3">
-              {MONTH_LABELS.map((label, idx) => {
+              {monthLabels.map((label, idx) => {
                 const year = getYear(viewMonth);
                 const avail = isMonthAvailable(year, idx);
                 const sel = isMonthSelected(year, idx);
@@ -403,7 +417,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
               className="text-xs font-semibold transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ color: 'var(--premium-red)' }}
             >
-              Current week
+              {currentLabel}
             </button>
           </div>
 
