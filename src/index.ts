@@ -181,6 +181,9 @@ export type { SearchPickerProps, PickerItem, PickerGroup } from './components/Se
 export { AddressAutocomplete, searchAddress } from './components/AddressAutocomplete';
 export type { AddressAutocompleteProps, AddressSuggestion, SearchAddressOptions } from './components/AddressAutocomplete';
 
+export { PhoneCountrySelect } from './components/PhoneCountrySelect';
+export type { PhoneCountrySelectProps, PhoneCountrySelectOption, PhoneCountrySelectIconProps } from './components/PhoneCountrySelect';
+
 export { useOutsideClick } from './hooks/useOutsideClick';
 export { useDarkMode } from './hooks/useDarkMode';
 export { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
