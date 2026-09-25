@@ -98,7 +98,7 @@ function Example() {
 }
 ```
 
-## Components (v0.4.0)
+## Components (v0.14.0)
 
 | Component | Notes |
 |---|---|
@@ -127,7 +127,7 @@ function Example() {
 | `FieldGroup` | `.pmg-bracket` section heading + `Card` panel, with an optional footnote. |
 | `ErrorBoundary` | Class boundary with a branded fallback; auto-reloads once on a stale deployed-chunk error. `color`/`barsColor` override the fallback's ground and texture color independently (any CSS color) - a sister brand reusing the same shell (corner bracket, texture, one action) with its own palette instead of a second fallback component. `title`/`body`/`reloadLabel` override the fallback's three text strings the same way, e.g. for a bilingual consumer - ignored when `fallback` replaces the whole thing. |
 | `DarkModeToggle` | Sun/moon icon button. Controlled - pair it with `useDarkMode`. |
-| `PremiumLogo` | The Premium wordmark itself (bundled as inline assets - no files to copy into a consuming app's `public/`). `size`: `sm`/`md`/`lg`/`xl`. `variant`: `stacked`/`horizontal`. `mode="auto"` (default) watches `html.dark` and swaps artwork with the theme; `mode="light"`/`"dark"` pins it instead, for a surface whose own color is fixed regardless of theme (a solid-red band, a footer that's always Premium Black). |
+| `PremiumLogo` | The Premium wordmark itself (bundled as inline assets - no files to copy into a consuming app's `public/`). `size`: `sm`/`md`/`lg`/`xl`. `variant`: `stacked`/`horizontal`. `mode="auto"` (default) watches `html.dark` and swaps artwork with the theme; `mode="light"`/`"dark"` pins it instead, for a surface whose own color is fixed regardless of theme (a solid-red band, a footer that's always Premium Black). `lang` (the same `Lang` type `LanguageToggle` uses, default `'en'`) swaps in the French artwork ("Bâti avec coeur" in place of "Built with heart") - the tagline is baked into the image, not real text, so a translated tagline means a whole swapped asset, the same "ship a file per state" approach `mode` already uses for light/dark. |
 | `Toaster` + `ToastProvider` | A full toast subsystem, not just the display component: wrap the app in `ToastProvider` once, mount `Toaster` once, call `useToast().toast(message, variant)` anywhere. `emitToast(...)` fires one from outside React (an axios interceptor, a top-level handler) - a no-op if no provider is mounted yet. `Toaster` itself takes no props - correctly, not a gap - since it only ever displays whatever the context currently holds; its own story's four buttons (each colored to match the variant it fires) are the closest thing to a Controls panel it has. |
 | `DatePicker` | Day/month/year calendar dropdown (built on `date-fns`, now a real dependency of this package). `minDate`/`maxDate`, plus `unavailableDates` (shown struck-through, unselectable). `locale` (a date-fns `Locale`, e.g. `import { fr } from 'date-fns/locale'`) localizes month/day names and headers; `clearLabel`/`todayLabel`/`unavailableTitle` override the remaining fixed strings - both for a bilingual consumer. |
 | `NotificationBell` + `NotificationBellEmpty` | The icon-with-badge-that-opens-a-dropdown shell shared by a notifications bell, a "pending review" counter, and an unread-messages list - trigger, outside-click-to-close, header (+ optional action), scrollable body, optional footer link. The body is `children`, fully custom, since a notification row and a "5 timesheets pending" row don't share a shape worth forcing into one prop. See its stories for all three use cases built on the same shell. |

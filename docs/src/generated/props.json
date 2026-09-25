@@ -1,4 +1,90 @@
 {
+  "AddressAutocomplete": [
+    {
+      "name": "id",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(text: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onSelect",
+      "type": "(suggestion: AddressSuggestion) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "debounceMs",
+      "type": "number",
+      "required": false,
+      "defaultValue": 400,
+      "description": null
+    },
+    {
+      "name": "countryCodes",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "userAgent",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "searchingLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Searching…",
+      "description": null
+    },
+    {
+      "name": "attributionLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Data from OpenStreetMap contributors",
+      "description": null
+    }
+  ],
   "Alert": [
     {
       "name": "variant",
@@ -140,8 +226,8 @@
       "name": "padding",
       "type": "boolean",
       "required": false,
-      "defaultValue": false,
-      "description": "Defaults to false - pass `padding` to get the standard p-6."
+      "defaultValue": true,
+      "description": "Defaults to true (the standard p-6) - pass `padding={false}` to opt out\n(a table/list wrapper, or content that brings its own p-* spacing)."
     },
     {
       "name": "id",
@@ -399,6 +485,34 @@
       "required": false,
       "defaultValue": null,
       "description": null
+    },
+    {
+      "name": "locale",
+      "type": "Locale",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "clearLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Clear",
+      "description": null
+    },
+    {
+      "name": "todayLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Today",
+      "description": null
+    },
+    {
+      "name": "unavailableTitle",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Already submitted",
+      "description": null
     }
   ],
   "ErrorBoundary": [
@@ -419,6 +533,27 @@
     {
       "name": "barsColor",
       "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "body",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "reloadLabel",
+      "type": "ReactNode",
       "required": false,
       "defaultValue": null,
       "description": null
@@ -657,6 +792,13 @@
       "required": false,
       "defaultValue": "w-20",
       "description": null
+    },
+    {
+      "name": "clearLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Clear",
+      "description": null
     }
   ],
   "FlagCanada": [
@@ -722,6 +864,13 @@
       "type": "boolean",
       "required": false,
       "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "optionalLabel",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": "(optional)",
       "description": null
     }
   ],
@@ -972,6 +1121,20 @@
       "type": "\"default\" | \"hero\"",
       "required": false,
       "defaultValue": "default",
+      "description": null
+    },
+    {
+      "name": "locale",
+      "type": "Locale",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "currentLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Current month",
       "description": null
     }
   ],
@@ -1262,6 +1425,27 @@
       "required": true,
       "defaultValue": null,
       "description": null
+    },
+    {
+      "name": "ofLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "of",
+      "description": null
+    },
+    {
+      "name": "prevLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Previous page",
+      "description": null
+    },
+    {
+      "name": "nextLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Next page",
+      "description": null
     }
   ],
   "PasswordInput": [
@@ -1311,6 +1495,64 @@
       "name": "hint",
       "type": "ReactNode",
       "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "showLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Show password",
+      "description": null
+    },
+    {
+      "name": "hideLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Hide password",
+      "description": null
+    }
+  ],
+  "PhoneCountrySelect": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(value: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "options",
+      "type": "PhoneCountrySelectOption[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "iconComponent",
+      "type": "ComponentType<PhoneCountrySelectIconProps>",
+      "required": true,
       "defaultValue": null,
       "description": null
     }
@@ -1372,6 +1614,13 @@
       "type": "\"auto\" | \"dark\" | \"light\"",
       "required": false,
       "defaultValue": "auto",
+      "description": null
+    },
+    {
+      "name": "lang",
+      "type": "Lang",
+      "required": false,
+      "defaultValue": "en",
       "description": null
     }
   ],
@@ -1832,6 +2081,27 @@
       "required": false,
       "defaultValue": "inline",
       "description": null
+    },
+    {
+      "name": "inactiveLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Inactive - no access to this app",
+      "description": null
+    },
+    {
+      "name": "deactivatedLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Deactivated across all Premium apps - cannot sign in",
+      "description": null
+    },
+    {
+      "name": "activeLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Active",
+      "description": null
     }
   ],
   "TablePlaceholderRow": [
@@ -1913,6 +2183,27 @@
       "required": false,
       "defaultValue": true,
       "description": null
+    },
+    {
+      "name": "typeLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Type unit…",
+      "description": null
+    },
+    {
+      "name": "backLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Back to list",
+      "description": null
+    },
+    {
+      "name": "otherLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Other…",
+      "description": null
     }
   ],
   "WeekNav": [
@@ -1956,6 +2247,20 @@
       "type": "\"default\" | \"hero\"",
       "required": false,
       "defaultValue": "default",
+      "description": null
+    },
+    {
+      "name": "locale",
+      "type": "Locale",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "currentLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Current week",
       "description": null
     }
   ]

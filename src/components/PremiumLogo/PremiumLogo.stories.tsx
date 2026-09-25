@@ -7,6 +7,7 @@ const meta: Meta<typeof PremiumLogo> = {
   argTypes: {
     size: { control: 'select', options: ['sm', 'md', 'lg', 'xl'] },
     variant: { control: 'select', options: ['stacked', 'horizontal'] },
+    lang: { control: 'select', options: ['en', 'fr'] },
   },
 };
 export default meta;
@@ -23,3 +24,9 @@ export const PinnedDarkOnAFixedSurface: Story = {
   args: { variant: 'horizontal', size: 'sm', mode: 'dark' },
   decorators: [Story => <div className="p-6 bg-(--premium-black) inline-block"><Story /></div>],
 };
+
+// lang follows the same LanguageToggle state a bilingual consumer already
+// tracks elsewhere - the tagline baked into the artwork ("Built with heart"
+// / "Bâti avec coeur") switches with it, same as every other piece of
+// translated copy.
+export const French: Story = { args: { variant: 'stacked', size: 'lg', lang: 'fr' } };

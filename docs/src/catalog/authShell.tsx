@@ -20,7 +20,7 @@ export const authShell: ComponentDoc[] = [
   {
     name: 'PremiumLogo',
     summary: 'The Premium wordmark itself, bundled as inline assets - no files to copy into a consuming app’s public/.',
-    notes: 'size: sm/md/lg/xl. variant: stacked/horizontal. mode="auto" (default) watches html.dark and swaps artwork with the theme; mode="light"/"dark" pins it instead, for a surface whose own color is fixed regardless of theme (a solid-red band, a footer that’s always Premium Black).',
+    notes: 'size: sm/md/lg/xl. variant: stacked/horizontal. mode="auto" (default) watches html.dark and swaps artwork with the theme; mode="light"/"dark" pins it instead, for a surface whose own color is fixed regardless of theme (a solid-red band, a footer that’s always Premium Black). lang (same Lang type as LanguageToggle, default \'en\') swaps in the French artwork - the tagline is baked into the image, so a translated tagline means a whole swapped asset.',
     demos: demosFromModule(PremiumLogoStories),
   },
 ];

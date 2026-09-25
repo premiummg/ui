@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
-import stackedLight from '../../logos/stacked-light.png';
-import stackedDark from '../../logos/stacked-dark.png';
-import horizontalLight from '../../logos/horizontal-light.png';
-import horizontalDark from '../../logos/horizontal-dark.png';
+import type { Lang } from '../LanguageToggle';
+import stackedLightEn from '../../logos/stacked-light.png';
+import stackedDarkEn from '../../logos/stacked-dark.png';
+import horizontalLightEn from '../../logos/horizontal-light.png';
+import horizontalDarkEn from '../../logos/horizontal-dark.png';
+import stackedLightFr from '../../logos/stacked-light-fr.png';
+import stackedDarkFr from '../../logos/stacked-dark-fr.png';
+import horizontalLightFr from '../../logos/horizontal-light-fr.png';
+import horizontalDarkFr from '../../logos/horizontal-dark-fr.png';
 
 export type PremiumLogoSize = 'sm' | 'md' | 'lg' | 'xl';
 export type PremiumLogoVariant = 'stacked' | 'horizontal';
@@ -14,9 +19,18 @@ const SIZES: Record<PremiumLogoSize, string> = {
   xl: 'h-44',
 };
 
-const LOGOS: Record<PremiumLogoVariant, { light: string; dark: string }> = {
-  stacked: { light: stackedLight, dark: stackedDark },
-  horizontal: { light: horizontalLight, dark: horizontalDark },
+// Same "ship a whole swapped-in asset per state" reasoning as light/dark
+// (below) - the tagline is baked into the artwork, not overlaid as real
+// text, so a translated tagline means a translated asset, not a CSS swap.
+const LOGOS: Record<PremiumLogoVariant, Record<Lang, { light: string; dark: string }>> = {
+  stacked: {
+    en: { light: stackedLightEn, dark: stackedDarkEn },
+    fr: { light: stackedLightFr, dark: stackedDarkFr },
+  },
+  horizontal: {
+    en: { light: horizontalLightEn, dark: horizontalDarkEn },
+    fr: { light: horizontalLightFr, dark: horizontalDarkFr },
+  },
 };
 
 export interface PremiumLogoProps {
@@ -29,6 +43,11 @@ export interface PremiumLogoProps {
   // 'light' or 'dark' there to pin the artwork to what that surface actually
   // needs, independent of whatever theme the visitor has chosen.
   mode?: 'auto' | 'light' | 'dark';
+  // Same `Lang` type LanguageToggle uses - pass the same state that drives
+  // it here too, so the wordmark's tagline ("Built with heart" / "Bâti avec
+  // coeur") follows the visitor's chosen language exactly like every other
+  // piece of translated copy in a bilingual consumer. Defaults to 'en'.
+  lang?: Lang;
 }
 
 // The brand kit ships red/black artwork only - no reversed white version
@@ -38,7 +57,7 @@ export interface PremiumLogoProps {
 // not the useDarkMode hook) so the logo updates even where nothing else on
 // the page re-renders on a theme change - the sign-in shell swaps this in
 // before any app state exists to drive it from.
-export function PremiumLogo({ size = 'md', variant = 'stacked', mode = 'auto' }: PremiumLogoProps) {
+export function PremiumLogo({ size = 'md', variant = 'stacked', mode = 'auto', lang = 'en' }: PremiumLogoProps) {
   const [autoIsDark, setAutoIsDark] = useState(
     () => document.documentElement.classList.contains('dark'),
   );
@@ -56,10 +75,11 @@ export function PremiumLogo({ size = 'md', variant = 'stacked', mode = 'auto' }:
   }, [mode]);
 
   const isDark = mode === 'auto' ? autoIsDark : mode === 'dark';
+  const logo = LOGOS[variant][lang];
 
   return (
     <img
-      src={isDark ? LOGOS[variant].dark : LOGOS[variant].light}
+      src={isDark ? logo.dark : logo.light}
       alt="Premium Management Group"
       className={`${SIZES[size]} w-auto object-contain`}
     />

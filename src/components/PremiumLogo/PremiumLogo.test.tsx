@@ -47,4 +47,23 @@ describe('PremiumLogo', () => {
     await new Promise(r => setTimeout(r, 0));
     expect(img.src).toContain('stacked-light');
   });
+
+  test('defaults to the English asset', () => {
+    render(<PremiumLogo variant="stacked" mode="light" />);
+    const img = screen.getByAltText('Premium Management Group') as HTMLImageElement;
+    expect(img.src).toContain('stacked-light');
+    expect(img.src).not.toContain('stacked-light-fr');
+  });
+
+  test('lang="fr" swaps to the French asset, independently of light/dark mode', () => {
+    render(<PremiumLogo variant="stacked" mode="dark" lang="fr" />);
+    const img = screen.getByAltText('Premium Management Group') as HTMLImageElement;
+    expect(img.src).toContain('stacked-dark-fr');
+  });
+
+  test('lang="fr" works for the horizontal variant too', () => {
+    render(<PremiumLogo variant="horizontal" mode="light" lang="fr" />);
+    const img = screen.getByAltText('Premium Management Group') as HTMLImageElement;
+    expect(img.src).toContain('horizontal-light-fr');
+  });
 });

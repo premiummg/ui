@@ -200,7 +200,8 @@
   "PremiumLogo": {
     "Stacked": "<PremiumLogo variant=\"stacked\" size=\"lg\" />",
     "Horizontal": "<PremiumLogo variant=\"horizontal\" size=\"md\" />",
-    "PinnedDarkOnAFixedSurface": "<PremiumLogo variant=\"horizontal\" size=\"sm\" mode=\"dark\" />"
+    "PinnedDarkOnAFixedSurface": "<PremiumLogo variant=\"horizontal\" size=\"sm\" mode=\"dark\" />",
+    "French": "<PremiumLogo variant=\"stacked\" size=\"lg\" lang=\"fr\" />"
   },
   "QuoteCard": {
     "Single": "<div style={{ maxWidth: 340 }}>\n  <QuoteCard quote=\"Called them for a quote and they showed up without hesitation.\" name=\"Kris J.\" />\n</div>",
