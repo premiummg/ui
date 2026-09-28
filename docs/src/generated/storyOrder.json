@@ -1,4 +1,8 @@
 {
+  "AddressAutocomplete": [
+    "Default",
+    "Disabled"
+  ],
   "Alert": [
     "Error",
     "Success",
@@ -192,6 +196,11 @@
     "WithIcon",
     "WithError",
     "WithHint"
+  ],
+  "PhoneCountrySelect": [
+    "Default",
+    "Empty",
+    "Disabled"
   ],
   "PortraitFigure": [
     "Red",

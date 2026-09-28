@@ -210,6 +210,7 @@ export {
   removeWrapUndoably,
   attachHandlesToWrap,
   syncImageSizeDatasets,
+  readPastedImage,
   IMAGE_ALIGNMENTS,
   imageMarginForAlign,
   RESIZE_HANDLE_CONFIGS,

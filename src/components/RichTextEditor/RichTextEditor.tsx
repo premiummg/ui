@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { FiMaximize2 } from 'react-icons/fi';
 import { RichTextToolbar, useRichTextCommands } from './RichTextToolbar';
 import { sanitizePastedHtml, isHtmlEmpty, ensureBlockWrapped } from './richTextSanitize';
-import { buildResizableImageNode, reattachResizeHandles, stripResizeHandles } from './richTextImages';
+import { buildResizableImageNode, reattachResizeHandles, stripResizeHandles, readPastedImage } from './richTextImages';
 import { buildYouTubeNode, hydrateYouTubeNodes, stripYouTubePreviews } from './richTextYouTube';
 
 // Rich text body editor - for a News/Knowledge Base/Documents/Events style
@@ -97,24 +97,32 @@ function useRichTextPaste(editorRef: React.RefObject<HTMLDivElement | null>, emi
     e.preventDefault();
     const file = imageItem.getAsFile();
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const { wrap } = buildResizableImageNode(ev.target?.result as string);
-      const sel = window.getSelection();
-      if (sel?.rangeCount && editorRef.current?.contains(sel.anchorNode)) {
-        const range = sel.getRangeAt(0);
-        range.deleteContents();
-        range.insertNode(wrap);
-        range.setStartAfter(wrap);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
+
+    // readPastedImage is async (a large image goes through a decode/draw/
+    // re-encode round trip to compress it - see richTextImages.ts), so the
+    // insertion point has to be captured now, synchronously, while the
+    // paste's own selection is still live - by the time it resolves,
+    // window.getSelection() may no longer reflect where the paste happened.
+    const sel = window.getSelection();
+    const savedRange = sel?.rangeCount && editorRef.current?.contains(sel.anchorNode)
+      ? sel.getRangeAt(0).cloneRange()
+      : null;
+
+    readPastedImage(file).then((dataUrl) => {
+      const { wrap } = buildResizableImageNode(dataUrl);
+      if (savedRange) {
+        savedRange.deleteContents();
+        savedRange.insertNode(wrap);
+        savedRange.setStartAfter(wrap);
+        savedRange.collapse(true);
+        const liveSel = window.getSelection();
+        liveSel?.removeAllRanges();
+        liveSel?.addRange(savedRange);
       } else {
         editorRef.current?.appendChild(wrap);
       }
       emit();
-    };
-    reader.readAsDataURL(file);
+    });
   };
 }
 

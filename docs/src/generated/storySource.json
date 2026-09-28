@@ -1,4 +1,8 @@
 {
+  "AddressAutocomplete": {
+    "Default": "function Demo() {\n  const [value, setValue] = useState('');\n  const [selected, setSelected] = useState<AddressSuggestion | null>(null);\n  return (\n    <div>\n      <AddressAutocomplete\n        value={value}\n        onChange={setValue}\n        onSelect={(s) => { setSelected(s); setValue(s.street ? `${s.street}, ${s.city}` : s.city); }}\n        placeholder=\"Start typing an address…\"\n        countryCodes=\"ca\"\n      />\n      {selected && (\n        <p className=\"mt-2 text-xs text-gray-500 dark:text-gray-400\">\n          Picked: {selected.city}, {selected.province} {selected.postalCode}\n        </p>\n      )}\n    </div>\n  );\n}\nreturn <Demo />;",
+    "Disabled": "<AddressAutocomplete value=\"123 Main St\" onChange={() => {}} onSelect={() => {}} disabled />"
+  },
   "Alert": {
     "Error": "<Alert variant=\"error\" text=\"Something needs your attention.\" />",
     "Success": "<Alert variant=\"success\" text=\"Purchase order approved.\" />",
@@ -192,6 +196,11 @@
     "WithIcon": "<PasswordInput label=\"Password\" registration={{ name: 'password' }} icon={FiLock} />",
     "WithError": "<PasswordInput label=\"Password\" registration={{ name: 'password' }} error=\"Incorrect password\" />",
     "WithHint": "<PasswordInput label=\"Password\" registration={{ name: 'password' }} hint=\"8 of 12 characters\" />"
+  },
+  "PhoneCountrySelect": {
+    "Default": "function Demo() {\n  const [value, setValue] = useState<string | undefined>('+15065551234');\n  return (\n    <PhoneInput\n      defaultCountry=\"CA\"\n      value={value}\n      onChange={setValue}\n      className=\"phone-input-field\"\n      countrySelectComponent={PhoneCountrySelect}\n      // Otherwise typing digits that happen to look like a leading\n      // country/calling code can silently switch the country - it should\n      // only ever change through the dropdown itself. Same setting every\n      // real consumer of this component uses.\n      countryCallingCodeEditable={false}\n    />\n  );\n}\nreturn <Demo />;",
+    "Empty": "function Demo() {\n  const [value, setValue] = useState<string | undefined>();\n  return (\n    <PhoneInput\n      defaultCountry=\"CA\"\n      value={value}\n      onChange={setValue}\n      className=\"phone-input-field\"\n      countrySelectComponent={PhoneCountrySelect}\n      countryCallingCodeEditable={false}\n    />\n  );\n}\nreturn <Demo />;",
+    "Disabled": "<PhoneInput\n  defaultCountry=\"CA\"\n  value=\"+15065551234\"\n  onChange={() => {}}\n  disabled\n  className=\"phone-input-field\"\n  countrySelectComponent={PhoneCountrySelect}\n/>"
   },
   "PortraitFigure": {
     "Red": "<PortraitFigure imageSrc={PLACEHOLDER} name=\"Denis Collin\" role=\"Founder\" />",

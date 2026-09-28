@@ -16,6 +16,8 @@ import * as DatePickerStories from '../../../src/components/DatePicker/DatePicke
 import * as FileDropzoneStories from '../../../src/components/FileDropzone/FileDropzone.stories';
 import * as FilePillStories from '../../../src/components/FilePill/FilePill.stories';
 import * as RichTextEditorStories from '../../../src/components/RichTextEditor/RichTextEditor.stories';
+import * as PhoneCountrySelectStories from '../../../src/components/PhoneCountrySelect/PhoneCountrySelect.stories';
+import * as AddressAutocompleteStories from '../../../src/components/AddressAutocomplete/AddressAutocomplete.stories';
 
 export const actionsForms: ComponentDoc[] = [
   {
@@ -101,5 +103,17 @@ export const actionsForms: ComponentDoc[] = [
     notes: 'RichTextContent is this editor’s read-only counterpart (see the EditorAndPreview demo) - sanitizes and renders the same HTML, expanding a stored `<div data-youtube="ID">` placeholder into a real youtube-nocookie.com iframe only at render time, after DOMPurify has already stripped every iframe the raw HTML could have carried. Formatting goes through document.execCommand (RichTextToolbar/useRichTextCommands, also exported) - deprecated but the only thing that works on a plain contentEditable without a full editor engine. An image or video’s hover × button removes it via execCommand (a real Backspace, so Ctrl+Z actually restores it) rather than a bare .remove(), which a contentEditable’s native undo stack can’t see. Relies on a consumer’s own .input-field/.btn-primary global CSS, same convention as PasswordInput/AddressAutocomplete above. Also exports htmlToPlainText (a line-broken plain-text preview, e.g. for a list card), isHtmlEmpty, and the lower-level image/YouTube DOM helpers for a consumer building a custom variant.',
     demos: demosFromModule(RichTextEditorStories),
     wide: true,
+  },
+  {
+    name: 'PhoneCountrySelect',
+    summary: 'Drop-in `countrySelectComponent` for react-phone-number-input\'s `<PhoneInput>` - replaces its default bare `<select>`, whose native popup can\'t be themed, capped in height, or forced to always open downward.',
+    notes: 'Has no dependency on react-phone-number-input itself (only used here to actually drive the demo) - it just needs the value/onChange/options/iconComponent shape that library already supplies to any custom countrySelectComponent. Portaled to <body> rather than nested under the trigger, since a PhoneInput\'s own container is typically overflow:hidden to clip the flag+input into one rounded pill, which would silently clip this panel to zero height too if it stayed in that subtree. Pair with the `.phone-input-field` class (shipped in this package\'s styles.css) for react-phone-number-input\'s own generated markup to match every other field here.',
+    demos: demosFromModule(PhoneCountrySelectStories),
+  },
+  {
+    name: 'AddressAutocomplete',
+    summary: 'A plain `.input-field` input backed by free OpenStreetMap/Nominatim search - type an address, pick a suggestion, the field fills with a clean single-line address (no Google Places API key/billing).',
+    notes: 'Also exports searchAddress(query, {countryCodes, userAgent, limit}) standalone. Self-rate-limits to Nominatim\'s 1 request/second cap internally. No label of its own - compose it inside a consumer\'s own field wrapper. This demo makes real network requests to Nominatim, same as every real consumer.',
+    demos: demosFromModule(AddressAutocompleteStories),
   },
 ];

@@ -2,6 +2,64 @@
 // drag-resizable pasted images inside a contentEditable div. Pure DOM code,
 // framework-agnostic (no React), so it ports verbatim.
 
+// A raw clipboard screenshot commonly carries full monitor resolution and
+// lossless PNG encoding, neither of which is ever needed once the image is
+// only ever displayed at editor width (a few hundred px - see
+// buildResizableImageNode's defaultWidthPx below). Left uncompressed, a
+// single pasted screenshot can balloon one record's stored HTML - and
+// therefore the whole list endpoint's payload, since every record's full
+// body ships on every list fetch - by megabytes: a real production post
+// found during development had ballooned to 2.3MB this way, which was slow
+// enough to decode/paint in the editor that saving felt like it had hung.
+const MAX_IMAGE_DIMENSION = 1600;
+const COMPRESS_ABOVE_BYTES = 300 * 1024;
+const JPEG_QUALITY = 0.82;
+
+function dataUrlFromFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+// Downscales and re-encodes a pasted image before it ever becomes part of
+// the document. Small pastes (icons, tiny crops) pass through untouched -
+// preserving their original format (and any transparency) matters more than
+// the negligible bytes saved there, and re-encoding every paste would cost
+// a decode+draw+encode round trip for no real benefit. Anything larger gets
+// capped to MAX_IMAGE_DIMENSION on its longest side and re-encoded as JPEG:
+// a pasted screenshot is an opaque screen capture in the overwhelming
+// majority of real pastes, and JPEG's lossy compression is what actually
+// gets a multi-megabyte PNG down to a reasonable size - simply re-saving as
+// PNG at full resolution barely helps, since the source is already
+// PNG-compressed.
+export async function readPastedImage(file: File): Promise<string> {
+  if (file.size <= COMPRESS_ABOVE_BYTES) return dataUrlFromFile(file);
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return dataUrlFromFile(file);
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close?.();
+
+    return canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+  } catch {
+    // Decode failed (an exotic format, corrupt clipboard data) - fall back
+    // to the original rather than losing the paste entirely.
+    return dataUrlFromFile(file);
+  }
+}
+
 export function syncImageSizeDatasets(containerEl: HTMLElement | null): void {
   const root = containerEl;
   if (!root) return;
