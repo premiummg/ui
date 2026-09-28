@@ -184,6 +184,46 @@ export type { AddressAutocompleteProps, AddressSuggestion, SearchAddressOptions 
 export { PhoneCountrySelect } from './components/PhoneCountrySelect';
 export type { PhoneCountrySelectProps, PhoneCountrySelectOption, PhoneCountrySelectIconProps } from './components/PhoneCountrySelect';
 
+export {
+  RichTextEditor,
+  RichTextContent,
+  RichTextToolbar,
+  useRichTextCommands,
+  sanitizeRichText,
+  sanitizePastedHtml,
+  renderRichTextHtml,
+  looksLikeHtml,
+  htmlToPlainText,
+  ensureBlockWrapped,
+  isHtmlEmpty,
+  parseYouTubeId,
+  youTubeEmbedUrl,
+  youTubeWatchUrl,
+  buildYouTubeNode,
+  hydrateYouTubeNodes,
+  stripYouTubePreviews,
+  YOUTUBE_ID_RE,
+  YOUTUBE_ALIGNMENTS,
+  buildResizableImageNode,
+  reattachResizeHandles,
+  stripResizeHandles,
+  removeWrapUndoably,
+  attachHandlesToWrap,
+  syncImageSizeDatasets,
+  IMAGE_ALIGNMENTS,
+  imageMarginForAlign,
+  RESIZE_HANDLE_CONFIGS,
+} from './components/RichTextEditor';
+export type {
+  RichTextEditorProps,
+  RichTextContentProps,
+  RichTextToolbarProps,
+  RichTextCommands,
+  YouTubeAlign,
+  ImageAlign,
+  ResizeHandleConfig,
+} from './components/RichTextEditor';
+
 export { useOutsideClick } from './hooks/useOutsideClick';
 export { useDarkMode } from './hooks/useDarkMode';
 export { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
