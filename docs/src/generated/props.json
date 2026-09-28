@@ -1707,6 +1707,50 @@
       "description": null
     }
   ],
+  "RichTextEditor": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(html: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Write here, or paste a screenshot (Ctrl+V)…",
+      "description": null
+    },
+    {
+      "name": "minHeight",
+      "type": "string",
+      "required": false,
+      "defaultValue": "140px",
+      "description": null
+    },
+    {
+      "name": "maxHeight",
+      "type": "string",
+      "required": false,
+      "defaultValue": "260px",
+      "description": null
+    },
+    {
+      "name": "modalTitle",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Edit",
+      "description": null
+    }
+  ],
   "ScrollableTable": [
     {
       "name": "maxHeight",

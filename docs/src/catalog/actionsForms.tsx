@@ -15,6 +15,7 @@ import * as ColorFieldStories from '../../../src/components/ColorField/ColorFiel
 import * as DatePickerStories from '../../../src/components/DatePicker/DatePicker.stories';
 import * as FileDropzoneStories from '../../../src/components/FileDropzone/FileDropzone.stories';
 import * as FilePillStories from '../../../src/components/FilePill/FilePill.stories';
+import * as RichTextEditorStories from '../../../src/components/RichTextEditor/RichTextEditor.stories';
 
 export const actionsForms: ComponentDoc[] = [
   {
@@ -93,5 +94,12 @@ export const actionsForms: ComponentDoc[] = [
     summary: 'A picked-but-not-yet-uploaded file in a list under FileDropzone - name plus a remove control, nothing else.',
     notes: 'No size/preview here - that’s AttachmentTile’s job (Data Display), for a file that’s actually been uploaded.',
     demos: demosFromModule(FilePillStories),
+  },
+  {
+    name: 'RichTextEditor',
+    summary: 'A contentEditable rich text field - value/onChange over a stored HTML string, pasted-screenshot support, YouTube embeds, and an expanded "full editor" modal.',
+    notes: 'RichTextContent is this editor’s read-only counterpart (see the EditorAndPreview demo) - sanitizes and renders the same HTML, expanding a stored `<div data-youtube="ID">` placeholder into a real youtube-nocookie.com iframe only at render time, after DOMPurify has already stripped every iframe the raw HTML could have carried. Formatting goes through document.execCommand (RichTextToolbar/useRichTextCommands, also exported) - deprecated but the only thing that works on a plain contentEditable without a full editor engine. An image or video’s hover × button removes it via execCommand (a real Backspace, so Ctrl+Z actually restores it) rather than a bare .remove(), which a contentEditable’s native undo stack can’t see. Relies on a consumer’s own .input-field/.btn-primary global CSS, same convention as PasswordInput/AddressAutocomplete above. Also exports htmlToPlainText (a line-broken plain-text preview, e.g. for a list card), isHtmlEmpty, and the lower-level image/YouTube DOM helpers for a consumer building a custom variant.',
+    demos: demosFromModule(RichTextEditorStories),
+    wide: true,
   },
 ];

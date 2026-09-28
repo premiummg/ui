@@ -217,6 +217,11 @@
     "Default",
     "Staggered"
   ],
+  "RichTextEditor": [
+    "Default",
+    "WithContent",
+    "EditorAndPreview"
+  ],
   "ScrollableTable": [
     "Default"
   ],

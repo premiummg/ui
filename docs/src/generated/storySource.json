@@ -217,6 +217,11 @@
     "Default": "<Reveal>{(\n      <div className=\"p-6 rounded-2xl bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 max-w-sm\">\n        <p className=\"font-heading font-bold text-gray-900 dark:text-gray-100\">Revealed content</p>\n        <p className=\"text-sm text-gray-500 dark:text-gray-400 mt-1\">Fades and lifts in once, the first time this scrolls into view.</p>\n      </div>\n    )}</Reveal>",
     "Staggered": "<div className=\"space-y-3\">\n  {[0, 150, 300].map(delay => (\n    <Reveal key={delay} delay={delay} className=\"block\">\n      <div className=\"p-4 rounded-xl bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 max-w-sm\">\n        delay={delay}ms\n      </div>\n    </Reveal>\n  ))}\n</div>"
   },
+  "RichTextEditor": {
+    "Default": "function Demo() {\n  const [value, setValue] = useState('');\n  return <RichTextEditor value={value} onChange={setValue} />;\n}\nreturn <Demo />;",
+    "WithContent": "function Demo() {\n  const [value, setValue] = useState(\n    '<div>Formatted text, a <b>bold</b> word, an <i>italic</i> one, and a bullet list:</div><ul><li>Paste a screenshot with Ctrl+V</li><li>Insert a YouTube video from the toolbar</li></ul>',\n  );\n  return <RichTextEditor value={value} onChange={setValue} />;\n}\nreturn <Demo />;",
+    "EditorAndPreview": "function Demo() {\n  const [value, setValue] = useState(\n    '<div>Edit on the left, the <b>sanitized read-only render</b> updates live on the right.</div>',\n  );\n  return (\n    <div className=\"grid grid-cols-1 md:grid-cols-2 gap-4\">\n      <RichTextEditor value={value} onChange={setValue} />\n      <div className=\"rounded-lg border border-gray-200 dark:border-white/10 p-3\">\n        <RichTextContent html={value} />\n      </div>\n    </div>\n  );\n}\nreturn <Demo />;"
+  },
   "ScrollableTable": {
     "Default": "<ScrollableTable maxHeight=\"200px\">{(\n      <table>\n        <tbody>\n          {Array.from({ length: 20 }, (_, i) => (\n            <tr key={i}><td className=\"px-4 py-2 whitespace-nowrap\">Row {i + 1} - a fairly wide cell of content</td></tr>\n          ))}\n        </tbody>\n      </table>\n    )}</ScrollableTable>"
   },
