@@ -11,8 +11,14 @@
 // body ships on every list fetch - by megabytes: a real production post
 // found during development had ballooned to 2.3MB this way, which was slow
 // enough to decode/paint in the editor that saving felt like it had hung.
+//
+// Every paste is compressed now, no small-file exemption - this used to skip
+// anything under 300KB on the theory that a small image isn't worth the
+// format/transparency loss, but two "small" (~150-250KB) uncompressed PNGs
+// pasted into the same post were still enough, combined, to reproduce the
+// exact same hang - the failure mode was never about one single huge image,
+// it's the *editor's total payload* that has to stay small.
 const MAX_IMAGE_DIMENSION = 1600;
-const COMPRESS_ABOVE_BYTES = 300 * 1024;
 const JPEG_QUALITY = 0.82;
 
 function dataUrlFromFile(file: File): Promise<string> {
@@ -24,20 +30,16 @@ function dataUrlFromFile(file: File): Promise<string> {
   });
 }
 
-// Downscales and re-encodes a pasted image before it ever becomes part of
-// the document. Small pastes (icons, tiny crops) pass through untouched -
-// preserving their original format (and any transparency) matters more than
-// the negligible bytes saved there, and re-encoding every paste would cost
-// a decode+draw+encode round trip for no real benefit. Anything larger gets
-// capped to MAX_IMAGE_DIMENSION on its longest side and re-encoded as JPEG:
-// a pasted screenshot is an opaque screen capture in the overwhelming
-// majority of real pastes, and JPEG's lossy compression is what actually
-// gets a multi-megabyte PNG down to a reasonable size - simply re-saving as
-// PNG at full resolution barely helps, since the source is already
-// PNG-compressed.
+// Downscales and re-encodes every pasted image before it ever becomes part
+// of the document, capped to MAX_IMAGE_DIMENSION on its longest side and
+// re-encoded as JPEG - a pasted screenshot is an opaque screen capture in
+// the overwhelming majority of real pastes, and JPEG's lossy compression is
+// what actually gets a multi-megabyte PNG down to a reasonable size; simply
+// re-saving as PNG at full resolution barely helps, since the source is
+// already PNG-compressed. No small-file exemption (see the note above) - a
+// transparent icon/logo does lose its alpha channel here, a real cost, but
+// one worth paying to guarantee nothing pasted can reintroduce the hang.
 export async function readPastedImage(file: File): Promise<string> {
-  if (file.size <= COMPRESS_ABOVE_BYTES) return dataUrlFromFile(file);
-
   try {
     const bitmap = await createImageBitmap(file);
     const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(bitmap.width, bitmap.height));

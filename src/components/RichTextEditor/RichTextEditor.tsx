@@ -59,6 +59,8 @@ function useEditableSync(editorRef: React.RefObject<HTMLDivElement | null>, valu
     hydrateYouTubeNodes(el);
   }, [value, editorRef]);
 
+  const [oversized, setOversized] = useState(false);
+
   const emit = () => {
     const el = editorRef.current;
     if (!el) return;
@@ -66,9 +68,40 @@ function useEditableSync(editorRef: React.RefObject<HTMLDivElement | null>, valu
     const html = stripYouTubePreviews(stripResizeHandles(el.innerHTML));
     lastRawValue.current = html;
     onChange(html);
+    // Recomputed on every change (paste, delete, resize/align via their own
+    // dispatched 'input' event), not just on paste - so the warning clears
+    // itself the moment whatever made it too big is gone, instead of staying
+    // stuck until the next paste happens to re-check.
+    setOversized(totalImageBytes(el) > TOTAL_IMAGE_WARN_BYTES);
   };
 
-  return emit;
+  return { emit, oversized };
+}
+
+// Backend routes reject a saved body/description over ~1MB (a second layer
+// of defense behind the compression in richTextImages.ts - see that file's
+// own note on why every paste gets compressed now, no small-file exemption).
+// This warns well before that: base64 inflates raw bytes by ~4/3, so this
+// stays comfortably under the 1MB *encoded* body the backend actually
+// checks, leaving room for the surrounding HTML/text too.
+const TOTAL_IMAGE_WARN_BYTES = 700 * 1024;
+
+// Approximates the combined byte size of every base64-embedded <img> already
+// in the editor - the thing that actually matters is the *total* across all
+// pasted images, not any single one (see richTextImages.ts's note: two
+// "small" images combined already reproduced the same hang one huge image
+// used to cause alone).
+function totalImageBytes(container: HTMLElement | null): number {
+  if (!container) return 0;
+  let total = 0;
+  container.querySelectorAll('img').forEach((img) => {
+    const src = img.getAttribute('src') || '';
+    const commaIdx = src.indexOf(',');
+    if (src.startsWith('data:') && commaIdx !== -1) {
+      total += Math.round((src.length - commaIdx - 1) * 0.75);
+    }
+  });
+  return total;
 }
 
 // Screenshots are the main reason this editor exists, so a clipboard image is
@@ -146,6 +179,17 @@ function Placeholder({ text, value }: { text?: string; value: string }) {
   );
 }
 
+// Warns before Save is even clicked, rather than only after a save request
+// fails against the backend's own size limit - see TOTAL_IMAGE_WARN_BYTES.
+function ImageSizeWarning({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <p className="px-3 py-1.5 text-xs text-amber-600 dark:text-amber-400">
+      These images are getting large - consider removing one before saving, or it may fail to save.
+    </p>
+  );
+}
+
 export interface RichTextEditorProps {
   value: string;
   onChange: (html: string) => void;
@@ -164,7 +208,7 @@ export function RichTextEditor({
   modalTitle = 'Edit',
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
-  const emit = useEditableSync(editorRef, value, onChange);
+  const { emit, oversized } = useEditableSync(editorRef, value, onChange);
   const { saveSelection, exec, execHighlight, insertNodes } = useRichTextCommands(editorRef, emit);
   const handlePaste = useRichTextPaste(editorRef, emit);
   const [expanded, setExpanded] = useState(false);
@@ -204,6 +248,7 @@ export function RichTextEditor({
             style={{ minHeight, maxHeight, wordWrap: 'break-word', overflowWrap: 'break-word' }}
           />
         </div>
+        <ImageSizeWarning show={oversized} />
       </div>
 
       {expanded && (
@@ -234,7 +279,7 @@ function RichTextFullEditor({ title, initialHtml, onSave, onClose }: {
   const [textColor, setTextColor] = useState('#000000');
   const [highlightColor, setHighlightColor] = useState('#ffff00');
 
-  const emit = useEditableSync(editorRef, draft, setDraft);
+  const { emit, oversized } = useEditableSync(editorRef, draft, setDraft);
   const { saveSelection, exec, execHighlight, insertNodes } = useRichTextCommands(editorRef, emit);
   const handlePaste = useRichTextPaste(editorRef, emit);
 
@@ -301,6 +346,7 @@ function RichTextFullEditor({ title, initialHtml, onSave, onClose }: {
             style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
           />
         </div>
+        <ImageSizeWarning show={oversized} />
 
         <div className="flex shrink-0 justify-end gap-2 border-t border-gray-200 px-5 py-3 dark:border-white/10">
           <button
