@@ -18,6 +18,8 @@ import * as ModalStories from '../../../src/components/Modal/Modal.stories';
 import * as ConfirmDialogStories from '../../../src/components/ConfirmDialog/ConfirmDialog.stories';
 import * as ErrorBoundaryStories from '../../../src/components/ErrorBoundary/ErrorBoundary.stories';
 import * as AttachmentTileStories from '../../../src/components/AttachmentTile/AttachmentTile.stories';
+import * as ConversationThreadStories from '../../../src/components/ConversationThread/ConversationThread.stories';
+import * as BroadcastInboxStories from '../../../src/components/BroadcastInbox/BroadcastInbox.stories';
 import { EmployeeTableDemo } from './demos/EmployeeTableDemo';
 
 const frame = (demos: { label: string; node: React.ReactNode }[], height?: number, center?: boolean) =>
@@ -137,5 +139,18 @@ export const dataDisplay: ComponentDoc[] = [
     summary: 'A collapsible row for one already-uploaded file - name/size, an optional download action, and (expanded by default) a preview body.',
     notes: 'Pass previewUrl for a real image preview; pdf/other fall back to a placeholder body, since rendering an actual PDF needs a viewer library this package deliberately doesn’t bundle. Not a picker on its own - FileDropzone + FilePill (Actions & Forms) cover picking files before they’re uploaded, this covers showing one that already has been.',
     demos: demosFromModule(AttachmentTileStories),
+  },
+  {
+    name: 'ConversationThread',
+    summary: 'A single thread of messages - fetches and polls its own data via fetchFn, always labels every message with its real author.',
+    notes: 'No react-router/auth-context/i18n dependency - onAuthorClick, currentUserId, and a grouped strings prop are how it stays app-agnostic. Every message always shows its author name, even the viewer\'s own - "unlabeled = you" only holds for exactly one possible viewer, which a shared/multi-admin thread never guarantees. See BroadcastInbox for the layer that composes several of these into a Sent/Received broadcast inbox.',
+    demos: frame(demosFromModule(ConversationThreadStories), 420),
+  },
+  {
+    name: 'BroadcastInbox',
+    summary: 'One message broadcast to many recipients, each with their own reply thread - the Sent/Received inbox pattern, composed from ConversationThread.',
+    notes: 'Self-fetches/polls both lists via fetchSent/fetchReceived. canSendMessages/canManageBroadcast are generic booleans/callbacks the host app resolves from its own roles - this component never hardcodes a role name or a "division" concept. contextLink on a broadcast is a generic icon+label+onClick slot for linking a message back to whatever it was raised from (a timesheet submission, a certificate, ...).',
+    demos: frame(demosFromModule(BroadcastInboxStories), 640),
+    wide: true,
   },
 ];
