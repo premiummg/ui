@@ -52,7 +52,7 @@ export interface BroadcastInboxProps {
   onMarkThreadRead: (broadcastId: string, participantId: string | null) => Promise<void>;
   onClose: (broadcastId: string) => Promise<void>;
   onDelete: (broadcastId: string) => Promise<void>;
-  currentUserId: string;
+  currentUserId: string | undefined;
   canSendMessages: boolean;
   // Gates the delete/close controls on a specific broadcast (e.g. a foreman
   // may only manage their own; an admin-all may manage every division's).
@@ -77,7 +77,7 @@ function needsSenderReply(thread: ChatThread): boolean {
   return !!last && last.authorId === thread.participant.id;
 }
 
-function isAwaitingViewerReply(thread: ChatThread, viewerId: string): boolean {
+function isAwaitingViewerReply(thread: ChatThread, viewerId: string | undefined): boolean {
   if (!thread.messages.length) return !thread.respondedAt;
   return thread.messages[thread.messages.length - 1].authorId !== viewerId;
 }
@@ -162,7 +162,7 @@ function ThreadRow({
   broadcastId: string;
   canReply: boolean;
   closed: boolean;
-  currentUserId: string;
+  currentUserId: string | undefined;
   strings: BroadcastInboxStrings;
   pollIntervalMs?: number;
   onAuthorClick?: (authorId: string) => void;
@@ -222,7 +222,7 @@ function SentCard({
   highlighted,
 }: {
   broadcast: ChatBroadcast;
-  currentUserId: string;
+  currentUserId: string | undefined;
   canManage: boolean;
   strings: BroadcastInboxStrings;
   pollIntervalMs?: number;
@@ -333,7 +333,7 @@ function ReceivedCard({
   highlighted,
 }: {
   broadcast: ChatBroadcast;
-  currentUserId: string;
+  currentUserId: string | undefined;
   strings: BroadcastInboxStrings;
   pollIntervalMs?: number;
   open: boolean;

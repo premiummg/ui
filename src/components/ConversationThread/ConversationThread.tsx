@@ -20,7 +20,7 @@ export interface ConversationThreadProps {
   // not a one-shot transition), so this never needs an explicit "is this
   // already read" input from the caller.
   onMarkRead?: () => void | Promise<void>;
-  currentUserId: string;
+  currentUserId: string | undefined;
   strings: ConversationThreadStrings;
   // Matches both apps' own current choice.
   pollIntervalMs?: number;
