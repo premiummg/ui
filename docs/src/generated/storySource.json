@@ -152,6 +152,7 @@
   },
   "Navbar": {
     "FullyComposed": "<Navbar tone=\"black\">\n  <ExampleActions />\n</Navbar>",
+    "ClickableLogo": "function Demo() {\n  const [clicks, setClicks] = useState(0);\n  return (\n    <div>\n      <Navbar tone=\"black\" onLogoClick={() => setClicks(c => c + 1)}>\n        <ExampleActions />\n      </Navbar>\n      <p className=\"text-xs text-gray-400 mt-2\">Logo clicked {clicks} time{clicks === 1 ? '' : 's'}.</p>\n    </div>\n  );\n}\nreturn <Demo />;",
     "AllTones": "<div className=\"dark bg-(--premium-black) p-6 space-y-6 rounded-2xl\">\n  {(Object.keys(NAV_TONES) as NavTone[]).map(tone => (\n    <div key={tone}>\n      <p className=\"pmg-eyebrow text-gray-100 mb-2\">{NAV_TONES[tone].name}</p>\n      <div className=\"rounded-2xl overflow-hidden border border-white/10\">\n        <Navbar tone={tone}>\n          <ExampleActions />\n        </Navbar>\n      </div>\n      <p className=\"text-xs text-gray-400 mt-2 max-w-2xl leading-relaxed\">{NAV_TONES[tone].why}</p>\n    </div>\n  ))}\n</div>"
   },
   "NavTile": {

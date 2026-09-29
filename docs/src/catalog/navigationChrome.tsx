@@ -31,6 +31,7 @@ export const navigationChrome: ComponentDoc[] = [
     // fixes that instead of splitting the difference.
     demos: [
       ...frame(demosFromModule(NavbarStories).filter(d => d.label === 'FullyComposed'), 140),
+      ...frame(demosFromModule(NavbarStories).filter(d => d.label === 'ClickableLogo'), 170),
       ...frame(demosFromModule(NavbarStories).filter(d => d.label === 'AllTones'), 620),
     ],
     wide: true,

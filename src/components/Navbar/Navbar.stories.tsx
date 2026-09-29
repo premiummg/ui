@@ -92,6 +92,26 @@ export const FullyComposed: Story = {
   ),
 };
 
+// Wires the logo to `onLogoClick` (e.g. `() => navigate('/')` in a real app)
+// instead of leaving it purely decorative - shows a real, if minimal,
+// confirmation that it actually fired rather than just documenting the prop.
+export const ClickableLogo: Story = {
+  render: () => {
+    function Demo() {
+      const [clicks, setClicks] = useState(0);
+      return (
+        <div>
+          <Navbar tone="black" onLogoClick={() => setClicks(c => c + 1)}>
+            <ExampleActions />
+          </Navbar>
+          <p className="text-xs text-gray-400 mt-2">Logo clicked {clicks} time{clicks === 1 ? '' : 's'}.</p>
+        </div>
+      );
+    }
+    return <Demo />;
+  },
+};
+
 // The three tone options side by side, forced into dark mode locally (`.dark`
 // as a wrapper class, not the page toolbar) so the comparison doesn't depend
 // on your Storybook theme setting - this mirrors the "Layout & Navigation"

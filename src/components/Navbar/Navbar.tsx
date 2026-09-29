@@ -12,6 +12,12 @@ export interface NavbarProps {
   // wired to your own app's auth/notifications/routing, so they're supplied
   // here rather than owned by this component.
   children?: ReactNode;
+  // Makes the logo a "go home" control, e.g. `onLogoClick={() => navigate('/')}`.
+  // A callback instead of an `href` since this package takes no dependency
+  // on any router - a consumer wires it to whatever client-side navigation
+  // its own app already uses (React Router, plain `window.location`, ...).
+  // Omit it to keep the logo purely decorative, the previous behavior.
+  onLogoClick?: () => void;
 }
 
 // The navbar's shell: logo, brand-tone background (with its optional 45deg
@@ -21,7 +27,7 @@ export interface NavbarProps {
 // shared design system. Compose it with DarkModeToggle, NotificationBell and
 // your own buttons via `children`, then hand the whole thing to `Layout`'s
 // `navbar` prop.
-export function Navbar({ tone = 'black', children }: NavbarProps) {
+export function Navbar({ tone = 'black', children, onLogoClick }: NavbarProps) {
   const spec = NAV_TONES[tone];
   return (
     <div>
@@ -33,7 +39,13 @@ export function Navbar({ tone = 'black', children }: NavbarProps) {
           <div className="absolute inset-0 pmg-texture text-white pointer-events-none hidden dark:block" />
         )}
         <div className="relative shrink-0">
-          <PremiumLogo size="sm" variant="horizontal" />
+          {onLogoClick ? (
+            <button type="button" onClick={onLogoClick} aria-label="Go to dashboard" className="block">
+              <PremiumLogo size="sm" variant="horizontal" />
+            </button>
+          ) : (
+            <PremiumLogo size="sm" variant="horizontal" />
+          )}
         </div>
         <div className="relative flex items-center gap-1 sm:gap-1.5 min-w-0">
           {children}

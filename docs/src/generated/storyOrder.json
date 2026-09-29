@@ -152,6 +152,7 @@
   ],
   "Navbar": [
     "FullyComposed",
+    "ClickableLogo",
     "AllTones"
   ],
   "NavTile": [

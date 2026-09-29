@@ -1145,6 +1145,13 @@
       "required": false,
       "defaultValue": "black",
       "description": null
+    },
+    {
+      "name": "onLogoClick",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
     }
   ],
   "NavTile": [
