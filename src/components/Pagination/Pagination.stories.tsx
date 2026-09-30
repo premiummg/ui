@@ -42,3 +42,27 @@ export const SinglePageWithChildren: Story = {
     </Pagination>
   ),
 };
+
+// With onPageSizeChange passed, a "per page" selector appears next to the
+// range line, and the component stays mounted even at a single page so the
+// selector is always reachable.
+export const WithPageSizeSelector: Story = {
+  render: () => {
+    function Demo() {
+      const [page, setPage] = useState(1);
+      const [limit, setLimit] = useState(20);
+      const total = 98;
+      return (
+        <Pagination
+          page={page}
+          totalPages={Math.max(1, Math.ceil(total / limit))}
+          total={total}
+          limit={limit}
+          onPageChange={setPage}
+          onPageSizeChange={(n) => { setLimit(n); setPage(1) }}
+        />
+      );
+    }
+    return <Demo />;
+  },
+};

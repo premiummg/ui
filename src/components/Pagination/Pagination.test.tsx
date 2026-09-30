@@ -47,4 +47,32 @@ describe('Pagination', () => {
     await userEvent.click(screen.getByLabelText('Next page'));
     expect(onPageChange).toHaveBeenCalledWith(2);
   });
+
+  test('no page-size selector when onPageSizeChange is omitted', () => {
+    render(<Pagination page={1} totalPages={2} total={30} limit={20} onPageChange={() => {}} />);
+    expect(screen.queryByLabelText('per page')).not.toBeInTheDocument();
+  });
+
+  test('page-size selector renders and stays mounted even on a single page', () => {
+    render(
+      <Pagination page={1} totalPages={1} total={5} limit={20} onPageChange={() => {}} onPageSizeChange={() => {}} />,
+    );
+    expect(screen.getByLabelText('per page')).toBeInTheDocument();
+  });
+
+  test('changing the page-size selector calls onPageSizeChange with the picked value', async () => {
+    const onPageSizeChange = vi.fn();
+    render(
+      <Pagination
+        page={1}
+        totalPages={3}
+        total={45}
+        limit={20}
+        onPageChange={() => {}}
+        onPageSizeChange={onPageSizeChange}
+      />,
+    );
+    await userEvent.selectOptions(screen.getByLabelText('per page'), '50');
+    expect(onPageSizeChange).toHaveBeenCalledWith(50);
+  });
 });
