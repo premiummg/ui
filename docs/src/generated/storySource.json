@@ -25,6 +25,10 @@
     "CustomColors": "<div className=\"flex items-end gap-3\">\n  <Avatar fullName=\"Jordan Reid\" color=\"#2563eb\" />\n  <Avatar fullName=\"Alex Chen\" color=\"#059669\" />\n  <Avatar fullName=\"Sam Okafor\" color=\"#d97706\" />\n</div>",
     "Clickable": "<Avatar fullName=\"Jordan Reid\" onClick={() => alert('Avatar clicked')} />"
   },
+  "BroadcastInbox": {
+    "AdminView": "<BroadcastInbox fetchSent={async () => sentSeed} fetchReceived={async () => []} onSendToThread={async (_broadcastId, _participantId, body) => ({\n      id: String(Math.random()),\n      authorId: 'admin-1',\n      authorName: 'Dev Admin',\n      body,\n      createdAt: new Date().toISOString(),\n    })} onMarkThreadRead={async () => {}} onClose={async () => {}} onDelete={async () => {}} currentUserId=\"admin-1\" canSendMessages canManageBroadcast={() => true} strings={strings} />",
+    "WorkerView": "<BroadcastInbox fetchSent={undefined} fetchReceived={async () => receivedSeed} onSendToThread={async (_broadcastId, _participantId, body) => ({\n      id: String(Math.random()),\n      authorId: 'admin-1',\n      authorName: 'Dev Admin',\n      body,\n      createdAt: new Date().toISOString(),\n    })} onMarkThreadRead={async () => {}} onClose={async () => {}} onDelete={async () => {}} currentUserId=\"worker-1\" canSendMessages={false} canManageBroadcast={() => true} strings={strings} />"
+  },
   "Button": {
     "Primary": "<Button variant=\"primary\">Save changes</Button>",
     "Secondary": "<Button variant=\"secondary\">Cancel</Button>",
@@ -51,6 +55,11 @@
     "NoIcon": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Sign out</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        title=\"Sign out?\"\n        message=\"You'll need to sign in again to continue.\"\n        confirmLabel=\"Sign out\"\n      />\n    </>\n  );\n}\nreturn <Demo />;",
     "Caution": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Deactivate account</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        tone=\"caution\"\n        icon={FiAlertTriangle}\n        title=\"Deactivate this account?\"\n        message=\"They can be reactivated later from the same page.\"\n        confirmLabel=\"Deactivate\"\n      />\n    </>\n  );\n}\nreturn <Demo />;",
     "CustomActions": "function Demo() {\n  const [open, setOpen] = useState(false);\n  return (\n    <>\n      <Button variant=\"secondary\" onClick={() => setOpen(true)}>Close without saving</Button>\n      <ConfirmDialog\n        open={open}\n        onClose={() => setOpen(false)}\n        tone=\"caution\"\n        icon={FiSave}\n        title=\"Unsaved changes\"\n        message=\"You have changes that haven't been saved yet.\"\n        actions={[\n          { label: 'Save draft', variant: 'primary', onClick: () => setOpen(false) },\n          { label: 'Discard', variant: 'danger', onClick: () => setOpen(false) },\n          { label: 'Cancel', variant: 'secondary', onClick: () => setOpen(false) },\n        ]}\n      />\n    </>\n  );\n}\nreturn <Demo />;"
+  },
+  "ConversationThread": {
+    "Default": "<ConversationThread fetchFn={async () => seedMessages} onSend={async (body: string) => ({\n      id: String(Math.random()),\n      authorId: 'worker-1',\n      authorName: 'Carlos Vidana',\n      body,\n      createdAt: new Date().toISOString(),\n    })} currentUserId=\"worker-1\" strings={strings} />",
+    "Closed": "<ConversationThread fetchFn={async () => seedMessages} onSend={async (body: string) => ({\n      id: String(Math.random()),\n      authorId: 'worker-1',\n      authorName: 'Carlos Vidana',\n      body,\n      createdAt: new Date().toISOString(),\n    })} currentUserId=\"worker-1\" strings={strings} disabled disabledMessage=\"This conversation is closed.\" />",
+    "Empty": "<ConversationThread fetchFn={async () => []} onSend={async (body: string) => ({\n      id: String(Math.random()),\n      authorId: 'worker-1',\n      authorName: 'Carlos Vidana',\n      body,\n      createdAt: new Date().toISOString(),\n    })} currentUserId=\"worker-1\" strings={strings} />"
   },
   "CountBadge": {
     "Default": "<CountBadge count={128} />",
@@ -190,7 +199,8 @@
   "Pagination": {
     "Default": "function Demo() {\n  const [page, setPage] = useState(2);\n  return <Pagination page={page} totalPages={5} total={98} limit={20} onPageChange={setPage} />;\n}\nreturn <Demo />;",
     "SinglePage": "<div>\n  <p className=\"text-xs text-gray-400 mb-2\">Nothing renders below this line:</p>\n  <Pagination page={1} totalPages={1} total={8} limit={20} onPageChange={() => {}} />\n</div>",
-    "SinglePageWithChildren": "<Pagination page={1} totalPages={1} total={8} limit={20} onPageChange={() => {}}>\n  <button className=\"text-(--premium-red) hover:underline font-medium\">Export all</button>\n</Pagination>"
+    "SinglePageWithChildren": "<Pagination page={1} totalPages={1} total={8} limit={20} onPageChange={() => {}}>\n  <button className=\"text-(--premium-red) hover:underline font-medium\">Export all</button>\n</Pagination>",
+    "WithPageSizeSelector": "function Demo() {\n  const [page, setPage] = useState(1);\n  const [limit, setLimit] = useState(20);\n  const total = 98;\n  return (\n    <Pagination\n      page={page}\n      totalPages={Math.max(1, Math.ceil(total / limit))}\n      total={total}\n      limit={limit}\n      onPageChange={setPage}\n      onPageSizeChange={(n) => { setLimit(n); setPage(1) }}\n    />\n  );\n}\nreturn <Demo />;"
   },
   "PasswordInput": {
     "Default": "<PasswordInput label=\"Password\" registration={{ name: 'password' }} />",

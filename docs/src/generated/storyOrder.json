@@ -25,6 +25,10 @@
     "CustomColors",
     "Clickable"
   ],
+  "BroadcastInbox": [
+    "AdminView",
+    "WorkerView"
+  ],
   "Button": [
     "Primary",
     "Secondary",
@@ -51,6 +55,11 @@
     "NoIcon",
     "Caution",
     "CustomActions"
+  ],
+  "ConversationThread": [
+    "Default",
+    "Closed",
+    "Empty"
   ],
   "CountBadge": [
     "Default",
@@ -190,7 +199,8 @@
   "Pagination": [
     "Default",
     "SinglePage",
-    "SinglePageWithChildren"
+    "SinglePageWithChildren",
+    "WithPageSizeSelector"
   ],
   "PasswordInput": [
     "Default",

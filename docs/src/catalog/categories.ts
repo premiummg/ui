@@ -5,6 +5,7 @@ import { navigationChrome } from './navigationChrome';
 import { dataDisplay } from './dataDisplay';
 import { authShell } from './authShell';
 import { marketing } from './marketing';
+import { utilities } from './utilities';
 
 export interface Category {
   id: string;
@@ -47,5 +48,10 @@ export const CATEGORIES: Category[] = [
     id: 'marketing', n: '10', title: 'Marketing & Landing',
     note: 'Scoped to public-facing pages - a marketing page\'s buttons and cards sit on whatever colored section surrounds them, which app chrome never has to handle.',
     items: marketing,
+  },
+  {
+    id: 'utilities', n: '11', title: 'Utilities',
+    note: 'Plain exported functions, not components - no UI of their own, so each demo below runs the real function against sample input and shows its actual return value instead of a rendered widget.',
+    items: utilities,
   },
 ];

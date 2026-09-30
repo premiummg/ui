@@ -101,6 +101,13 @@
       "description": null
     },
     {
+      "name": "action",
+      "type": "{ label: string; onClick: () => void; }",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
       "name": "className",
       "type": "string",
       "required": false,
@@ -195,6 +202,106 @@
       "type": "string",
       "required": false,
       "defaultValue": "",
+      "description": null
+    }
+  ],
+  "BroadcastInbox": [
+    {
+      "name": "fetchSent",
+      "type": "() => Promise<ChatBroadcast[]>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fetchReceived",
+      "type": "() => Promise<ChatBroadcast[]>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onSendToThread",
+      "type": "(broadcastId: string, participantId: string, body: string) => Promise<ChatMessage>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onMarkThreadRead",
+      "type": "(broadcastId: string, participantId: string) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "(broadcastId: string) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onDelete",
+      "type": "(broadcastId: string) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "currentUserId",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "canSendMessages",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "canManageBroadcast",
+      "type": "(broadcast: ChatBroadcast) => boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onAuthorClick",
+      "type": "(authorId: string) => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onCompose",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "strings",
+      "type": "BroadcastInboxStrings",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "pollIntervalMs",
+      "type": "number",
+      "required": false,
+      "defaultValue": 15000,
+      "description": null
+    },
+    {
+      "name": "deepLinkId",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -343,6 +450,71 @@
       "type": "boolean",
       "required": false,
       "defaultValue": false,
+      "description": null
+    }
+  ],
+  "ConversationThread": [
+    {
+      "name": "fetchFn",
+      "type": "() => Promise<ChatMessage[]>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onSend",
+      "type": "(body: string) => Promise<ChatMessage>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onMarkRead",
+      "type": "() => void | Promise<void>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "currentUserId",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "strings",
+      "type": "ConversationThreadStrings",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "pollIntervalMs",
+      "type": "number",
+      "required": false,
+      "defaultValue": 15000,
+      "description": null
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "disabledMessage",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onAuthorClick",
+      "type": "(authorId: string) => void",
+      "required": false,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -1152,6 +1324,13 @@
       "required": false,
       "defaultValue": null,
       "description": null
+    },
+    {
+      "name": "lang",
+      "type": "Lang",
+      "required": false,
+      "defaultValue": "en",
+      "description": null
     }
   ],
   "NavTile": [
@@ -1452,6 +1631,27 @@
       "type": "string",
       "required": false,
       "defaultValue": "Next page",
+      "description": null
+    },
+    {
+      "name": "pageSizeOptions",
+      "type": "number[]",
+      "required": false,
+      "defaultValue": "[20, 50, 100]",
+      "description": null
+    },
+    {
+      "name": "onPageSizeChange",
+      "type": "(limit: number) => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "pageSizeLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "per page",
       "description": null
     }
   ],
