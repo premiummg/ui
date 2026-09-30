@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { PremiumLogo } from '../PremiumLogo';
+import type { Lang } from '../LanguageToggle';
 import { NAV_TONES, NavTone } from './navTone';
 
 export interface NavbarProps {
@@ -18,6 +19,12 @@ export interface NavbarProps {
   // its own app already uses (React Router, plain `window.location`, ...).
   // Omit it to keep the logo purely decorative, the previous behavior.
   onLogoClick?: () => void;
+  // Forwarded straight to PremiumLogo - pass the same state your app's own
+  // LanguageToggle drives, so the wordmark's baked-in tagline switches
+  // ("Built with heart" / "Bâti avec coeur") the instant the visitor flips
+  // languages, the same as every other piece of copy in the bar around it.
+  // Defaults to 'en', matching PremiumLogo's own default.
+  lang?: Lang;
 }
 
 // The navbar's shell: logo, brand-tone background (with its optional 45deg
@@ -27,7 +34,7 @@ export interface NavbarProps {
 // shared design system. Compose it with DarkModeToggle, NotificationBell and
 // your own buttons via `children`, then hand the whole thing to `Layout`'s
 // `navbar` prop.
-export function Navbar({ tone = 'black', children, onLogoClick }: NavbarProps) {
+export function Navbar({ tone = 'black', children, onLogoClick, lang = 'en' }: NavbarProps) {
   const spec = NAV_TONES[tone];
   return (
     <div>
@@ -41,10 +48,10 @@ export function Navbar({ tone = 'black', children, onLogoClick }: NavbarProps) {
         <div className="relative shrink-0">
           {onLogoClick ? (
             <button type="button" onClick={onLogoClick} aria-label="Go to dashboard" className="block">
-              <PremiumLogo size="sm" variant="horizontal" />
+              <PremiumLogo size="sm" variant="horizontal" lang={lang} />
             </button>
           ) : (
-            <PremiumLogo size="sm" variant="horizontal" />
+            <PremiumLogo size="sm" variant="horizontal" lang={lang} />
           )}
         </div>
         <div className="relative flex items-center gap-1 sm:gap-1.5 min-w-0">

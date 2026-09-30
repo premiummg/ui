@@ -38,16 +38,30 @@ export interface AlertProps {
   // so it shows up as a plain text field in Storybook's Controls panel
   // instead of an opaque "children" prop.
   text: ReactNode;
+  // A single inline action alongside the message - "Retry" on a failed
+  // fetch being the motivating case. Deliberately just one: an alert that
+  // needs more than a single follow-up action belongs in a bigger
+  // component, not a second slot bolted onto this one.
+  action?: { label: string; onClick: () => void };
   className?: string;
 }
 
-export function Alert({ variant = 'error', text, className = '' }: AlertProps) {
+export function Alert({ variant = 'error', text, action, className = '' }: AlertProps) {
   const { cls, edge, Icon } = STYLES[variant];
   return (
     <div className={`flex items-center gap-2.5 pl-0 pr-4 py-3 rounded-2xl text-sm overflow-hidden ${cls} ${className}`}>
       <span className="self-stretch w-[3px] shrink-0" style={{ backgroundColor: edge }} />
       <Icon size={15} className="shrink-0" />
-      {text}
+      <span className="flex-1">{text}</span>
+      {action && (
+        <button
+          type="button"
+          onClick={action.onClick}
+          className="shrink-0 font-semibold underline decoration-from-font underline-offset-2 hover:no-underline"
+        >
+          {action.label}
+        </button>
+      )}
     </div>
   );
 }

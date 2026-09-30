@@ -151,6 +151,56 @@ input[type='number']::-webkit-inner-spin-button {
   margin: 0;
 }
 
+/* ScrollableTable's scroll container. Base (touch devices, and any browser
+   with no hover/fine-pointer signal): native scrollbar hidden entirely - the
+   component's own fade edges + chevron nudge buttons are the "there's more"
+   affordance there, and read far better under a finger than a thin thumb. */
+.pmg-scrollbar {
+  scrollbar-width: none;
+}
+.pmg-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Non-touch (mouse/trackpad): the classic always-there scrollbar is the
+   familiar affordance instead, so it's turned back on here - styled to the
+   brand red rather than each browser's own grey default - and
+   ScrollableTable hides its fade/chevron overlay (.pmg-touch-scroll-hint)
+   so the two don't double up on the same table. Unlayered (not inside
+   @layer components), so it wins over the "contents" Tailwind utility on
+   .pmg-touch-scroll-hint regardless of import order - same reasoning as the
+   button cursor-pointer rule above. */
+@media (hover: hover) and (pointer: fine) {
+  .pmg-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--premium-red) transparent;
+  }
+  .pmg-scrollbar::-webkit-scrollbar {
+    display: block;
+    width: 10px;
+    height: 10px;
+  }
+  .pmg-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .pmg-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--premium-red);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .pmg-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--premium-red-dark);
+  }
+  .pmg-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  .pmg-touch-scroll-hint {
+    display: none;
+  }
+}
+
 @layer components {
   .btn-primary {
     @apply font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-60 text-white;
@@ -207,6 +257,20 @@ html.dark .phone-input-field .PhoneInputCountry {
 html.dark .phone-input-field .PhoneInputInput {
   background-color: #374151;
   color: #f9fafb;
+}
+
+/* Rich text: a literal black/white pick from RichTextToolbar's Text color
+   swatches gets rewritten to this class instead of a fixed color (see
+   richTextSanitize.ts's normalizeAutoInkColors) - readable in whichever
+   theme it's currently being viewed/edited in, rather than staying whatever
+   it was authored under. Defaults to pure black/white; a consuming app can
+   override --rte-ink/--rte-ink-dark to its own near-black/near-white text
+   shade instead, to match the rest of its own typography exactly. */
+.rte-auto-ink {
+  color: var(--rte-ink, #000000);
+}
+html.dark .rte-auto-ink {
+  color: var(--rte-ink-dark, #ffffff);
 }
 
 @keyframes toast-in {

@@ -10,9 +10,15 @@ const BTN = 'absolute z-20 w-7 h-7 rounded-full bg-white dark:bg-(--premium-stee
 const FADE_H = 'pointer-events-none absolute left-0 right-0 h-10 z-10';
 const FADE_V = 'pointer-events-none absolute top-0 bottom-0 w-16 z-10';
 
-// Wraps a wide/tall table in a scroll container with fade edges and chevron
-// nudge buttons on whichever sides currently have more content to scroll to -
-// so overflow is discoverable instead of a silent cut-off edge.
+// Wraps a wide/tall table in a scroll container. On a touchscreen (no
+// precise pointer) it hides the native scrollbar and shows fade edges plus
+// chevron nudge buttons on whichever sides currently have more content -
+// swiping is the natural gesture there, and a thin scroll thumb is easy to
+// miss with a finger. On a mouse/trackpad (`(hover: hover) and
+// (pointer: fine)`, see .pmg-scrollbar/.pmg-touch-scroll-hint in styles.css)
+// it's the other way around: a real, brand-red scrollbar is the familiar,
+// always-grabbable affordance, and the fade/chevron overlay is hidden so the
+// two don't double up.
 export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children }: ScrollableTableProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [s, setS] = useState({ left: false, right: false, up: false, down: false });
@@ -45,42 +51,42 @@ export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children }:
   return (
     <div className="relative">
       {s.left && (
-        <>
+        <div className="contents pmg-touch-scroll-hint">
           <div className={`${FADE_V} left-0 bg-linear-to-r from-white dark:from-(--premium-dark-grey) to-transparent`} />
           <button onClick={() => ref.current?.scrollBy({ left: -200, behavior: 'smooth' })} className={`${BTN} left-2 top-1/2 -translate-y-1/2`}>
             <FiChevronLeft size={14} />
           </button>
-        </>
+        </div>
       )}
       {s.right && (
-        <>
+        <div className="contents pmg-touch-scroll-hint">
           <div className={`${FADE_V} right-0 bg-linear-to-l from-white dark:from-(--premium-dark-grey) to-transparent`} />
           <button onClick={() => ref.current?.scrollBy({ left: 200, behavior: 'smooth' })} className={`${BTN} right-2 top-1/2 -translate-y-1/2`}>
             <FiChevronRight size={14} />
           </button>
-        </>
+        </div>
       )}
       {s.up && (
-        <>
+        <div className="contents pmg-touch-scroll-hint">
           <div className={`${FADE_H} top-0 bg-linear-to-b from-white dark:from-(--premium-dark-grey) to-transparent`} />
           <button onClick={() => ref.current?.scrollBy({ top: -150, behavior: 'smooth' })} className={`${BTN} top-2 left-1/2 -translate-x-1/2`}>
             <FiChevronUp size={14} />
           </button>
-        </>
+        </div>
       )}
       {s.down && (
-        <>
+        <div className="contents pmg-touch-scroll-hint">
           <div className={`${FADE_H} bottom-0 bg-linear-to-t from-white dark:from-(--premium-dark-grey) to-transparent`} />
           <button onClick={() => ref.current?.scrollBy({ top: 150, behavior: 'smooth' })} className={`${BTN} bottom-2 left-1/2 -translate-x-1/2`}>
             <FiChevronDown size={14} />
           </button>
-        </>
+        </div>
       )}
       <div
         ref={ref}
         onScroll={update}
-        style={{ maxHeight, scrollbarWidth: 'none' }}
-        className="overflow-auto [&::-webkit-scrollbar]:hidden"
+        style={{ maxHeight }}
+        className="overflow-auto pmg-scrollbar"
       >
         {children}
       </div>

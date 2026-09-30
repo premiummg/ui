@@ -82,6 +82,48 @@ export function sanitizePastedHtml(html?: string | null): string {
   });
 }
 
+// A literal black or white pick from RichTextToolbar's fixed Text color
+// swatches (see WORD_TEXT_COLORS - #000000/#ffffff are the only two extreme
+// values it can ever produce, whether Chrome serializes execCommand's output
+// as <font color> or <span style>) reads fine against whatever background it
+// was authored on, but has no readable form once the *viewer's* theme
+// differs: black is invisible on a dark background, white on a light one.
+// Both collapse to the SAME theme-adaptive replacement - there's no need to
+// tell "was black" and "was white" apart, since the target behavior (dark
+// ink in light mode, light ink in dark mode) is identical either way.
+// Setting a probe element's style.color and reading it back is how the
+// browser itself normalizes any valid CSS color (#000, black, rgb(0,0,0), a
+// <font color> attribute value, ...) into a comparable "rgb(r, g, b)" string,
+// without hand-rolling every syntax execCommand or a pasted style might use.
+let inkProbe: HTMLSpanElement | null = null;
+function resolvesToExtremeInk(value: string): boolean {
+  if (!inkProbe) inkProbe = document.createElement('span');
+  inkProbe.style.color = '';
+  inkProbe.style.color = value;
+  const resolved = inkProbe.style.color;
+  return resolved === 'rgb(0, 0, 0)' || resolved === 'rgb(255, 255, 255)';
+}
+
+// Rewrites a literal black/white color (attribute or inline style) into the
+// theme-adaptive `rte-auto-ink` class (see the package's styles.css) instead
+// - applied both at render time (RichTextContent, below) and live inside the
+// editor itself (RichTextEditor.tsx), so already-authored content adapts to
+// whichever theme it's currently being viewed/edited in either way.
+export function normalizeAutoInkColors(container: HTMLElement): void {
+  container.querySelectorAll<HTMLElement>('font[color], [style*="color"]').forEach((el) => {
+    const attrColor = el.getAttribute('color');
+    if (attrColor && resolvesToExtremeInk(attrColor)) {
+      el.removeAttribute('color');
+      el.classList.add('rte-auto-ink');
+    }
+    if (el.style.color && resolvesToExtremeInk(el.style.color)) {
+      el.style.removeProperty('color');
+      el.classList.add('rte-auto-ink');
+      if (el.getAttribute('style') === '') el.removeAttribute('style');
+    }
+  });
+}
+
 // What RichTextContent actually renders. Sanitizing FIRST (which strips every
 // <iframe> unconditionally) and only then expanding the validated
 // data-youtube placeholders into embeds is what makes YouTube support safe:
@@ -89,10 +131,12 @@ export function sanitizePastedHtml(html?: string | null): string {
 // an id matching YOUTUBE_ID_RE, pointing at youtube-nocookie.com.
 export function renderRichTextHtml(html?: string | null): string {
   const clean = sanitizeRichText(html);
-  if (!clean.includes('data-youtube')) return clean;
 
   const el = document.createElement('div');
   el.innerHTML = clean;
+  normalizeAutoInkColors(el);
+  if (!clean.includes('data-youtube')) return el.innerHTML;
+
   el.querySelectorAll<HTMLDivElement>('[data-youtube]').forEach((wrap) => {
     const videoId = wrap.getAttribute('data-youtube') || '';
     if (!YOUTUBE_ID_RE.test(videoId)) {

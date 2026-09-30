@@ -209,6 +209,7 @@ export {
   htmlToPlainText,
   ensureBlockWrapped,
   isHtmlEmpty,
+  normalizeAutoInkColors,
   parseYouTubeId,
   youTubeEmbedUrl,
   youTubeWatchUrl,

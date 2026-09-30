@@ -15,6 +15,7 @@ export {
   htmlToPlainText,
   ensureBlockWrapped,
   isHtmlEmpty,
+  normalizeAutoInkColors,
 } from './richTextSanitize';
 
 export {

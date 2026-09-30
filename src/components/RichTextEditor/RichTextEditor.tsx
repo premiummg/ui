@@ -2,7 +2,7 @@ import { ClipboardEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FiMaximize2 } from 'react-icons/fi';
 import { RichTextToolbar, useRichTextCommands } from './RichTextToolbar';
-import { sanitizePastedHtml, isHtmlEmpty, ensureBlockWrapped } from './richTextSanitize';
+import { sanitizePastedHtml, isHtmlEmpty, ensureBlockWrapped, normalizeAutoInkColors } from './richTextSanitize';
 import { buildResizableImageNode, reattachResizeHandles, stripResizeHandles, readPastedImage } from './richTextImages';
 import { buildYouTubeNode, hydrateYouTubeNodes, stripYouTubePreviews } from './richTextYouTube';
 
@@ -57,6 +57,11 @@ function useEditableSync(editorRef: React.RefObject<HTMLDivElement | null>, valu
     // their editor-only chrome rebuilt.
     reattachResizeHandles(el);
     hydrateYouTubeNodes(el);
+    // A post authored black/white in one theme has to stay readable while
+    // being *edited* under the other, same as the read-only render path (see
+    // RichTextContent) - runs here too, not just there, so opening an old
+    // post for editing under the opposite theme doesn't show invisible text.
+    normalizeAutoInkColors(el);
   }, [value, editorRef]);
 
   const [oversized, setOversized] = useState(false);
@@ -64,6 +69,10 @@ function useEditableSync(editorRef: React.RefObject<HTMLDivElement | null>, valu
   const emit = () => {
     const el = editorRef.current;
     if (!el) return;
+    // Catches a *live* color pick too (useRichTextCommands' exec calls this
+    // right after document.execCommand('foreColor', ...) runs), not just
+    // content freshly loaded into the editor - see the sync effect above.
+    normalizeAutoInkColors(el);
     // Strip the editor-only chrome back out so none of it reaches the database.
     const html = stripYouTubePreviews(stripResizeHandles(el.innerHTML));
     lastRawValue.current = html;
