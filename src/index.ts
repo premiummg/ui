@@ -242,3 +242,6 @@ export type {
 export { useOutsideClick } from './hooks/useOutsideClick';
 export { useDarkMode } from './hooks/useDarkMode';
 export { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
+
+export { importedHeaderSet, resolveImportRow, diffForImportUpdate } from './lib/bulkImport';
+export type { ImportFieldSpec } from './lib/bulkImport';
