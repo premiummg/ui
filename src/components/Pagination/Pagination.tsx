@@ -49,7 +49,7 @@ export function Pagination({
               value={limit}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
               aria-label={pageSizeLabel}
-              className="rounded-lg border-0 bg-gray-100 py-1 pl-2 pr-6 text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:bg-white/10 dark:text-gray-300"
+              className="rounded-lg border-0 bg-gray-100 py-1 pl-2 pr-6 text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:bg-white/10 dark:text-gray-300 dark:[color-scheme:dark]"
             >
               {pageSizeOptions.map((n) => (
                 <option key={n} value={n}>{n}</option>
