@@ -179,6 +179,22 @@ Also exported: `useOutsideClick` (closes a menu/dropdown on an outside mousedown
 `DarkModeToggle` for the actual button), and `usePrefersReducedMotion` (the hook `Reveal` itself
 uses, exported in case a consumer needs the raw value for something other than a reveal).
 
+Also exported, not a component: `resolveImportRow`/`diffForImportUpdate`/`importedHeaderSet`
+(`ImportFieldSpec` is the matching type) - the shared mechanism behind every app's own "Import
+from Excel" flow. `resolveImportRow(row, headers, spec)` reads each field from whichever of its
+configured header names is actually present in that file (so a sibling app's own export, with its
+own header names for the same data, still imports), and the result only *includes* a field when
+its header exists somewhere in the file at all - a header that's present with a blank cell resolves
+to `''`, while a header absent from the file entirely is left out of the result completely.
+`diffForImportUpdate(incoming, current)` then compares that resolved row against an existing
+record and returns only the keys that actually changed, so re-importing someone unchanged is a
+no-op write and a deliberately blanked cell (an included `''`) still clears that field, rather than
+being indistinguishable from "this column isn't in the file". Pulled out of
+`timesheet-payroll-system`'s Employees bulk-import and `pmg-intranet`'s Directory bulk-import,
+which had each grown their own slightly-different version of this; fields needing more than a
+plain value comparison (resolving a spreadsheet name to a local id, parsing an Excel date cell)
+stay hand-written in each consumer, since neither is something a generic string-diff can do.
+
 That's every component from `timesheet-payroll-system/frontend/src/components/shared/` and its
 top-level `components/` that's actually app-agnostic (checked both directories end to end, not
 just the ones that seemed likely) - plus `StatCard` and `NavTile`, which weren't in either
