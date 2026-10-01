@@ -195,6 +195,21 @@ which had each grown their own slightly-different version of this; fields needin
 plain value comparison (resolving a spreadsheet name to a local id, parsing an Excel date cell)
 stay hand-written in each consumer, since neither is something a generic string-diff can do.
 
+Also exported: `runMultiPassImport(rows, processRow, onStuck)`. A row can reference another row in
+the same file that hasn't been created yet - an employee's Manager column naming someone further
+down the same sheet - and since row order in a spreadsheet isn't meaningful, that can't be solved
+with one top-to-bottom pass. `processRow(row)` is the caller's own per-entity logic (resolve the
+row, maybe actually call `create()`/`update()`) and returns `{ retry: true }` for a row whose
+dependency isn't resolved yet instead of a final outcome; this function keeps re-calling it for
+whatever's still pending, in file order, until a full pass resolves nothing new, then reports
+`onStuck(row)` for whatever's left (a genuine circular reference, or the referenced row having
+failed for an unrelated reason) and stops, so it can never loop forever. It knows nothing about
+what a "row" or "outcome" actually is - a resolved dependency becoming available to a later call
+(typically a closed-over `Map` from name to id that a successful `create()` populates) is entirely
+the caller's own responsibility - which is what makes it reusable for any entity's bulk import, not
+just employees. Also pulled out of the same two apps' bulk-import flows, which had each hand-rolled
+their own version of this exact retry loop.
+
 That's every component from `timesheet-payroll-system/frontend/src/components/shared/` and its
 top-level `components/` that's actually app-agnostic (checked both directories end to end, not
 just the ones that seemed likely) - plus `StatCard` and `NavTile`, which weren't in either

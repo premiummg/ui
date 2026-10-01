@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { importedHeaderSet, resolveImportRow, diffForImportUpdate, ImportFieldSpec } from './bulkImport';
+import { importedHeaderSet, resolveImportRow, diffForImportUpdate, runMultiPassImport, ImportFieldSpec } from './bulkImport';
 
 type Field = 'name' | 'rate' | 'ripplingId';
 
@@ -63,5 +63,70 @@ describe('diffForImportUpdate', () => {
     const diff = diffForImportUpdate({ name: 'Ada Lovelace' }, { name: 'Someone Else', rate: 999 });
     expect(diff).toEqual({ name: 'Ada Lovelace' });
     expect('rate' in diff).toBe(false);
+  });
+});
+
+describe('runMultiPassImport', () => {
+  type Row = { name: string; managerName?: string };
+  type Outcome = { name: string; status: 'ok' | 'error'; message?: string; id?: string };
+
+  // Mirrors the real shape every app's own employee import already used: a
+  // row naming a Manager can't resolve until that manager's own row has run,
+  // which may be anywhere else in the file - the closed-over `createdIds`
+  // map is exactly what a real processRow would populate from a successful
+  // create() call.
+  function makeProcessor(createdIds: Map<string, string>, allNames: Set<string>) {
+    let nextId = 1;
+    return async (row: Row): Promise<{ retry?: boolean; outcome?: Outcome }> => {
+      if (row.managerName) {
+        const managerId = createdIds.get(row.managerName.toLowerCase());
+        if (!managerId) {
+          if (allNames.has(row.managerName.toLowerCase())) return { retry: true };
+          return { outcome: { name: row.name, status: 'error', message: `Manager "${row.managerName}" not found` } };
+        }
+      }
+      const id = `id-${nextId++}`;
+      createdIds.set(row.name.toLowerCase(), id);
+      return { outcome: { name: row.name, status: 'ok', id } };
+    };
+  }
+  const onStuck = (row: Row): Outcome => ({ name: row.name, status: 'error', message: 'stuck' });
+
+  test('resolves a row whose manager appears later in the same file', async () => {
+    const rows: Row[] = [{ name: 'Report', managerName: 'Boss' }, { name: 'Boss' }];
+    const createdIds = new Map<string, string>();
+    const allNames = new Set(rows.map((r) => r.name.toLowerCase()));
+    const results = await runMultiPassImport(rows, makeProcessor(createdIds, allNames), onStuck);
+    expect(results[0].status).toBe('ok');
+    expect(results[1].status).toBe('ok');
+  });
+
+  test('fails a row whose referenced manager is not in the file at all', async () => {
+    const rows: Row[] = [{ name: 'Report', managerName: 'Ghost' }];
+    const createdIds = new Map<string, string>();
+    const allNames = new Set(rows.map((r) => r.name.toLowerCase()));
+    const results = await runMultiPassImport(rows, makeProcessor(createdIds, allNames), onStuck);
+    expect(results[0]).toEqual({ name: 'Report', status: 'error', message: 'Manager "Ghost" not found' });
+  });
+
+  test('reports onStuck for a genuinely circular reference instead of looping forever', async () => {
+    const rows: Row[] = [{ name: 'A', managerName: 'B' }, { name: 'B', managerName: 'A' }];
+    const createdIds = new Map<string, string>();
+    const allNames = new Set(rows.map((r) => r.name.toLowerCase()));
+    const results = await runMultiPassImport(rows, makeProcessor(createdIds, allNames), onStuck);
+    expect(results.every((r) => r.status === 'error' && r.message === 'stuck')).toBe(true);
+  });
+
+  test('preserves original row order in the results regardless of resolution order', async () => {
+    const rows: Row[] = [
+      { name: 'C', managerName: 'A' },
+      { name: 'A' },
+      { name: 'B', managerName: 'A' },
+    ];
+    const createdIds = new Map<string, string>();
+    const allNames = new Set(rows.map((r) => r.name.toLowerCase()));
+    const results = await runMultiPassImport(rows, makeProcessor(createdIds, allNames), onStuck);
+    expect(results.map((r) => r.name)).toEqual(['C', 'A', 'B']);
+    expect(results.every((r) => r.status === 'ok')).toBe(true);
   });
 });

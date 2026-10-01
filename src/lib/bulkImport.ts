@@ -69,3 +69,63 @@ export function diffForImportUpdate<K extends string>(
   }
   return diff;
 }
+
+// A third rule, independent of the two above, that every app's own bulk
+// import kept re-deriving by hand: a row can reference ANOTHER row in the
+// same file that hasn't been created yet (e.g. an employee's Manager column
+// naming someone further down the same sheet). Row order in the file is not
+// meaningful, so this can't be solved with a single top-to-bottom pass - it
+// needs retries, but only bounded ones, since a name that matches nothing in
+// the file (or a true circular reference) must still fail instead of
+// spinning forever.
+//
+// This only drives the retry loop - it knows nothing about what a "row" or
+// an "outcome" actually is. `processRow` is the caller's own per-entity
+// logic (parse/resolve, maybe call create()/update(), whatever this entity's
+// import actually does for one row) and decides for itself, each call,
+// whether this row's dependencies are satisfied yet; when they're not, it
+// returns `{ retry: true }` instead of a final outcome. A resolved
+// dependency becoming available to a later call is the caller's own
+// responsibility too (typically: a closed-over Map from name -> id that a
+// successful create() populates) - this function only repeats calling
+// `processRow` on whatever is still pending, in file order, until a full
+// pass produces no newly-resolved row, then reports `onStuck` for whatever's
+// left and stops.
+export interface MultiPassOutcome<TOutcome> {
+  retry?: boolean;
+  outcome?: TOutcome;
+}
+
+export async function runMultiPassImport<TRow, TOutcome>(
+  rows: TRow[],
+  processRow: (row: TRow) => Promise<MultiPassOutcome<TOutcome>>,
+  onStuck: (row: TRow) => TOutcome,
+): Promise<TOutcome[]> {
+  const outcomesByIndex = new Map<number, TOutcome>();
+  let pending = rows.map((row, index) => ({ row, index }));
+
+  while (pending.length > 0) {
+    const stillPending: typeof pending = [];
+    let progressed = false;
+
+    for (const item of pending) {
+      const result = await processRow(item.row);
+      if (result.retry) {
+        stillPending.push(item);
+      } else {
+        progressed = true;
+        outcomesByIndex.set(item.index, result.outcome as TOutcome);
+      }
+    }
+
+    if (!progressed) {
+      for (const item of stillPending) {
+        outcomesByIndex.set(item.index, onStuck(item.row));
+      }
+      break;
+    }
+    pending = stillPending;
+  }
+
+  return rows.map((_, index) => outcomesByIndex.get(index) as TOutcome);
+}
