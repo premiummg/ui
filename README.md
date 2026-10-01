@@ -108,7 +108,7 @@ function Example() {
 | `FormLabel` | `text`, not `children` - always the field's own name, never a composition slot. `required` adds a red asterisk, `optional` adds a "(optional)" hint - override that word itself via `optionalLabel`, e.g. for a bilingual consumer. |
 | `FieldError` | Renders nothing without a `message`. Validation text under a field. |
 | `CountBadge` | Small red pill for a total, e.g. next to a `PageHeader` title. |
-| `StatusBadge` | Capitalized pill. `tone`: `success` / `warning` / `error` / `neutral` cover the four standard colors with no Tailwind classes to write - defaults to `neutral` when neither `tone` nor `colorClass` is given. `colorClass` stays for anything outside those four (an app's own semantic wrapper, e.g. `RoleBadge`/`TimesheetStatusBadge`, still owns its own status vocabulary) and wins when both are given. Optional `style` passthrough for a color that isn't a Tailwind class at all (an arbitrary brand color, e.g. `RankBadge`'s filled top step). |
+| `StatusBadge` | Capitalized pill. `tone`: `success` / `warning` / `error` / `neutral` cover the four standard colors with no Tailwind classes to write - defaults to `neutral` when neither `tone` nor `colorClass` is given. `colorClass` stays for anything outside those four (an app's own semantic wrapper, e.g. `RoleBadge`/`TimesheetStatusBadge`, still owns its own status vocabulary) and wins when both are given. Optional `style` passthrough for a color that isn't a Tailwind class at all (an arbitrary brand color, e.g. `RankBadge`'s filled top step). `dot` (a Tailwind background class, e.g. `'bg-green-500'`) adds a small colored dot before the label - omit for the plain pill, the common case; folds in two sibling-app components (`StatusPill`/`TimesheetStatusBadge`) that each hand-rolled this exact same dot-plus-pill markup around their own status color ramp. |
 | `StatusDot` | Three-state access dot (`active` + optional `identityActive`). `variant="presence"` pins it to an avatar's corner. The three tooltip/aria-label strings override via `inactiveLabel`/`deactivatedLabel`/`activeLabel`, e.g. for a bilingual consumer. |
 | `RankBadge` | One badge out of an ordered ramp - a role, a priority, a tier - where each step should read as more or less weight than its neighbors. Give it `levels` (your values, ordered low to high) for the built-in on-brand ramp - the exact one the app's own role badges use, outline opacity/ink weight stepping up with a filled `color` (defaults to Premium red) on the last, top entry - with no Tailwind classes to write. Pass `styles` instead (value -> Tailwind classes) for full manual control, e.g. a sister brand with its own complete color system. A value missing from either still renders, as a neutral outline pill, rather than coming out unstyled. |
 | `Pagination` | Range + total (`.pmg-figure` numerals), Prev/Next. Hides itself at 1 page unless `children` is given. `ofLabel`/`prevLabel`/`nextLabel` override the three fixed strings, e.g. for a bilingual consumer. |
@@ -162,6 +162,8 @@ function Example() {
 | `MfaCodeVerifyForm` | The standalone "enter your 2FA code" screen content (render it inside your own `AuthShell`). Six-slot code display over a single real input, so paste/autofill/the numeric keypad keep working. Presentational only - `onVerify(code)` does the real API call and resolves/rejects (a rejection's `message` displays as-is, falling back to `labels.invalidCode`); `onBackToSignIn` handles navigating away. Every string is a prop (`labels`), including for a bilingual consumer. |
 | `MfaSetupPanel` | The "turn two-factor on/off" panel for a person's own profile page: idle → scanning (QR + manual-entry fallback + confirm code) → done, or an already-enabled state with its own disable-confirm step. Built on `FieldGroup` + `StatusBadge`. Presentational only - `onStartSetup`/`onConfirmCode`/`onDisable` each do the real API call (and their own local state update - e.g. marking the account enabled - since that state lives in the host app's own auth context); a rejection's `message` displays, falling back to the matching `labels.*Failed`/`labels.invalidCode`. `enabled`/`mandatory` are read from the host's own login/me response. |
 | `AdminDisableMfaDialog` | An admin disabling MFA on someone ELSE's account (lost device, etc.) - `ConfirmDialog` underneath, pre-wired with the `caution` tone and a loading state. Presentational only - `onConfirm` does the real API call, its own state update, and its own success toast; a rejection is swallowed here (the host already surfaced it) and just keeps the dialog open so the admin can retry. `labels.title` is a function of the target person's name. |
+| `AnnouncementGate` | Blocks the app while the signed-in user owes someone an answer - a centered, undismissable overlay (no close button, no Escape, no backdrop click) with sender byline, queue-position dots when more than one is pending, an optional submission-summary card (`queue[i].submission_summary`, e.g. a timesheet's own hours for that day - omit entirely for a consumer with no such concept), the message, an optional reply textarea, and an amber "you can't leave yet" notice. Presentational only - `queue` is the host's own, kept fresh however it likes (polling, a query library's refetch); `onRespond(id, reply)` does the real API call and resolves/rejects (a rejection's message displays, falling back to `labels.sendError`). Mount once near the app's root, inside whatever gates render until the user is authenticated. |
+| `SendMessageModal` | Compose a message that will block each recipient's app until they answer (pairs with `AnnouncementGate` on their side) - title, message, and a two-option "just needs to see it" vs "needs a written reply" picker (radio-style, not a checkbox, since each option describes only itself). Shows a "To" field (joined `recipientNames`, or a plain count from `labels.recipientCount` when omitted) and a live character counter on both fields. Presentational only - `onSend({title, message, requiresReply})` does the real API call and resolves/rejects (a rejection's message displays, falling back to `labels.sendError`); on success this toasts `labels.sentToast` itself (via this package's own `useToast`) and calls the optional `onSent` before `onClose`. |
 | `NewsTicker` | A continuously-scrolling marquee of headlines (an intranet home page's "Latest News" strip) - the list repeats several times back to back for a seamless loop, and the loop pauses on hover so a headline holds still long enough to read or click. `important` items get a solid red pill instead of plain text. An item's optional `href` renders it as a real link (opened in a new tab) instead of a plain button; `onItemClick` still fires alongside it if given, e.g. for click tracking. |
 | `FileDropzone` | A drag-or-click file picker - dropping a file and clicking through to the native file dialog both feed the same `onFiles(File[])` callback, so a consumer never branches on how the file arrived. `maxSizeMB` drops oversized files from that callback and names them in an inline error instead of silently handing them to the caller. |
 | `FilePill` | A picked-but-not-yet-uploaded file in a list under `FileDropzone` - name plus a remove control, nothing else. |
@@ -182,6 +184,39 @@ Also exported: `useOutsideClick` (closes a menu/dropdown on an outside mousedown
 `useDarkMode` (reads/toggles `html.dark`, persists the choice to `localStorage` - pair it with
 `DarkModeToggle` for the actual button), and `usePrefersReducedMotion` (the hook `Reveal` itself
 uses, exported in case a consumer needs the raw value for something other than a reveal).
+
+Also exported: `useCopyToClipboard(resetMs = 2000)` - returns `[copied, copy, reset]`; `copied`
+flips to `true` for `resetMs` after a successful `copy(text)` call, so a "Copy" button can swap to
+a checkmark briefly without managing its own timer (built on the `copyToClipboard` below).
+`useScrollToError<T>(trigger: boolean)` returns a ref that scrolls itself into view the moment
+`trigger` becomes truthy - wire it to a form's error banner so a validation failure is visible even
+when the submit button lives far from where the error renders. `useGoBack(fallback)` /
+`useLeaveTo()` / `useHistoryTracker()` (mount `useHistoryTracker` once inside the router) fix the
+two wrong ways a "back" button gets written: `navigate(path)` pushes a new entry and can loop
+forever between two pages, `navigate(-1)` alone walks straight out of the app when there's no
+earlier entry of this app's own (a bookmark, a deep link, a new tab) - these step back through real
+history when there is one, and only synthesize a destination when there isn't; `useLeaveTo` also
+skips pushing a duplicate entry when the page behind is already the target. This package's first
+dependency on `react-router-dom` (a peer dependency, `^6` or `^7` - both consuming apps are
+already on one or the other); every other component here deliberately has none (see `Navbar`'s
+`onLogoClick` callback above).
+
+Also exported, not a component: `copyToClipboard(text)` - the modern Clipboard API, falling back
+to a legacy textarea/`execCommand('copy')` dance for iOS Safari and older browsers (what
+`useCopyToClipboard` above is built on). `initials(name)` - first + LAST word's initial (not the
+first two words - "John Robert Smith" is `"JS"`, not `"JR"`), a single word's first two characters
+for a mononym, `'?'` for an empty/null/undefined name; `Avatar` uses this internally. `formatPhone`/
+`toE164` wrap `react-phone-number-input` (promoted to a real dependency of this package for these
+two) to display a stored number in national format ("(506) 898-4607") or normalize it to E.164
+("+15068984607") for a `PhoneInput`'s own `value` - both default to `'CA'` but take a second
+`defaultCountry` argument for anyone else. `uniqueValues(items, pick)` / `uniqueEntities(items,
+pick)` are the shared helpers behind a faceted filter panel's own option list (`FilterRow`'s
+`options`, above): `uniqueValues` dedupes/sorts the plain string(s) `pick(item)` returns per item
+(Role, Status); `uniqueEntities` does the same for `{id, name}` pairs, keyed by id since a display
+name can repeat across scopes (Division, Company) - an item missing either `id` or `name` is
+skipped entirely, rather than appearing as a filter pill with a blank label. Both re-derive their
+option list from whichever rows are currently visible given every OTHER active filter, never a
+fixed global list of everything that could ever exist.
 
 Also exported, not a component: `resolveImportRow`/`diffForImportUpdate`/`importedHeaderSet`
 (`ImportFieldSpec` is the matching type) - the shared mechanism behind every app's own "Import
@@ -229,10 +264,17 @@ vocabularies onto the generic `StatusBadge`/`StatusDot` primitives already in th
 what became `RankBadge` above; the five actual roles and their exact colors stay in that repo,
 since another project reusing `RankBadge` almost certainly has its own levels, not these five),
 `TaskBreakdownEditor` and `CatalogueEntryModal` (both keyed to that app's task/catalogue data
-model), and `AnnouncementGate`/`SendMessageModal`/`UnlinkedEmployeesModal` (each wired to one
-specific API: announcements, employees/divisions). The rows *inside* `Navbar`'s notification bell
-/ pending-review / messages dropdowns are the same story - only the shell they share was
-generalizable, see `NotificationBell` above.
+model), and `UnlinkedEmployeesModal` (wired to that app's own employees/divisions API). The rows
+*inside* `Navbar`'s notification bell/pending-review/messages dropdowns are the same story - only
+the shell they share was generalizable, see `NotificationBell` above.
+
+**Update**: `AnnouncementGate` and `SendMessageModal` *did* move into this package after all (see
+their own rows above) - both apps' versions turned out to differ only in how complete each one was
+(queue-position dots, a submission-summary card, a "To" field, per-field counters), not in
+anything that needed their own API shape baked in; each host still wires its own `onRespond`/
+`onSend`. `TimesheetStatusBadge` stays in that repo (its status vocabulary is still app-specific)
+but now calls this package's `StatusBadge` with its new `dot` prop internally, instead of
+hand-rolling the same dot-plus-pill markup `StatusBadge` already drew elsewhere.
 
 `OverviewPage.tsx`'s own richer stat-card had an `icon` and an action slot for a `MonthNav`/
 `WeekNav` that this package's `StatCard` didn't - both now ported (`icon` prop, `hint` widened to
