@@ -1,3 +1,5 @@
+import { initials } from '../../lib/initials';
+
 export interface AvatarProps {
   fullName: string;
   size?: number;
@@ -18,20 +20,14 @@ export interface AvatarProps {
 // small, low-contrast UI element next to a name that's already doing the
 // identifying work, not something that needs its own brand-red emphasis.
 export function Avatar({ fullName, size = 40, color, onClick, className = '' }: AvatarProps) {
-  const initials = fullName
-    .trim()
-    .split(/\s+/)
-    .map(w => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  const label = initials(fullName);
   return (
     <div
       onClick={onClick}
       className={`shrink-0 rounded-full grid place-items-center font-heading font-bold text-white ${color ? '' : 'bg-(--premium-steel-grey)'} ${onClick ? 'cursor-pointer' : ''} ${className}`}
       style={{ width: size, height: size, fontSize: Math.max(11, size * 0.36), ...(color ? { backgroundColor: color } : {}) }}
     >
-      {initials}
+      {label}
     </div>
   );
 }

@@ -14,6 +14,21 @@ describe('Avatar', () => {
     expect(screen.getByText('JR')).toBeInTheDocument();
   });
 
+  test('uses the first and LAST word for a 3+ word name, not the first two', () => {
+    render(<Avatar fullName="Ana Maria Lopez" />);
+    expect(screen.getByText('AL')).toBeInTheDocument();
+  });
+
+  test('falls back to a question mark for an empty name', () => {
+    render(<Avatar fullName="" />);
+    expect(screen.getByText('?')).toBeInTheDocument();
+  });
+
+  test('falls back to the first two characters for a single-word name', () => {
+    render(<Avatar fullName="Madonna" />);
+    expect(screen.getByText('MA')).toBeInTheDocument();
+  });
+
   test('uppercases a lowercase name', () => {
     render(<Avatar fullName="jordan reid" />);
     expect(screen.getByText('JR')).toBeInTheDocument();

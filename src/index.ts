@@ -188,6 +188,18 @@ export type { MfaSetupPanelProps, MfaSetupPanelLabels, MfaSetupStep } from './co
 export { AdminDisableMfaDialog } from './components/AdminDisableMfaDialog';
 export type { AdminDisableMfaDialogProps, AdminDisableMfaDialogLabels } from './components/AdminDisableMfaDialog';
 
+export { AnnouncementGate } from './components/AnnouncementGate';
+export type {
+  AnnouncementGateProps,
+  AnnouncementGateLabels,
+  AnnouncementItem,
+  AnnouncementSubmissionSummary,
+  AnnouncementSubmissionSummaryRow,
+} from './components/AnnouncementGate';
+
+export { SendMessageModal } from './components/SendMessageModal';
+export type { SendMessageModalProps, SendMessageModalLabels, SendMessageFields } from './components/SendMessageModal';
+
 export { NewsTicker } from './components/NewsTicker';
 export type { NewsTickerProps, NewsTickerItem } from './components/NewsTicker';
 
@@ -254,6 +266,13 @@ export type {
 export { useOutsideClick } from './hooks/useOutsideClick';
 export { useDarkMode } from './hooks/useDarkMode';
 export { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
+export { useCopyToClipboard } from './hooks/useCopyToClipboard';
+export { useScrollToError } from './hooks/useScrollToError';
+export { useGoBack, useLeaveTo, useHistoryTracker } from './hooks/useGoBack';
 
 export { importedHeaderSet, resolveImportRow, diffForImportUpdate, runMultiPassImport } from './lib/bulkImport';
 export type { ImportFieldSpec, MultiPassOutcome } from './lib/bulkImport';
+export { copyToClipboard } from './lib/clipboard';
+export { initials } from './lib/initials';
+export { formatPhone, toE164 } from './lib/phone';
+export { uniqueValues, uniqueEntities } from './lib/filters';

@@ -25,4 +25,16 @@ describe('StatusBadge', () => {
     render(<StatusBadge label="draft" />);
     expect(screen.getByText('draft').className).toContain('bg-gray-100');
   });
+
+  test('omitting dot renders no dot element', () => {
+    const { container } = render(<StatusBadge label="draft" />);
+    expect(container.querySelector('.h-1\\.5.w-1\\.5')).not.toBeInTheDocument();
+  });
+
+  test('dot renders a small colored dot before the label', () => {
+    const { container } = render(<StatusBadge label="approved" tone="success" dot="bg-green-500" />);
+    const dot = container.querySelector('.h-1\\.5.w-1\\.5');
+    expect(dot).toBeInTheDocument();
+    expect(dot?.className).toContain('bg-green-500');
+  });
 });

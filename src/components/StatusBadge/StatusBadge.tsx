@@ -31,15 +31,21 @@ export interface StatusBadgeProps {
   // (e.g. `RankBadge`'s filled top step), rather than one of this app's own
   // fixed variants.
   style?: CSSProperties;
+  // A small colored dot before the label (a Tailwind background class, e.g.
+  // 'bg-green-500') - omit for the plain pill, the common case. Two
+  // sibling-app components each hand-rolled this exact same dot-plus-pill
+  // markup around their own status color ramp before folding into this prop.
+  dot?: string;
 }
 
-export function StatusBadge({ label, tone, colorClass, className = '', style }: StatusBadgeProps) {
+export function StatusBadge({ label, tone, colorClass, className = '', style, dot }: StatusBadgeProps) {
   const resolved = colorClass ?? TONE_CLASSES[tone ?? 'neutral'];
   return (
     <span
       style={style}
-      className={`inline-block px-2.5 py-1 rounded-full font-heading font-bold uppercase tracking-wider text-[10px] leading-none ${resolved} ${className}`}
+      className={`inline-flex items-center ${dot ? 'gap-1.5 pl-1.5 pr-2.5' : 'px-2.5'} py-1 rounded-full font-heading font-bold uppercase tracking-wider text-[10px] leading-none ${resolved} ${className}`}
     >
+      {dot && <span className={`inline-block h-1.5 w-1.5 rounded-full ${dot}`} />}
       {label}
     </span>
   );
