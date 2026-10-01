@@ -16,12 +16,21 @@ const labels = {
   footer: (year: number) => `© ${year} Premium MG - Built with Heart`,
 };
 
-// A real `useDarkMode()`-backed consumer manages this itself - the story
-// stands in with local state so the toggle button has something to flip.
-function Demo({ eyebrow, children, lang }: { eyebrow: string; children: React.ReactNode; lang?: 'en' | 'fr' }) {
+// A real `useDarkMode()`/`useLanguage()`-backed consumer manages both of
+// these itself - the story stands in with local state so the two toggle
+// buttons have something to flip.
+function Demo({ eyebrow, children, lang: initialLang }: { eyebrow: string; children: React.ReactNode; lang?: 'en' | 'fr' }) {
   const [isDark, setIsDark] = useState(false);
+  const [lang, setLang] = useState<'en' | 'fr'>(initialLang ?? 'en');
   return (
-    <AuthShell eyebrow={eyebrow} isDark={isDark} onToggleDarkMode={() => setIsDark(d => !d)} labels={labels} lang={lang}>
+    <AuthShell
+      eyebrow={eyebrow}
+      isDark={isDark}
+      onToggleDarkMode={() => setIsDark(d => !d)}
+      labels={labels}
+      lang={lang}
+      onLangChange={setLang}
+    >
       {children}
     </AuthShell>
   );

@@ -1,7 +1,10 @@
 import { ReactNode } from 'react';
 import { PremiumLogo } from '../PremiumLogo';
 import { DarkModeToggle } from '../DarkModeToggle';
+import { LanguageToggle } from '../LanguageToggle';
 import type { Lang } from '../LanguageToggle';
+
+const LANGUAGE_NAMES: Record<Lang, string> = { en: 'English', fr: 'Français' };
 
 export interface AuthShellLabels {
   // Aria-label for the dark-mode toggle button.
@@ -26,6 +29,15 @@ export interface AuthShellProps {
   // artwork's tagline follows the visitor's chosen language too. Defaults to
   // 'en' for a consumer that hasn't gone bilingual yet.
   lang?: Lang;
+  // Shows the EN/FR toggle next to the dark-mode button when given - omit
+  // for an English-only consumer. A sign-in flow has no navbar (that's the
+  // whole reason this shell exists), so without this a visitor stuck on the
+  // wrong language before logging in has no control anywhere on the page to
+  // fix it themselves - this is that control, not just the Navbar's own copy
+  // of it. Always shows the Acadian flag for French (no `quebecFlag` opt-in):
+  // a per-division preference can't be looked up here, since no one is
+  // authenticated yet at the point this shell is on screen.
+  onLangChange?: (lang: Lang) => void;
 }
 
 // The shared shell for a sign-in flow's screens (sign in, two-factor, set a
@@ -41,7 +53,7 @@ export interface AuthShellProps {
 // logo artwork - most brand kits ship a red/black mark only (no reversed
 // white version), which disappears against a solid brand-color band. Type is
 // the correct option there until a reversed mark exists in the kit.
-export function AuthShell({ eyebrow, children, isDark, onToggleDarkMode, labels, lang = 'en' }: AuthShellProps) {
+export function AuthShell({ eyebrow, children, isDark, onToggleDarkMode, labels, lang = 'en', onLangChange }: AuthShellProps) {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-[#F2F2F2] dark:bg-(--premium-black) px-4 py-10">
       {/* The 45deg hatch on the ground itself - an empty field is exactly
@@ -49,13 +61,15 @@ export function AuthShell({ eyebrow, children, isDark, onToggleDarkMode, labels,
           empty field in the app. */}
       <div className="absolute inset-0 pmg-texture text-gray-900 dark:text-white pointer-events-none" />
 
-      <DarkModeToggle
-        isDark={isDark}
-        onToggle={onToggleDarkMode}
-        size={18}
-        className="absolute top-4 right-4"
-        ariaLabel={labels.toggleDarkMode}
-      />
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        {onLangChange && <LanguageToggle lang={lang} onChange={onLangChange} names={LANGUAGE_NAMES} />}
+        <DarkModeToggle
+          isDark={isDark}
+          onToggle={onToggleDarkMode}
+          size={18}
+          ariaLabel={labels.toggleDarkMode}
+        />
+      </div>
 
       <div className="relative w-full max-w-sm">
         {/* Sitting on the page's own neutral ground, not on the red band

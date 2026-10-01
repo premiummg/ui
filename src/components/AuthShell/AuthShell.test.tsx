@@ -57,6 +57,27 @@ describe('AuthShell', () => {
     img = screen.getByAltText('Premium Management Group') as HTMLImageElement;
     expect(img.src).toContain('stacked-light-fr');
   });
+
+  test('omitting onLangChange shows no language toggle - a sign-in flow with no navbar has nowhere else to put one', () => {
+    render(
+      <AuthShell eyebrow="Sign in" isDark={false} onToggleDarkMode={() => {}} labels={labels}>
+        content
+      </AuthShell>,
+    );
+    expect(screen.queryByLabelText('English')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Français')).not.toBeInTheDocument();
+  });
+
+  test('passing onLangChange shows the EN/FR toggle and calls it with the other language', async () => {
+    const onLangChange = vi.fn();
+    render(
+      <AuthShell eyebrow="Sign in" isDark={false} onToggleDarkMode={() => {}} labels={labels} lang="en" onLangChange={onLangChange}>
+        content
+      </AuthShell>,
+    );
+    await userEvent.click(screen.getByLabelText('Français'));
+    expect(onLangChange).toHaveBeenCalledWith('fr');
+  });
 });
 
 describe('AuthError', () => {
