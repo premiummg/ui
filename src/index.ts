@@ -105,7 +105,7 @@ export { WeekNav } from './components/WeekNav';
 export type { WeekNavProps } from './components/WeekNav';
 
 export { AuthShell, AuthError } from './components/AuthShell';
-export type { AuthShellProps, AuthErrorProps } from './components/AuthShell';
+export type { AuthShellProps, AuthShellLabels, AuthErrorProps } from './components/AuthShell';
 
 export { Layout } from './components/Layout';
 export type { LayoutProps } from './components/Layout';
@@ -178,6 +178,9 @@ export type { ConfirmDialogProps, ConfirmDialogTone, ConfirmDialogAction } from 
 
 export { MfaCodeVerifyForm } from './components/MfaCodeVerifyForm';
 export type { MfaCodeVerifyFormProps, MfaCodeVerifyFormLabels } from './components/MfaCodeVerifyForm';
+
+export { LoginForm } from './components/LoginForm';
+export type { LoginFormProps, LoginFormLabels } from './components/LoginForm';
 
 export { MfaSetupPanel } from './components/MfaSetupPanel';
 export type { MfaSetupPanelProps, MfaSetupPanelLabels, MfaSetupStep } from './components/MfaSetupPanel';

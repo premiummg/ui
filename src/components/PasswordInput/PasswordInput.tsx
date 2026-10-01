@@ -1,11 +1,18 @@
-import { ReactNode, useState } from 'react';
+import { ChangeEvent, ReactNode, useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
 
 export interface PasswordInputProps {
   label: string;
-  // react-hook-form's register() result, spread onto the input.
-  registration: any;
+  // react-hook-form's register() result, spread onto the input. Provide
+  // EITHER this OR value/onChange below, not both.
+  registration?: any;
+  // Plain controlled mode, for a consumer not using react-hook-form - e.g.
+  // the field ids match registration.name, so pass `name` too when using
+  // this mode (it doubles as the id the visible <label> points at).
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  name?: string;
   // Browser autofill hint - 'current-password' when signing in,
   // 'new-password' when setting one, so password managers behave.
   autoComplete?: string;
@@ -30,6 +37,9 @@ export interface PasswordInputProps {
 export function PasswordInput({
   label,
   registration,
+  value,
+  onChange,
+  name,
   autoComplete = 'current-password',
   error,
   autoFocus,
@@ -40,9 +50,10 @@ export function PasswordInput({
 }: PasswordInputProps) {
   const [show, setShow] = useState(false);
   // registration.name (react-hook-form's register() always sets it) doubles
-  // as the field id, so the visible label stays programmatically associated
-  // with the input without asking callers to pass a separate id prop.
-  const id = registration?.name;
+  // as the field id in RHF mode; the plain-controlled mode has no equivalent
+  // object to read a name off, so it takes `name` directly instead.
+  const fieldProps = registration ?? { value, onChange, name };
+  const id = registration?.name ?? name;
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{label}</label>
@@ -54,7 +65,7 @@ export function PasswordInput({
           />
         )}
         <input
-          {...registration}
+          {...fieldProps}
           id={id}
           type={show ? 'text' : 'password'}
           autoComplete={autoComplete}

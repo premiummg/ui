@@ -15,4 +15,9 @@ describe('DarkModeToggle', () => {
     await userEvent.click(screen.getByLabelText('Toggle dark mode'));
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
+
+  test('ariaLabel overrides the default aria-label', () => {
+    render(<DarkModeToggle isDark={false} onToggle={() => {}} ariaLabel="Basculer le mode sombre" />);
+    expect(screen.getByLabelText('Basculer le mode sombre')).toBeInTheDocument();
+  });
 });

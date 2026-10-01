@@ -5,6 +5,9 @@ export interface DarkModeToggleProps {
   onToggle: () => void;
   size?: number;
   className?: string;
+  // Translated aria-label override for a localized consumer - defaults to
+  // the English copy.
+  ariaLabel?: string;
 }
 
 // Pair with the `useDarkMode` hook: `const { isDark, toggle } = useDarkMode()`.
@@ -12,12 +15,12 @@ export interface DarkModeToggleProps {
 // drops into a navbar, a page shell, or a Storybook story without pulling in
 // document/localStorage access - same reasoning as every other component
 // here taking its state as props instead of owning it.
-export function DarkModeToggle({ isDark, onToggle, size = 16, className = '' }: DarkModeToggleProps) {
+export function DarkModeToggle({ isDark, onToggle, size = 16, className = '', ariaLabel = 'Toggle dark mode' }: DarkModeToggleProps) {
   return (
     <button
       type="button"
       onClick={onToggle}
-      aria-label="Toggle dark mode"
+      aria-label={ariaLabel}
       className={`p-2 rounded-lg text-gray-400 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition ${className}`}
     >
       {isDark ? <FiSun size={size} /> : <FiMoon size={size} />}

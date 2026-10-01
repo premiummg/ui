@@ -1,11 +1,31 @@
 import { ReactNode } from 'react';
-import { FiSun, FiMoon } from 'react-icons/fi';
-import { useDarkMode } from '../../hooks/useDarkMode';
 import { PremiumLogo } from '../PremiumLogo';
+import { DarkModeToggle } from '../DarkModeToggle';
+import type { Lang } from '../LanguageToggle';
+
+export interface AuthShellLabels {
+  // Aria-label for the dark-mode toggle button.
+  toggleDarkMode: string;
+  // The small print under the card, given the current year.
+  footer: (year: number) => string;
+}
 
 export interface AuthShellProps {
   eyebrow: string;
   children: ReactNode;
+  // Dark mode is read/written by the consumer's own `useDarkMode()` (or
+  // equivalent) and passed in as plain props - this component owns no
+  // document/localStorage access of its own, same reasoning as the standalone
+  // DarkModeToggle it renders internally. Without this, a sign-in screen's
+  // theme could silently drift from the rest of the app's.
+  isDark: boolean;
+  onToggleDarkMode: () => void;
+  labels: AuthShellLabels;
+  // Same `Lang` type LanguageToggle/PremiumLogo use - pass the same state
+  // that drives those elsewhere in a bilingual consumer, so the wordmark
+  // artwork's tagline follows the visitor's chosen language too. Defaults to
+  // 'en' for a consumer that hasn't gone bilingual yet.
+  lang?: Lang;
 }
 
 // The shared shell for a sign-in flow's screens (sign in, two-factor, set a
@@ -21,9 +41,7 @@ export interface AuthShellProps {
 // logo artwork - most brand kits ship a red/black mark only (no reversed
 // white version), which disappears against a solid brand-color band. Type is
 // the correct option there until a reversed mark exists in the kit.
-export function AuthShell({ eyebrow, children }: AuthShellProps) {
-  const { isDark, toggle } = useDarkMode();
-
+export function AuthShell({ eyebrow, children, isDark, onToggleDarkMode, labels, lang = 'en' }: AuthShellProps) {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-[#F2F2F2] dark:bg-(--premium-black) px-4 py-10">
       {/* The 45deg hatch on the ground itself - an empty field is exactly
@@ -31,20 +49,20 @@ export function AuthShell({ eyebrow, children }: AuthShellProps) {
           empty field in the app. */}
       <div className="absolute inset-0 pmg-texture text-gray-900 dark:text-white pointer-events-none" />
 
-      <button
-        onClick={toggle}
-        aria-label="Toggle dark mode"
-        className="absolute top-4 right-4 p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 transition"
-      >
-        {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
-      </button>
+      <DarkModeToggle
+        isDark={isDark}
+        onToggle={onToggleDarkMode}
+        size={18}
+        className="absolute top-4 right-4"
+        ariaLabel={labels.toggleDarkMode}
+      />
 
       <div className="relative w-full max-w-sm">
         {/* Sitting on the page's own neutral ground, not on the red band
             below - see the note above about the mark having no reversed
             white version. */}
         <div className="flex justify-center mb-6">
-          <PremiumLogo size="xl" variant="stacked" />
+          <PremiumLogo size="xl" variant="stacked" lang={lang} />
         </div>
 
         <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 bg-white dark:bg-(--premium-dark-grey) shadow-xl">
@@ -64,7 +82,7 @@ export function AuthShell({ eyebrow, children }: AuthShellProps) {
         </div>
 
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-6">
-          &copy; {new Date().getFullYear()} Premium MG - Built with Heart
+          {labels.footer(new Date().getFullYear())}
         </p>
       </div>
     </div>
