@@ -19,4 +19,15 @@ describe('FieldGroup', () => {
     );
     expect(screen.getByText('Visible to admins only.')).toBeInTheDocument();
   });
+
+  test('renders the action opposite the title only when given one', () => {
+    const { rerender } = render(<FieldGroup title="Two-factor authentication">Fields</FieldGroup>);
+    expect(screen.queryByText('Active')).not.toBeInTheDocument();
+    rerender(
+      <FieldGroup title="Two-factor authentication" action={<span>Active</span>}>
+        Fields
+      </FieldGroup>,
+    );
+    expect(screen.getByText('Active')).toBeInTheDocument();
+  });
 });

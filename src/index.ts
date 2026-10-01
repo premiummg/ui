@@ -176,6 +176,15 @@ export type { AvatarProps } from './components/Avatar';
 export { ConfirmDialog } from './components/ConfirmDialog';
 export type { ConfirmDialogProps, ConfirmDialogTone, ConfirmDialogAction } from './components/ConfirmDialog';
 
+export { MfaCodeVerifyForm } from './components/MfaCodeVerifyForm';
+export type { MfaCodeVerifyFormProps, MfaCodeVerifyFormLabels } from './components/MfaCodeVerifyForm';
+
+export { MfaSetupPanel } from './components/MfaSetupPanel';
+export type { MfaSetupPanelProps, MfaSetupPanelLabels, MfaSetupStep } from './components/MfaSetupPanel';
+
+export { AdminDisableMfaDialog } from './components/AdminDisableMfaDialog';
+export type { AdminDisableMfaDialogProps, AdminDisableMfaDialogLabels } from './components/AdminDisableMfaDialog';
+
 export { NewsTicker } from './components/NewsTicker';
 export type { NewsTickerProps, NewsTickerItem } from './components/NewsTicker';
 

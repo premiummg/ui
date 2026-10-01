@@ -3,6 +3,10 @@ import { Card } from '../Card';
 
 export interface FieldGroupProps {
   title: string;
+  // Rendered opposite the title, outside the panel - a status indicator
+  // (StatusBadge) for a group whose fields represent a single on/off state
+  // (e.g. two-factor authentication), not a per-field thing.
+  action?: ReactNode;
   note?: ReactNode;
   children: ReactNode;
 }
@@ -19,11 +23,14 @@ export interface FieldGroupProps {
 // `note` is the line under the fields that says something true about the
 // whole group - who can see it, where its contents are defined - rather than
 // repeating itself on every field inside.
-export function FieldGroup({ title, note, children }: FieldGroupProps) {
+export function FieldGroup({ title, action, note, children }: FieldGroupProps) {
   return (
     <section>
-      <div className="pmg-bracket mb-3">
-        <h2 className="font-heading font-extrabold text-sm text-gray-900 dark:text-gray-100">{title}</h2>
+      <div className="flex items-center justify-between mb-3">
+        <div className="pmg-bracket">
+          <h2 className="font-heading font-extrabold text-sm text-gray-900 dark:text-gray-100">{title}</h2>
+        </div>
+        {action}
       </div>
       <Card className="p-5">
         {children}
