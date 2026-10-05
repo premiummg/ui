@@ -1,5 +1,5 @@
-import { describe, expect, test } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, expect, test, vi } from 'vitest';
+import { createEvent, fireEvent, render, screen } from '@testing-library/react';
 import { Navbar } from './Navbar';
 
 describe('Navbar', () => {
@@ -25,6 +25,31 @@ describe('Navbar', () => {
     expect(black.querySelector('.pmg-texture')).toBeInTheDocument();
     expect(steel.querySelector('.pmg-texture')).not.toBeInTheDocument();
     expect(dark.querySelector('.pmg-texture')).not.toBeInTheDocument();
+  });
+
+  test('homeHref renders the logo as a real link, so middle-click can open it in a new tab', () => {
+    render(<Navbar homeHref="/" onLogoClick={() => {}} />);
+    expect(screen.getByRole('link', { name: 'Go to dashboard' })).toHaveAttribute('href', '/');
+  });
+
+  test('a plain left-click on a homeHref logo calls onLogoClick instead of reloading', async () => {
+    const onLogoClick = vi.fn();
+    render(<Navbar homeHref="/" onLogoClick={onLogoClick} />);
+    const link = screen.getByRole('link', { name: 'Go to dashboard' });
+    const event = createEvent.click(link, { button: 0 });
+    fireEvent(link, event);
+    expect(onLogoClick).toHaveBeenCalledTimes(1);
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  test('a ctrl-click on a homeHref logo is left to the browser (no onLogoClick, no preventDefault)', () => {
+    const onLogoClick = vi.fn();
+    render(<Navbar homeHref="/" onLogoClick={onLogoClick} />);
+    const link = screen.getByRole('link', { name: 'Go to dashboard' });
+    const event = createEvent.click(link, { button: 0, ctrlKey: true });
+    fireEvent(link, event);
+    expect(onLogoClick).not.toHaveBeenCalled();
+    expect(event.defaultPrevented).toBe(false);
   });
 
   test('renders with no children at all', () => {

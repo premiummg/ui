@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { MouseEvent, ReactNode } from 'react';
 import { PremiumLogo } from '../PremiumLogo';
 import type { Lang } from '../LanguageToggle';
 import { NAV_TONES, NavTone } from './navTone';
@@ -19,6 +19,11 @@ export interface NavbarProps {
   // its own app already uses (React Router, plain `window.location`, ...).
   // Omit it to keep the logo purely decorative, the previous behavior.
   onLogoClick?: () => void;
+  // Real URL the logo points at, so middle-click / Ctrl-click / "Open in new
+  // tab" work on it. Pair with onLogoClick: a plain left-click still calls
+  // onLogoClick (client-side navigation, no reload), while modified clicks
+  // fall through to the browser and open the link normally.
+  homeHref?: string;
   // Forwarded straight to PremiumLogo - pass the same state your app's own
   // LanguageToggle drives, so the wordmark's baked-in tagline switches
   // ("Built with heart" / "Bâti avec coeur") the instant the visitor flips
@@ -34,8 +39,13 @@ export interface NavbarProps {
 // shared design system. Compose it with DarkModeToggle, NotificationBell and
 // your own buttons via `children`, then hand the whole thing to `Layout`'s
 // `navbar` prop.
-export function Navbar({ tone = 'black', children, onLogoClick, lang = 'en' }: NavbarProps) {
+export function Navbar({ tone = 'black', children, onLogoClick, homeHref, lang = 'en' }: NavbarProps) {
   const spec = NAV_TONES[tone];
+  function handleLogoClick(e: MouseEvent<HTMLAnchorElement>) {
+    if (!onLogoClick || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    onLogoClick();
+  }
   return (
     <div>
       <header className={`relative bg-white ${spec.bg} px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between min-w-0`}>
@@ -46,7 +56,11 @@ export function Navbar({ tone = 'black', children, onLogoClick, lang = 'en' }: N
           <div className="absolute inset-0 pmg-texture text-white pointer-events-none hidden dark:block" />
         )}
         <div className="relative shrink-0">
-          {onLogoClick ? (
+          {homeHref ? (
+            <a href={homeHref} onClick={handleLogoClick} aria-label="Go to dashboard" className="block">
+              <PremiumLogo size="sm" variant="horizontal" lang={lang} />
+            </a>
+          ) : onLogoClick ? (
             <button type="button" onClick={onLogoClick} aria-label="Go to dashboard" className="block">
               <PremiumLogo size="sm" variant="horizontal" lang={lang} />
             </button>
