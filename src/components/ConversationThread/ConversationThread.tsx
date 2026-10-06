@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiCheck, FiSend } from 'react-icons/fi';
 import type { ChatMessage } from './types';
+import { Avatar } from './avatar';
 
 export interface ConversationThreadStrings {
   placeholder: string;
@@ -76,14 +77,17 @@ function MessageBubble({
     );
   }
   return (
-    <div className="max-w-[85%]">
-      <p className="mb-0.5 text-[11px] text-gray-400">{nameLabel}</p>
-      <div className="inline-block rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-3.5 py-2.5 dark:border-white/20 dark:bg-(--premium-steel-grey)">
-        <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">{message.body}</p>
+    <div className="flex items-start gap-2">
+      <Avatar name={message.authorName} onClick={onAuthorClick ? () => onAuthorClick(message.authorId) : undefined} />
+      <div className="min-w-0 max-w-[85%]">
+        <p className="mb-0.5 text-[11px] text-gray-400">{nameLabel}</p>
+        <div className="inline-block rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-3.5 py-2.5 dark:border-white/20 dark:bg-(--premium-steel-grey)">
+          <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">{message.body}</p>
+        </div>
+        <p className="mt-0.5 text-[10px] text-gray-400">
+          {new Date(message.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+        </p>
       </div>
-      <p className="mt-0.5 text-[10px] text-gray-400">
-        {new Date(message.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-      </p>
     </div>
   );
 }

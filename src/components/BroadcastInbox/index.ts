@@ -1,2 +1,3 @@
 export { BroadcastInbox } from './BroadcastInbox';
-export type { BroadcastInboxProps, BroadcastInboxStrings } from './BroadcastInbox';
+export { BroadcastDetail } from './BroadcastDetail';
+export type { BroadcastInboxProps, BroadcastInboxStrings, BroadcastDetailProps } from './types';

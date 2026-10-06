@@ -1,74 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BroadcastInbox } from './BroadcastInbox';
-import type { BroadcastInboxStrings } from './BroadcastInbox';
-import type { ChatBroadcast } from '../ConversationThread/types';
-
-const strings: BroadcastInboxStrings = {
-  placeholder: 'Type a message…',
-  send: 'Send',
-  readTooltipRead: 'Read',
-  readTooltipUnread: 'Not read yet',
-  loadError: 'Could not load messages.',
-  sendError: 'Could not send. Try again.',
-  sentTabLabel: 'Sent',
-  receivedTabLabel: 'Received',
-  newMessageLabel: 'New Message',
-  unreadOnlyLabel: (n) => `Unread (${n})`,
-  noSentYet: "You haven't sent any messages yet.",
-  noReceivedYet: 'Nothing sent to you yet.',
-  nothingUnread: 'Nothing unread.',
-  sentByYou: 'Sent by you',
-  sentBy: (name) => `Sent by ${name}`,
-  sentBySomeoneElse: 'Someone else',
-  notOpened: 'Not opened',
-  readNoReply: 'Read, no reply',
-  replied: 'Replied',
-  repliedOn: (date) => `Replied ${date}`,
-  allAnswered: 'All answered',
-  waitingOn: (n) => `Waiting on ${n}`,
-  needsReplyCount: (n) => `${n} need a reply`,
-  closedLabel: 'Closed',
-  withdrawnLabel: 'Withdrawn',
-  waitingOnYou: 'Waiting on you',
-  answeredLabel: 'Answered',
-  deleteConversation: 'Delete conversation',
-  deleteConfirmTitle: 'Delete this conversation?',
-  deleteConfirmBody: (title) => `Permanently delete "${title}"?`,
-  deleteLabel: 'Delete',
-  cancelLabel: 'Cancel',
-  closeConversationLabel: 'Close conversation',
-  stopAskingLabel: 'Stop asking',
-  everyoneAnswered: 'Everyone has answered.',
-  onePersonWaiting: '1 person still owes a reply.',
-  peopleWaiting: (n) => `${n} people still owe a reply.`,
-  loadingLabel: 'Loading…',
-};
-
-function broadcast(overrides: Partial<ChatBroadcast> = {}): ChatBroadcast {
-  return {
-    id: 'b1',
-    title: 'Confirm your hours',
-    body: 'Please confirm your hours.',
-    createdAt: new Date().toISOString(),
-    closedAt: null,
-    createdBy: 'admin-1',
-    senderName: 'Dev Admin',
-    requiresReply: true,
-    threads: [{ participant: { id: 'worker-1', name: 'Carlos Vidana' }, messages: [], respondedAt: null, openedAt: null, unread: false }],
-    ...overrides,
-  };
-}
-
-const baseProps = {
-  fetchReceived: async () => [] as ChatBroadcast[],
-  onSendToThread: vi.fn(),
-  onMarkThreadRead: vi.fn(),
-  onClose: vi.fn(),
-  onDelete: vi.fn(),
-  strings,
-};
+import { BroadcastDetail } from './BroadcastDetail';
+import { strings, broadcast, baseProps } from './testFixtures';
 
 describe('BroadcastInbox', () => {
   // The bug this session fixed: the Sent tab is a shared mailbox, so the
@@ -83,8 +18,8 @@ describe('BroadcastInbox', () => {
         canSendMessages
       />,
     );
-    await waitFor(() => expect(screen.getByText('Sent by Another Admin')).toBeInTheDocument());
-    expect(screen.queryByText('Sent by you')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText(/Sent by Another Admin/)).toBeInTheDocument());
+    expect(screen.queryByText(/Sent by you/)).not.toBeInTheDocument();
   });
 
   test('shows "Sent by you" for your own broadcast', async () => {
@@ -96,25 +31,73 @@ describe('BroadcastInbox', () => {
         canSendMessages
       />,
     );
-    await waitFor(() => expect(screen.getByText('Sent by you')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Sent by you/)).toBeInTheDocument());
   });
 
-  test('clicking a recipient name calls onAuthorClick with their id', async () => {
-    const onAuthorClick = vi.fn();
-    render(
-      <BroadcastInbox
-        {...baseProps}
-        fetchSent={async () => [broadcast()]}
-        currentUserId="admin-1"
-        canSendMessages
-        onAuthorClick={onAuthorClick}
-      />,
-    );
+  test('clicking a row opens that conversation by id', async () => {
+    const onOpen = vi.fn();
+    render(<BroadcastInbox {...baseProps} onOpen={onOpen} fetchSent={async () => [broadcast()]} currentUserId="admin-1" canSendMessages />);
     await waitFor(() => expect(screen.getByText('Confirm your hours')).toBeInTheDocument());
     await userEvent.click(screen.getByText('Confirm your hours'));
-    await waitFor(() => expect(screen.getByText('Carlos Vidana')).toBeInTheDocument());
-    await userEvent.click(screen.getByText('Carlos Vidana'));
-    expect(onAuthorClick).toHaveBeenCalledWith('worker-1');
+    expect(onOpen).toHaveBeenCalledWith('b1');
+  });
+
+  test('search matches the subject and recipient names, and hides the rest', async () => {
+    const sent = [
+      broadcast({ id: 'b1', title: 'Confirm your hours' }),
+      broadcast({
+        id: 'b2',
+        title: 'Safety briefing',
+        recipients: [{ participant: { id: 'worker-2', name: 'Ana Ruiz' }, respondedAt: null, openedAt: null }],
+      }),
+    ];
+    render(<BroadcastInbox {...baseProps} fetchSent={async () => sent} currentUserId="admin-1" canSendMessages />);
+    await waitFor(() => expect(screen.getByText('Confirm your hours')).toBeInTheDocument());
+
+    await userEvent.type(screen.getByLabelText('Search'), 'ruiz');
+    expect(screen.getByText('Safety briefing')).toBeInTheDocument();
+    expect(screen.queryByText('Confirm your hours')).not.toBeInTheDocument();
+
+    await userEvent.clear(screen.getByLabelText('Search'));
+    await userEvent.type(screen.getByLabelText('Search'), 'nothing matches');
+    expect(screen.getByText(strings.noResultsLabel)).toBeInTheDocument();
+  });
+
+  test('status filter keeps only broadcasts in that state', async () => {
+    const sent = [
+      broadcast({ id: 'b1', title: 'Waiting one' }),
+      broadcast({
+        id: 'b2',
+        title: 'Needs answer',
+        recipients: [{ participant: { id: 'worker-2', name: 'Ana Ruiz' }, respondedAt: null, openedAt: null }],
+        messages: [{ id: 'm1', authorId: 'worker-2', authorName: 'Ana Ruiz', body: 'Question?', createdAt: new Date().toISOString() }],
+      }),
+    ];
+    render(<BroadcastInbox {...baseProps} fetchSent={async () => sent} currentUserId="admin-1" canSendMessages />);
+    await waitFor(() => expect(screen.getByText('Waiting one')).toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByLabelText('Status'), 'needsReply');
+    expect(screen.getByText('Needs answer')).toBeInTheDocument();
+    expect(screen.queryByText('Waiting one')).not.toBeInTheDocument();
+  });
+
+  test('person filter autocompletes a name and keeps only that person', async () => {
+    const sent = [
+      broadcast({ id: 'b1', title: 'For Carlos' }),
+      broadcast({
+        id: 'b2',
+        title: 'For Ana',
+        recipients: [{ participant: { id: 'worker-2', name: 'Ana Ruiz' }, respondedAt: null, openedAt: null }],
+      }),
+    ];
+    render(<BroadcastInbox {...baseProps} fetchSent={async () => sent} currentUserId="admin-1" canSendMessages />);
+    await waitFor(() => expect(screen.getByText('For Carlos')).toBeInTheDocument());
+
+    await userEvent.type(screen.getByLabelText('Person'), 'ana');
+    const suggestions = screen.getByRole('list');
+    await userEvent.click(within(suggestions).getByRole('button', { name: 'Ana Ruiz' }));
+    expect(screen.getByText('For Ana')).toBeInTheDocument();
+    expect(screen.queryByText('For Carlos')).not.toBeInTheDocument();
   });
 
   test('delete requires confirmation before calling onDelete', async () => {
@@ -147,5 +130,112 @@ describe('BroadcastInbox', () => {
     );
     expect(screen.queryByText('Sent')).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByText('Confirm your hours')).toBeInTheDocument());
+  });
+});
+
+describe('BroadcastDetail', () => {
+  test('renders the conversation and its recipients', async () => {
+    render(
+      <BroadcastDetail
+        {...baseProps}
+        broadcastId="b1"
+        onBack={vi.fn()}
+        fetchSent={async () => [broadcast()]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Confirm your hours' })).toBeInTheDocument());
+    expect(screen.getByText('Carlos Vidana')).toBeInTheDocument();
+  });
+
+  test('back button calls onBack', async () => {
+    const onBack = vi.fn();
+    render(
+      <BroadcastDetail
+        {...baseProps}
+        broadcastId="b1"
+        onBack={onBack}
+        fetchSent={async () => [broadcast()]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Confirm your hours' })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: 'Back to messages' }));
+    expect(onBack).toHaveBeenCalled();
+  });
+
+  test("replies from others show their avatar, and the root message shows its time", async () => {
+    render(
+      <BroadcastDetail
+        {...baseProps}
+        broadcastId="b1"
+        onBack={vi.fn()}
+        fetchSent={async () => [broadcast({
+          messages: [{ id: "m1", authorId: "worker-1", authorName: "Carlos Vidana", body: "Got it", createdAt: new Date().toISOString() }],
+          recipients: [{ participant: { id: "worker-1", name: "Carlos Vidana" }, respondedAt: new Date().toISOString(), openedAt: null }],
+        })]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Confirm your hours" })).toBeInTheDocument());
+    expect(screen.getAllByText("CV").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/\d{1,2}:\d{2}/).length).toBeGreaterThan(0);
+  });
+
+  test('a conversation with several recipients has one composer, not one per person', async () => {
+    render(
+      <BroadcastDetail
+        {...baseProps}
+        broadcastId="b1"
+        onBack={vi.fn()}
+        fetchSent={async () => [broadcast({
+          recipients: [
+            { participant: { id: 'worker-1', name: 'Carlos Vidana' }, respondedAt: null, openedAt: null },
+            { participant: { id: 'worker-2', name: 'Ana Ruiz' }, respondedAt: null, openedAt: null },
+          ],
+        })]}
+        currentUserId="admin-1"
+        canSendMessages
+        canManageBroadcast={() => true}
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Confirm your hours' })).toBeInTheDocument());
+    expect(screen.getAllByPlaceholderText('Type a message…')).toHaveLength(1);
+  });
+
+  test('a reply from the received side goes into the shared conversation', async () => {
+    const onSendMessage = vi.fn().mockResolvedValue({ id: 'm2', authorId: 'worker-1', authorName: 'Carlos Vidana', body: 'Yes', createdAt: new Date().toISOString() });
+    render(
+      <BroadcastDetail
+        {...baseProps}
+        onSendMessage={onSendMessage}
+        broadcastId="b1"
+        onBack={vi.fn()}
+        fetchReceived={async () => [broadcast({ createdBy: 'admin-1', recipients: [{ participant: { id: 'worker-1', name: 'Carlos Vidana' }, respondedAt: null }] })]}
+        currentUserId="worker-1"
+        canSendMessages={false}
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'Confirm your hours' })).toBeInTheDocument());
+    await userEvent.type(screen.getByPlaceholderText('Type a message…'), 'Yes');
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(onSendMessage).toHaveBeenCalledWith('b1', 'Yes'));
+  });
+
+  test('shows a not-found message when the id is not in either list', async () => {
+    render(
+      <BroadcastDetail
+        {...baseProps}
+        broadcastId="missing"
+        onBack={vi.fn()}
+        fetchSent={async () => [broadcast()]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await waitFor(() => expect(screen.getByText(strings.notFoundLabel)).toBeInTheDocument());
   });
 });

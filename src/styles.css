@@ -120,6 +120,10 @@ html.dark .input-field:focus {
 html.dark input[type='date'].input-field {
   color-scheme: dark;
 }
+html.dark select option {
+  background-color: #212121;
+  color: #f3f4f6;
+}
 
 /* .pmg-texture's 3.5% opacity is mathematically identical in both themes
    (currentColor at the same alpha either way, measured: ~9/255 luminance

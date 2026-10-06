@@ -42,6 +42,22 @@ const strings: BroadcastInboxStrings = {
   onePersonWaiting: '1 person still owes a reply.',
   peopleWaiting: (n) => `${n} people still owe a reply.`,
   loadingLabel: 'Loading…',
+  searchLabel: 'Search',
+  searchPlaceholder: 'Subject or person…',
+  statusFilterLabel: 'Status',
+  statusAllLabel: 'All statuses',
+  statusNeedsReplyLabel: 'Needs reply',
+  statusWaitingLabel: 'Waiting',
+  statusAnsweredLabel: 'Answered',
+  statusClosedLabel: 'Closed',
+  dateFromLabel: 'From',
+  dateToLabel: 'To',
+  personFilterLabel: 'Person',
+  personFilterPlaceholder: 'Type a name…',
+  clearFiltersLabel: 'Clear filters',
+  noResultsLabel: 'No conversations match these filters.',
+  backToMessagesLabel: 'Back to messages',
+  notFoundLabel: 'This conversation is no longer available.',
 };
 
 const sentSeed: ChatBroadcast[] = [
@@ -54,24 +70,14 @@ const sentSeed: ChatBroadcast[] = [
     createdBy: 'admin-1',
     senderName: 'Dev Admin',
     requiresReply: true,
-    threads: [
-      {
-        participant: { id: 'worker-1', name: 'Carlos Vidana' },
-        messages: [
-          { id: 'm1', authorId: 'worker-1', authorName: 'Carlos Vidana', body: 'Looks good, confirmed.', createdAt: new Date(Date.now() - 1800_000).toISOString() },
-        ],
-        respondedAt: new Date(Date.now() - 1800_000).toISOString(),
-        openedAt: new Date(Date.now() - 2000_000).toISOString(),
-        unread: false,
-      },
-      {
-        participant: { id: 'worker-2', name: 'Jane Doe' },
-        messages: [],
-        respondedAt: null,
-        openedAt: null,
-        unread: false,
-      },
+    messages: [
+      { id: 'm1', authorId: 'worker-1', authorName: 'Carlos Vidana', body: 'Looks good, confirmed.', createdAt: new Date(Date.now() - 1800_000).toISOString() },
     ],
+    recipients: [
+      { participant: { id: 'worker-1', name: 'Carlos Vidana' }, respondedAt: new Date(Date.now() - 1800_000).toISOString(), openedAt: new Date(Date.now() - 2000_000).toISOString() },
+      { participant: { id: 'worker-2', name: 'Jane Doe' }, respondedAt: null, openedAt: null },
+    ],
+    unread: false,
   },
 ];
 
@@ -85,16 +91,9 @@ const receivedSeed: ChatBroadcast[] = [
     createdBy: 'admin-1',
     senderName: 'Dev Admin',
     requiresReply: true,
-    threads: [
-      {
-        participant: { id: 'worker-1', name: 'Carlos Vidana' },
-        messages: [
-          { id: 'm1', authorId: 'worker-1', authorName: 'Carlos Vidana', body: 'Looks good, confirmed.', createdAt: new Date(Date.now() - 1800_000).toISOString() },
-        ],
-        respondedAt: new Date(Date.now() - 1800_000).toISOString(),
-        unread: false,
-      },
-    ],
+    messages: [],
+    recipients: [{ participant: { id: 'worker-1', name: 'Carlos Vidana' }, respondedAt: null, openedAt: null }],
+    unread: true,
   },
 ];
 
@@ -120,19 +119,20 @@ export const AdminView: Story = {
   args: {
     fetchSent: async () => sentSeed,
     fetchReceived: async () => [],
-    onSendToThread: async (_broadcastId, _participantId, body) => ({
+    onSendMessage: async (_broadcastId, body) => ({
       id: String(Math.random()),
       authorId: 'admin-1',
       authorName: 'Dev Admin',
       body,
       createdAt: new Date().toISOString(),
     }),
-    onMarkThreadRead: async () => {},
+    onMarkRead: async () => {},
     onClose: async () => {},
     onDelete: async () => {},
     currentUserId: 'admin-1',
     canSendMessages: true,
     canManageBroadcast: () => true,
+    onOpen: () => {},
     strings,
   },
 };

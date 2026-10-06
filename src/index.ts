@@ -94,12 +94,12 @@ export type {
   ConversationThreadStrings,
   ChatMessage,
   ChatParticipant,
-  ChatThread,
+  ChatRecipient,
   ChatBroadcast,
 } from './components/ConversationThread';
 
-export { BroadcastInbox } from './components/BroadcastInbox';
-export type { BroadcastInboxProps, BroadcastInboxStrings } from './components/BroadcastInbox';
+export { BroadcastInbox, BroadcastDetail } from './components/BroadcastInbox';
+export type { BroadcastInboxProps, BroadcastInboxStrings, BroadcastDetailProps } from './components/BroadcastInbox';
 
 export { WeekNav } from './components/WeekNav';
 export type { WeekNavProps } from './components/WeekNav';

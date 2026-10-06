@@ -10,9 +10,9 @@ export interface ChatMessage {
   authorName: string | null;
   body: string;
   createdAt: string;
-  // Only meaningful on a message YOU authored - has the other party read it
-  // yet (the tick marks). Omit/undefined for a message that isn't yours, or
-  // when the consumer doesn't track read receipts at all.
+  // Only meaningful on a message YOU authored - has anyone else in the
+  // conversation read it yet (the tick marks). Omit/undefined for a message
+  // that isn't yours, or when the consumer doesn't track read receipts.
   read?: boolean;
 }
 
@@ -21,26 +21,16 @@ export interface ChatParticipant {
   name: string;
 }
 
-// One thread: either "my own" (ReceivedCard's single thread) or one specific
-// recipient's (a row inside a BroadcastInbox's Sent side). authorId/authorName
-// on each message already say who wrote what - this is just the thread's own
-// metadata, not a duplicate of the message list.
-export interface ChatThread {
+// One person a broadcast was sent to. respondedAt is set once they've answered
+// (or sent their first message); openedAt is when they last looked at it.
+export interface ChatRecipient {
   participant: ChatParticipant;
-  messages: ChatMessage[];
   respondedAt: string | null;
-  // When the participant last opened THEIR OWN thread - only meaningful from
-  // the Sent side, where the viewer isn't the participant. Omit on the
-  // Received side, where "opened" is just "you're looking at it right now".
   openedAt?: string | null;
-  // Whether the CURRENT viewer has unseen activity in this specific thread.
-  unread: boolean;
 }
 
-// One broadcast: the root message plus every participant's thread.
-// A ConversationThread only ever renders one ChatThread's messages/composer;
-// a BroadcastInbox renders one ChatBroadcast's root message plus N
-// ConversationThreads, one per entry in `threads`.
+// One broadcast: the root message, the shared conversation everyone involved
+// reads and writes, and who it went to. Received side: recipients is just you.
 export interface ChatBroadcast {
   id: string;
   title: string;
@@ -50,8 +40,10 @@ export interface ChatBroadcast {
   createdBy: string;
   senderName: string | null;
   requiresReply: boolean;
-  // Sent side: every recipient. Received side: just the viewer's own, length 1.
-  threads: ChatThread[];
+  messages: ChatMessage[];
+  recipients: ChatRecipient[];
+  // Whether the current viewer has unseen activity in this conversation.
+  unread: boolean;
   // Generic "this message is about X" link (e.g. timesheet's own submission,
   // a certificate, a case) - the component only ever renders the label/icon
   // and calls onClick, it never knows what X is.
