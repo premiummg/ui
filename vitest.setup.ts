@@ -26,6 +26,22 @@ class MemoryStorage implements Storage {
 }
 Object.defineProperty(globalThis, 'localStorage', { value: new MemoryStorage(), configurable: true });
 
+// jsdom's own Blob/File implementation doesn't have `.arrayBuffer()` (or
+// `.text()`/`.stream()`) even in recent versions - ExcelColumnMapper reads a
+// real File that way, same as it would in a browser. FileReader IS fully
+// implemented, so this routes through that instead of leaving the method
+// missing for every test that constructs a File.
+if (typeof File.prototype.arrayBuffer !== 'function') {
+  (File.prototype as unknown as { arrayBuffer: (this: File) => Promise<ArrayBuffer> }).arrayBuffer = function (this: File): Promise<ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(this);
+    });
+  };
+}
+
 // jsdom doesn't implement ResizeObserver at all - components that use it
 // (ScrollableTable) would otherwise throw "ResizeObserver is not defined" in
 // every test, even ones unrelated to resize behavior. A no-op stub is enough

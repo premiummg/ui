@@ -206,6 +206,9 @@ export type { NewsTickerProps, NewsTickerItem } from './components/NewsTicker';
 export { FileDropzone } from './components/FileDropzone';
 export type { FileDropzoneProps } from './components/FileDropzone';
 
+export { ExcelColumnMapper } from './components/ExcelColumnMapper';
+export type { ExcelColumnMapperProps, ExcelColumnMapperField } from './components/ExcelColumnMapper';
+
 export { FilePill } from './components/FilePill';
 export type { FilePillProps } from './components/FilePill';
 
