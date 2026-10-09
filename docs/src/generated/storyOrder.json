@@ -17,7 +17,8 @@
   "AuthShell": [
     "SignIn",
     "WithError",
-    "TwoFactor"
+    "TwoFactor",
+    "French"
   ],
   "Avatar": [
     "Default",
@@ -81,6 +82,9 @@
     "DefaultFallback",
     "CustomFallback",
     "CustomPalette"
+  ],
+  "ExcelColumnMapper": [
+    "Default"
   ],
   "Eyebrow": [
     "Red",
@@ -302,6 +306,12 @@
     "Loading",
     "LoadingSmall",
     "LoadingLarge"
+  ],
+  "TimePicker": [
+    "Default",
+    "Empty",
+    "StartAndEnd",
+    "Disabled"
   ],
   "Toaster": [
     "Default"

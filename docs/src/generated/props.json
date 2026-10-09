@@ -85,6 +85,43 @@
       "description": null
     }
   ],
+  "AdminDisableMfaDialog": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "targetName",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onConfirm",
+      "type": "() => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "AdminDisableMfaDialogLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
   "Alert": [
     {
       "name": "variant",
@@ -112,6 +149,29 @@
       "type": "string",
       "required": false,
       "defaultValue": "",
+      "description": null
+    }
+  ],
+  "AnnouncementGate": [
+    {
+      "name": "queue",
+      "type": "AnnouncementItem[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onRespond",
+      "type": "(id: string, reply: string) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "AnnouncementGateLabels",
+      "required": true,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -166,6 +226,41 @@
       "required": true,
       "defaultValue": null,
       "description": null
+    },
+    {
+      "name": "isDark",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onToggleDarkMode",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "AuthShellLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "lang",
+      "type": "Lang",
+      "required": false,
+      "defaultValue": "en",
+      "description": null
+    },
+    {
+      "name": "onLangChange",
+      "type": "(lang: Lang) => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
     }
   ],
   "Avatar": [
@@ -207,6 +302,20 @@
   ],
   "BroadcastInbox": [
     {
+      "name": "onOpen",
+      "type": "(broadcastId: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onCompose",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
       "name": "fetchSent",
       "type": "() => Promise<ChatBroadcast[]>",
       "required": false,
@@ -221,15 +330,15 @@
       "description": null
     },
     {
-      "name": "onSendToThread",
-      "type": "(broadcastId: string, participantId: string, body: string) => Promise<ChatMessage>",
+      "name": "onSendMessage",
+      "type": "(broadcastId: string, body: string) => Promise<ChatMessage>",
       "required": true,
       "defaultValue": null,
       "description": null
     },
     {
-      "name": "onMarkThreadRead",
-      "type": "(broadcastId: string, participantId: string) => Promise<void>",
+      "name": "onMarkRead",
+      "type": "(broadcastId: string) => Promise<void>",
       "required": true,
       "defaultValue": null,
       "description": null
@@ -277,13 +386,6 @@
       "description": null
     },
     {
-      "name": "onCompose",
-      "type": "() => void",
-      "required": false,
-      "defaultValue": null,
-      "description": null
-    },
-    {
       "name": "strings",
       "type": "BroadcastInboxStrings",
       "required": true,
@@ -295,13 +397,6 @@
       "type": "number",
       "required": false,
       "defaultValue": 15000,
-      "description": null
-    },
-    {
-      "name": "deepLinkId",
-      "type": "string",
-      "required": false,
-      "defaultValue": null,
       "description": null
     }
   ],
@@ -562,6 +657,13 @@
       "required": false,
       "defaultValue": "",
       "description": null
+    },
+    {
+      "name": "ariaLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Toggle dark mode",
+      "description": null
     }
   ],
   "DashedAddButton": [
@@ -731,6 +833,127 @@
       "description": null
     }
   ],
+  "ExcelColumnMapper": [
+    {
+      "name": "file",
+      "type": "File",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fields",
+      "type": "ExcelColumnMapperField[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "guessField",
+      "type": "(header: string) => string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "requiredFields",
+      "type": "string[]",
+      "required": false,
+      "defaultValue": "[]",
+      "description": null
+    },
+    {
+      "name": "confirmDisabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "onMappingChange",
+      "type": "(mapping: Record<string, string>) => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onConfirm",
+      "type": "(rows: Record<string, unknown>[], mapping: Record<string, string>) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onCancel",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Map the columns",
+      "description": null
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Check that each column goes to the right field. Unmapped columns are ignored.",
+      "description": null
+    },
+    {
+      "name": "ignoreLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Ignore",
+      "description": null
+    },
+    {
+      "name": "columnHeaderLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Column",
+      "description": null
+    },
+    {
+      "name": "fieldHeaderLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Field",
+      "description": null
+    },
+    {
+      "name": "confirmLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Import",
+      "description": null
+    },
+    {
+      "name": "cancelLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Cancel",
+      "description": null
+    },
+    {
+      "name": "invalidFileMessage",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Could not read this file. Make sure it is a valid .xlsx file.",
+      "description": null
+    },
+    {
+      "name": "emptyFileMessage",
+      "type": "string",
+      "required": false,
+      "defaultValue": "This file has no rows.",
+      "description": null
+    }
+  ],
   "Eyebrow": [
     {
       "name": "text",
@@ -791,6 +1014,13 @@
       "name": "title",
       "type": "string",
       "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "action",
+      "type": "ReactNode",
+      "required": false,
       "defaultValue": null,
       "description": null
     },
@@ -1171,6 +1401,22 @@
       "description": null
     }
   ],
+  "LoginForm": [
+    {
+      "name": "labels",
+      "type": "LoginFormLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onLogin",
+      "type": "(email: string, password: string) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
   "MediaCard": [
     {
       "name": "imageSrc",
@@ -1219,6 +1465,73 @@
       "type": "string",
       "required": false,
       "defaultValue": "",
+      "description": null
+    }
+  ],
+  "MfaCodeVerifyForm": [
+    {
+      "name": "labels",
+      "type": "MfaCodeVerifyFormLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onVerify",
+      "type": "(code: string) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onBackToSignIn",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "MfaSetupPanel": [
+    {
+      "name": "labels",
+      "type": "MfaSetupPanelLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "enabled",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "mandatory",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onStartSetup",
+      "type": "() => Promise<{ qrCode: string; secret: string; }>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onConfirmCode",
+      "type": "(code: string) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onDisable",
+      "type": "() => Promise<void>",
+      "required": true,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -1321,6 +1634,13 @@
     {
       "name": "onLogoClick",
       "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "homeHref",
+      "type": "string",
       "required": false,
       "defaultValue": null,
       "description": null
@@ -1666,7 +1986,28 @@
     {
       "name": "registration",
       "type": "any",
-      "required": true,
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(e: ChangeEvent<HTMLInputElement, Element>) => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "required": false,
       "defaultValue": null,
       "description": null
     },
@@ -2108,6 +2449,50 @@
       "description": null
     }
   ],
+  "SendMessageModal": [
+    {
+      "name": "recipientIds",
+      "type": "string[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "recipientNames",
+      "type": "string[]",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onSend",
+      "type": "(fields: SendMessageFields) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onSent",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "SendMessageModalLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
   "SiteButton": [
     {
       "name": "variant",
@@ -2302,6 +2687,13 @@
       "required": false,
       "defaultValue": null,
       "description": null
+    },
+    {
+      "name": "dot",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
     }
   ],
   "StatusDot": [
@@ -2389,6 +2781,64 @@
       "type": "TablePlaceholderRowSize",
       "required": false,
       "defaultValue": "md",
+      "description": null
+    }
+  ],
+  "TimePicker": [
+    {
+      "name": "value",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(v: string) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "required": false,
+      "defaultValue": "--:-- --",
+      "description": null
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "clearLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Clear",
+      "description": null
+    },
+    {
+      "name": "doneLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Done",
       "description": null
     }
   ],

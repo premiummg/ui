@@ -13,6 +13,7 @@ import * as DashedAddButtonStories from '../../../src/components/DashedAddButton
 import * as SegmentedControlStories from '../../../src/components/SegmentedControl/SegmentedControl.stories';
 import * as ColorFieldStories from '../../../src/components/ColorField/ColorField.stories';
 import * as DatePickerStories from '../../../src/components/DatePicker/DatePicker.stories';
+import * as TimePickerStories from '../../../src/components/TimePicker/TimePicker.stories';
 import * as FileDropzoneStories from '../../../src/components/FileDropzone/FileDropzone.stories';
 import * as FilePillStories from '../../../src/components/FilePill/FilePill.stories';
 import * as RichTextEditorStories from '../../../src/components/RichTextEditor/RichTextEditor.stories';
@@ -84,6 +85,12 @@ export const actionsForms: ComponentDoc[] = [
     name: 'DatePicker',
     summary: 'Day/month/year calendar dropdown, built on date-fns. minDate/maxDate, plus unavailableDates shown struck-through and unselectable.',
     demos: demosFromModule(DatePickerStories),
+  },
+  {
+    name: 'TimePicker',
+    summary: 'Brand-matched replacement for the native `<input type="time">` - a 3-wheel scroll picker (hour / minute / period), value/onChange as "HH:MM" 24h strings, same as the native input it replaces.',
+    notes: 'Minute wheel steps by 5. Internally tracks a single h24 (0-23), never a separate hour12+AM/PM pair - the earlier version that did flipped AM/PM by comparing the previous hour to the new one, which broke the instant a scroll crossed more than one row at once (routine on a real mouse wheel/trackpad). The open panel is portaled to <body> and positioned with `fixed` from the trigger\'s own rect rather than living in place like DatePicker\'s - a compact row is often tight enough that the ~230px panel has no room to open without covering real controls a few rows down.',
+    demos: demosFromModule(TimePickerStories),
   },
   {
     name: 'FileDropzone',

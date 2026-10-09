@@ -82,6 +82,9 @@ export type { Toast, ToastType, ToastContextValue } from './components/Toaster';
 export { DatePicker } from './components/DatePicker';
 export type { DatePickerProps } from './components/DatePicker';
 
+export { TimePicker, parseValue as parseTimeValue, toValue as toTimeValue, hour12Of, periodOf } from './components/TimePicker';
+export type { TimePickerProps } from './components/TimePicker';
+
 export { NotificationBell, NotificationBellEmpty } from './components/NotificationBell';
 export type { NotificationBellProps } from './components/NotificationBell';
 

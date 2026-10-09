@@ -79,7 +79,13 @@ export function MfaCodeVerifyForm({ labels: t, onVerify, onBackToSignIn }: MfaCo
             maxLength={CODE_LENGTH}
             aria-label={t.codeAriaLabel}
             autoFocus
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            // text-base: invisible or not, this is the real text-entry
+            // element the slots below only visualize, and it has no explicit
+            // size of its own to override whatever it happens to inherit
+            // from wherever it's mounted - iOS Safari auto-zooms the page on
+            // focus for a field computing under 16px regardless of opacity,
+            // and doesn't reliably zoom back out on blur.
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-base"
           />
           <div className="flex gap-2 pointer-events-none">
             {Array.from({ length: CODE_LENGTH }).map((_, i) => {

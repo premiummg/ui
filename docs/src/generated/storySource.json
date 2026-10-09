@@ -15,9 +15,10 @@
     "OtherType": "<div className=\"max-w-sm\"><AttachmentTile onDownload={() => {}} name=\"notes.txt\" size=\"2 KB\" type=\"other\" /></div>"
   },
   "AuthShell": {
-    "SignIn": "<AuthShell eyebrow=\"Sign in\">{(\n      <div className=\"space-y-4\">\n        <input className=\"input-field w-full\" placeholder=\"Email\" />\n        <input className=\"input-field w-full\" type=\"password\" placeholder=\"Password\" />\n        <button className=\"btn-primary w-full py-2.5\">Sign in</button>\n      </div>\n    )}</AuthShell>",
-    "WithError": "<AuthShell eyebrow=\"Sign in\">{(\n      <div className=\"space-y-4\">\n        <AuthError message=\"Incorrect email or password.\" />\n        <input className=\"input-field w-full\" placeholder=\"Email\" />\n        <input className=\"input-field w-full\" type=\"password\" placeholder=\"Password\" />\n        <button className=\"btn-primary w-full py-2.5\">Sign in</button>\n      </div>\n    )}</AuthShell>",
-    "TwoFactor": "<AuthShell eyebrow=\"Two-factor authentication\">{(\n      <div className=\"space-y-4\">\n        <p className=\"text-sm text-gray-500 dark:text-gray-400\">Enter the 6-digit code from your authenticator app.</p>\n        <input className=\"input-field w-full text-center tracking-[0.5em]\" placeholder=\"000000\" maxLength={6} />\n        <button className=\"btn-primary w-full py-2.5\">Verify</button>\n      </div>\n    )}</AuthShell>"
+    "SignIn": "<Demo eyebrow=\"Sign in\">\n  <div className=\"space-y-4\">\n    <input className=\"input-field w-full\" placeholder=\"Email\" />\n    <input className=\"input-field w-full\" type=\"password\" placeholder=\"Password\" />\n    <button className=\"btn-primary w-full py-2.5\">Sign in</button>\n  </div>\n</Demo>",
+    "WithError": "<Demo eyebrow=\"Sign in\">\n  <div className=\"space-y-4\">\n    <AuthError message=\"Incorrect email or password.\" />\n    <input className=\"input-field w-full\" placeholder=\"Email\" />\n    <input className=\"input-field w-full\" type=\"password\" placeholder=\"Password\" />\n    <button className=\"btn-primary w-full py-2.5\">Sign in</button>\n  </div>\n</Demo>",
+    "TwoFactor": "<Demo eyebrow=\"Two-factor authentication\">\n  <div className=\"space-y-4\">\n    <p className=\"text-sm text-gray-500 dark:text-gray-400\">Enter the 6-digit code from your authenticator app.</p>\n    <input className=\"input-field w-full text-center tracking-[0.5em]\" placeholder=\"000000\" maxLength={6} />\n    <button className=\"btn-primary w-full py-2.5\">Verify</button>\n  </div>\n</Demo>",
+    "French": "<Demo eyebrow=\"Se connecter\" lang=\"fr\">\n  <div className=\"space-y-4\">\n    <input className=\"input-field w-full\" placeholder=\"Courriel\" />\n    <input className=\"input-field w-full\" type=\"password\" placeholder=\"Mot de passe\" />\n    <button className=\"btn-primary w-full py-2.5\">Se connecter</button>\n  </div>\n</Demo>"
   },
   "Avatar": {
     "Default": "<Avatar fullName=\"Jordan Reid\" />",
@@ -26,8 +27,8 @@
     "Clickable": "<Avatar fullName=\"Jordan Reid\" onClick={() => alert('Avatar clicked')} />"
   },
   "BroadcastInbox": {
-    "AdminView": "<BroadcastInbox fetchSent={async () => sentSeed} fetchReceived={async () => []} onSendToThread={async (_broadcastId, _participantId, body) => ({\n      id: String(Math.random()),\n      authorId: 'admin-1',\n      authorName: 'Dev Admin',\n      body,\n      createdAt: new Date().toISOString(),\n    })} onMarkThreadRead={async () => {}} onClose={async () => {}} onDelete={async () => {}} currentUserId=\"admin-1\" canSendMessages canManageBroadcast={() => true} strings={strings} />",
-    "WorkerView": "<BroadcastInbox fetchSent={undefined} fetchReceived={async () => receivedSeed} onSendToThread={async (_broadcastId, _participantId, body) => ({\n      id: String(Math.random()),\n      authorId: 'admin-1',\n      authorName: 'Dev Admin',\n      body,\n      createdAt: new Date().toISOString(),\n    })} onMarkThreadRead={async () => {}} onClose={async () => {}} onDelete={async () => {}} currentUserId=\"worker-1\" canSendMessages={false} canManageBroadcast={() => true} strings={strings} />"
+    "AdminView": "<BroadcastInbox fetchSent={async () => sentSeed} fetchReceived={async () => []} onSendMessage={async (_broadcastId, body) => ({\n      id: String(Math.random()),\n      authorId: 'admin-1',\n      authorName: 'Dev Admin',\n      body,\n      createdAt: new Date().toISOString(),\n    })} onMarkRead={async () => {}} onClose={async () => {}} onDelete={async () => {}} currentUserId=\"admin-1\" canSendMessages canManageBroadcast={() => true} onOpen={() => {}} strings={strings} />",
+    "WorkerView": "<BroadcastInbox fetchSent={undefined} fetchReceived={async () => receivedSeed} onSendMessage={async (_broadcastId, body) => ({\n      id: String(Math.random()),\n      authorId: 'admin-1',\n      authorName: 'Dev Admin',\n      body,\n      createdAt: new Date().toISOString(),\n    })} onMarkRead={async () => {}} onClose={async () => {}} onDelete={async () => {}} currentUserId=\"worker-1\" canSendMessages={false} canManageBroadcast={() => true} onOpen={() => {}} strings={strings} />"
   },
   "Button": {
     "Primary": "<Button variant=\"primary\">Save changes</Button>",
@@ -81,6 +82,9 @@
     "DefaultFallback": "<ErrorBoundary>{<Bomb />}</ErrorBoundary>",
     "CustomFallback": "<ErrorBoundary fallback={<p className=\"p-8\">Custom fallback content.</p>}>{<Bomb />}</ErrorBoundary>",
     "CustomPalette": "<ErrorBoundary color=\"#1A2C6E\" barsColor=\"#FFFFFF\">{<Bomb />}</ErrorBoundary>"
+  },
+  "ExcelColumnMapper": {
+    "Default": "function Demo() {\n  const inputRef = useRef<HTMLInputElement>(null);\n  const [file, setFile] = useState<File | null>(null);\n  const [result, setResult] = useState<string | null>(null);\n\n  return (\n    <div className=\"max-w-sm\">\n      <Button onClick={() => inputRef.current?.click()}>Choose an .xlsx file</Button>\n      <input\n        ref={inputRef}\n        type=\"file\"\n        accept=\".xlsx,.xls\"\n        className=\"hidden\"\n        onChange={e => { setResult(null); setFile(e.target.files?.[0] ?? null); e.target.value = ''; }}\n      />\n      {result && <p className=\"mt-3 text-sm text-gray-600\">{result}</p>}\n      <ExcelColumnMapper\n        file={file}\n        fields={FIELDS}\n        guessField={guessField}\n        requiredFields={['name']}\n        onConfirm={(rows, mapping) => {\n          setResult(`Confirmed ${rows.length} row(s) with mapping ${JSON.stringify(mapping)}`);\n          setFile(null);\n        }}\n        onCancel={() => setFile(null)}\n      />\n    </div>\n  );\n}\nreturn <Demo />;"
   },
   "Eyebrow": {
     "Red": "<div className=\"w-full p-6 bg-white dark:bg-(--premium-dark-grey)\">\n  <Eyebrow text=\"Our approach\" tone=\"red\" />\n  <h2 className=\"font-heading font-black text-2xl text-gray-900 dark:text-gray-100 mt-1\">Built on trust</h2>\n</div>",
@@ -302,6 +306,12 @@
     "Loading": "<TablePlaceholderRow colSpan={4} loading />",
     "LoadingSmall": "<TablePlaceholderRow colSpan={4} loading size=\"sm\" />",
     "LoadingLarge": "<TablePlaceholderRow colSpan={4} loading size=\"lg\" />"
+  },
+  "TimePicker": {
+    "Default": "function Demo() {\n  const [value, setValue] = useState('09:00');\n  return <TimePicker value={value} onChange={setValue} className=\"max-w-xs\" />;\n}\nreturn <Demo />;",
+    "Empty": "function Demo() {\n  const [value, setValue] = useState('');\n  return <TimePicker value={value} onChange={setValue} className=\"max-w-xs\" />;\n}\nreturn <Demo />;",
+    "StartAndEnd": "function Demo() {\n  const [start, setStart] = useState('');\n  const [end, setEnd] = useState('');\n  return (\n    <div className=\"flex gap-3\">\n      <TimePicker\n        value={start}\n        onChange={v => { setStart(v); if (v) setEnd(v); }}\n        placeholder=\"Start time\"\n        className=\"max-w-40\"\n      />\n      <TimePicker value={end} onChange={setEnd} placeholder=\"End time\" className=\"max-w-40\" />\n    </div>\n  );\n}\nreturn <Demo />;",
+    "Disabled": "<TimePicker value=\"09:00\" onChange={() => {}} disabled className=\"max-w-xs\" />"
   },
   "Toaster": {
     "Default": "function Demo() {\n  const { toast } = useToast();\n  return (\n    <div className=\"flex gap-2\">\n      <button className={`${BUTTON_CLASSES.success} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Purchase order approved.', 'success')}>Success</button>\n      <button className={`${BUTTON_CLASSES.error} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Something needs your attention.', 'error')}>Error</button>\n      <button className={`${BUTTON_CLASSES.warning} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('This timesheet is over budget.', 'warning')}>Warning</button>\n      <button className={`${BUTTON_CLASSES.info} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Backdated timesheets are disabled.', 'info')}>Info</button>\n      <Toaster />\n    </div>\n  );\n}\nreturn <Demo />;"

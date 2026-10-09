@@ -205,6 +205,21 @@ input[type='number']::-webkit-inner-spin-button {
   }
 }
 
+/* Unconditionally invisible, on every input type, unlike .pmg-scrollbar above
+   - that one deliberately shows a thin styled bar on a real mouse/trackpad
+   because it scrolls an ordinary list/table, where a scrollbar is the
+   expected affordance. TimePicker's wheel columns are a compact, snap-to-
+   center picker, not a list - a scrollbar track running down a 36px-tall
+   column would read as broken rather than as "there's more below", on any
+   input device. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @layer components {
   .btn-primary {
     @apply font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-60 text-white;
@@ -214,8 +229,16 @@ input[type='number']::-webkit-inner-spin-button {
     background-color: var(--premium-red-dark);
   }
 
+  /* text-base (16px), not text-sm - iOS Safari auto-zooms the whole page on
+     focus for any text-entry element computing under 16px, and only zooms
+     back out reliably on blur in the simple cases. Every component built on
+     top of this class (AddressAutocomplete, LoginForm, PasswordInput,
+     SearchInput, MfaSetupPanel's code input, RichTextToolbar's link input,
+     SendMessageModal, AnnouncementGate's reply box) was tripping that same
+     zoom from one shared cause - fixing it here instead of per-component
+     is what actually makes it stick everywhere at once. */
   .input-field {
-    @apply w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm placeholder:text-gray-400 transition;
+    @apply w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base placeholder:text-gray-400 transition;
     color: var(--premium-dark-grey);
   }
   .input-field:focus {
@@ -242,8 +265,10 @@ input[type='number']::-webkit-inner-spin-button {
   .phone-input-field .PhoneInputCountrySelectArrow {
     @apply text-gray-400 text-xs;
   }
+  /* Same iOS auto-zoom reasoning as .input-field above - this is a real
+     text-entry field too (a phone number), so it gets the same 16px floor. */
   .phone-input-field .PhoneInputInput {
-    @apply flex-1 px-3 py-2.5 text-sm outline-none bg-white;
+    @apply flex-1 px-3 py-2.5 text-base outline-none bg-white;
     color: var(--premium-dark-grey);
   }
   .phone-input-field .PhoneInputInput::placeholder {

@@ -31,8 +31,14 @@ function Field({ id, label, children, className = '' }: { id: string; label: str
   );
 }
 
+// text-base (16px), not text-xs - the search/date/person inputs below are
+// real text-entry fields, and iOS Safari auto-zooms the page on focus for
+// any of those under 16px (and doesn't reliably zoom back out on blur). The
+// <select> sharing this class isn't actually at risk itself (its own native
+// picker doesn't trigger that zoom), but splitting it into a second,
+// near-identical constant just to keep it 4px smaller isn't worth it.
 const CONTROL =
-  'rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-(--premium-red) dark:border-white/15 dark:bg-white/5 dark:text-gray-100 dark:[color-scheme:dark]';
+  'rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-base text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-(--premium-red) dark:border-white/15 dark:bg-white/5 dark:text-gray-100 dark:[color-scheme:dark]';
 
 function BroadcastRow({
   broadcast,

@@ -135,7 +135,9 @@ function Composer({
           rows={1}
           disabled={sending}
           placeholder={strings.placeholder}
-          className="max-h-24 flex-1 resize-none overflow-y-auto rounded-2xl border border-gray-200 bg-white px-3.5 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-(--premium-red)/20 disabled:opacity-60 dark:border-white/20 dark:bg-(--premium-dark-grey) dark:text-gray-100"
+          // text-base, not text-sm - iOS Safari auto-zooms on focus for any
+          // text-entry element under 16px, and doesn't reliably zoom back out.
+          className="max-h-24 flex-1 resize-none overflow-y-auto rounded-2xl border border-gray-200 bg-white px-3.5 py-2 text-base text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-(--premium-red)/20 disabled:opacity-60 dark:border-white/20 dark:bg-(--premium-dark-grey) dark:text-gray-100"
         />
         <button
           type="button"

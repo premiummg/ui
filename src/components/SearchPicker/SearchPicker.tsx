@@ -84,7 +84,10 @@ export function SearchPicker({ groups, placeholder, emptyText = 'No matches', va
           onFocus={() => setOpen(true)}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           placeholder={placeholder}
-          className="flex-1 bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+          // text-base overrides the text-sm this inherits from the row
+          // wrapper above - iOS Safari auto-zooms on focus for a text input
+          // under 16px, and doesn't reliably zoom back out on blur.
+          className="flex-1 min-w-0 bg-transparent outline-none text-base text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
         />
       </div>
       {open && (
