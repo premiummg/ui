@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as XLSX from 'xlsx';
 import { ExcelColumnMapper, ExcelColumnMapperField } from './ExcelColumnMapper';
@@ -18,6 +18,34 @@ function excelFile(rows: Record<string, unknown>[], name = 'test.xlsx'): File {
   return new File([buf], name, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 }
 
+// Each row's picker wrapper carries its own "Field: <header>" title, distinct
+// from the header cell's own title (just the header text) - everything below
+// scopes through that rather than matching on label text, which a guessed
+// field and its own column header can coincidentally share (e.g. a column
+// actually named "Project name").
+function pickerFor(header: string): HTMLElement {
+  return screen.getByTitle(`Field: ${header}`);
+}
+
+// null when the picker is showing its placeholder (nothing mapped - SearchPicker
+// has no selected chip to render), the chip's label text otherwise.
+function mappedLabel(header: string): string | null {
+  const chip = within(pickerFor(header)).queryByText((_, el) => el?.tagName === 'P' && el.className.includes('font-medium'));
+  return chip?.textContent ?? null;
+}
+
+async function pickField(header: string, fieldLabel: string) {
+  const wrapper = pickerFor(header);
+  // A value already selected renders as a chip + clear button, not a text
+  // box - clearing it first is what reopens the search input.
+  const clearBtn = within(wrapper).queryByRole('button');
+  if (clearBtn) await userEvent.click(clearBtn);
+  const input = within(wrapper).getByRole('textbox');
+  await userEvent.click(input);
+  await userEvent.type(input, fieldLabel);
+  await userEvent.click(await within(wrapper).findByText(fieldLabel));
+}
+
 describe('ExcelColumnMapper', () => {
   test('renders nothing when file is null', () => {
     render(
@@ -30,14 +58,14 @@ describe('ExcelColumnMapper', () => {
     const file = excelFile([{ 'Project name': 'Tower', Budget: 1000 }]);
     render(<ExcelColumnMapper file={file} fields={FIELDS} onConfirm={() => {}} onCancel={() => {}} />);
     expect(await screen.findByTitle('Project name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Field: Project name')).toHaveValue('name');
-    expect(screen.getByLabelText('Field: Budget')).toHaveValue('budget');
+    await waitFor(() => expect(mappedLabel('Project name')).toBe('Project name'));
+    expect(mappedLabel('Budget')).toBe('Budget');
   });
 
   test('a partial match also guesses on its own', async () => {
     const file = excelFile([{ 'Total Budget (CAD)': 1000 }]);
     render(<ExcelColumnMapper file={file} fields={FIELDS} onConfirm={() => {}} onCancel={() => {}} />);
-    await waitFor(() => expect(screen.getByLabelText('Field: Total Budget (CAD)')).toHaveValue('budget'));
+    await waitFor(() => expect(mappedLabel('Total Budget (CAD)')).toBe('Budget'));
   });
 
   test("the caller's guessField wins over this component's own guess", async () => {
@@ -51,13 +79,15 @@ describe('ExcelColumnMapper', () => {
         onCancel={() => {}}
       />,
     );
-    await waitFor(() => expect(screen.getByLabelText('Field: Montant')).toHaveValue('budget'));
+    await waitFor(() => expect(mappedLabel('Montant')).toBe('Budget'));
   });
 
   test('an unrecognized column defaults to Ignore', async () => {
     const file = excelFile([{ Whatever: 'x' }]);
     render(<ExcelColumnMapper file={file} fields={FIELDS} onConfirm={() => {}} onCancel={() => {}} />);
-    await waitFor(() => expect(screen.getByLabelText('Field: Whatever')).toHaveValue(''));
+    await screen.findByTitle('Whatever');
+    expect(mappedLabel('Whatever')).toBeNull();
+    expect(within(pickerFor('Whatever')).getByPlaceholderText('Ignore')).toBeInTheDocument();
   });
 
   test('requiredFields disables Confirm until satisfied, and the user can remap by hand', async () => {
@@ -69,7 +99,7 @@ describe('ExcelColumnMapper', () => {
     await screen.findByTitle('Column A');
     expect(screen.getByText('Import').closest('button')).toBeDisabled();
 
-    await userEvent.selectOptions(screen.getByLabelText('Field: Column A'), 'name');
+    await pickField('Column A', 'Project name');
     expect(screen.getByText('Import').closest('button')).not.toBeDisabled();
   });
 
@@ -90,8 +120,39 @@ describe('ExcelColumnMapper', () => {
     );
     await waitFor(() => expect(onMappingChange).toHaveBeenCalledWith({ 'Project name': 'name' }));
 
-    await userEvent.selectOptions(screen.getByLabelText('Field: Project name'), 'vendor');
+    await pickField('Project name', 'Vendor');
     expect(onMappingChange).toHaveBeenLastCalledWith({ 'Project name': 'vendor' });
+  });
+
+  test('two columns that would both guess the same field only assign it to the first', async () => {
+    const file = excelFile([{ 'Project Name': 'Tower', 'Received From (Client Info)': 'Acme' }]);
+    render(
+      <ExcelColumnMapper
+        file={file}
+        fields={FIELDS}
+        guessField={h => (/project name|received from/i.test(h) ? 'name' : undefined)}
+        onConfirm={() => {}}
+        onCancel={() => {}}
+      />,
+    );
+    await screen.findByTitle('Project Name');
+    await waitFor(() => expect(mappedLabel('Project Name')).toBe('Project name'));
+    expect(mappedLabel('Received From (Client Info)')).toBeNull();
+  });
+
+  test('a field already assigned to one column is not offered to any other', async () => {
+    const file = excelFile([{ 'Column A': 'Tower', 'Column B': 'Acme' }]);
+    render(<ExcelColumnMapper file={file} fields={FIELDS} onConfirm={() => {}} onCancel={() => {}} />);
+    await screen.findByTitle('Column A');
+
+    await pickField('Column A', 'Project name');
+    expect(mappedLabel('Column A')).toBe('Project name');
+
+    const wrapperB = pickerFor('Column B');
+    const input = within(wrapperB).getByRole('textbox');
+    await userEvent.click(input);
+    await userEvent.type(input, 'Project name');
+    expect(within(wrapperB).queryByText('Project name')).not.toBeInTheDocument();
   });
 
   test('Confirm hands back the parsed rows and the final mapping', async () => {
@@ -99,6 +160,7 @@ describe('ExcelColumnMapper', () => {
     const file = excelFile([{ 'Project name': 'Tower', Budget: 500 }, { 'Project name': 'House', Budget: 250 }]);
     render(<ExcelColumnMapper file={file} fields={FIELDS} onConfirm={onConfirm} onCancel={() => {}} />);
     await screen.findByTitle('Project name');
+    await waitFor(() => expect(mappedLabel('Budget')).toBe('Budget'));
 
     await userEvent.click(screen.getByText('Import'));
     expect(onConfirm).toHaveBeenCalledTimes(1);

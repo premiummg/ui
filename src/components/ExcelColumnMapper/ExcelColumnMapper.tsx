@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
+import { SearchPicker } from '../SearchPicker';
 
 export interface ExcelColumnMapperField {
   key: string;
@@ -109,9 +110,19 @@ export function ExcelColumnMapper({
         const parsedRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(wb.Sheets[wb.SheetNames[0]]);
         if (!parsedRows.length) { setError(emptyFileMessage); return; }
         const fileHeaders = Object.keys(parsedRows[0]);
+        // Two columns never start out mapped to the same field - whichever
+        // header matches first (file order) keeps the guess, the rest fall
+        // back to unmapped rather than silently doubling up on one field.
         const guessed: Record<string, string> = {};
+        const guessedKeys = new Set<string>();
         for (const h of fileHeaders) {
-          guessed[h] = guessField?.(h) || basicGuess(h, fields) || '';
+          const guess = guessField?.(h) || basicGuess(h, fields) || '';
+          if (guess && !guessedKeys.has(guess)) {
+            guessed[h] = guess;
+            guessedKeys.add(guess);
+          } else {
+            guessed[h] = '';
+          }
         }
         setHeaders(fileHeaders);
         setRows(parsedRows);
@@ -150,25 +161,38 @@ export function ExcelColumnMapper({
       ) : (
         <>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{description}</p>
-          <div className="space-y-2 max-h-80 overflow-y-auto">
+          <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
             <div className="flex items-center gap-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">
               <span className="flex-1">{columnHeaderLabel}</span>
               <span className="w-48">{fieldHeaderLabel}</span>
             </div>
-            {headers!.map(h => (
-              <div key={h} className="flex items-center gap-3">
-                <span className="flex-1 text-sm text-gray-800 dark:text-gray-100 truncate" title={h}>{h}</span>
-                <select
-                  aria-label={`${fieldHeaderLabel}: ${h}`}
-                  value={mapping[h] ?? ''}
-                  onChange={e => setHeaderField(h, e.target.value)}
-                  className="input-field w-48 text-sm"
-                >
-                  <option value="">{ignoreLabel}</option>
-                  {fields.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
-                </select>
-              </div>
-            ))}
+            {headers!.map(h => {
+              const current = mapping[h]
+                ? { id: mapping[h], label: fields.find(f => f.key === mapping[h])?.label ?? mapping[h] }
+                : null;
+              // A field already claimed by another column drops out of
+              // every other picker's list - the same field can't go to two
+              // columns at once, so once it's taken there's nothing useful
+              // left to pick it into here. This column's own current pick
+              // stays listed (it's not "another" column).
+              const takenElsewhere = new Set(
+                Object.entries(mapping).filter(([header, key]) => header !== h && key).map(([, key]) => key),
+              );
+              const availableFields = fields.filter(f => !takenElsewhere.has(f.key));
+              return (
+                <div key={h} className="flex items-center gap-3">
+                  <span className="flex-1 text-sm text-gray-800 dark:text-gray-100 truncate" title={h}>{h}</span>
+                  <div className="w-48 shrink-0" title={`${fieldHeaderLabel}: ${h}`}>
+                    <SearchPicker
+                      groups={[{ items: availableFields.map(f => ({ id: f.key, label: f.label })) }]}
+                      placeholder={ignoreLabel}
+                      value={current}
+                      onChange={item => setHeaderField(h, item?.id ?? '')}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
           <div className="flex gap-2 mt-6">
             <Button
