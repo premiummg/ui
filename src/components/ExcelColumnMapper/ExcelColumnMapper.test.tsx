@@ -182,6 +182,17 @@ describe('ExcelColumnMapper', () => {
     expect(onConfirm).not.toHaveBeenCalled();
   });
 
+  test('a column blank only on the first row still shows up, from a later row that has a value', async () => {
+    const file = excelFile([
+      { 'Project name': 'Tower' },
+      { 'Project name': 'House', Vendor: 'Acme Co' },
+    ]);
+    render(<ExcelColumnMapper file={file} fields={FIELDS} onConfirm={() => {}} onCancel={() => {}} />);
+    await screen.findByTitle('Project name');
+    expect(await screen.findByTitle('Vendor')).toBeInTheDocument();
+    await waitFor(() => expect(mappedLabel('Vendor')).toBe('Vendor'));
+  });
+
   test('a file with no rows shows the empty-file message instead of the mapping table', async () => {
     const file = excelFile([]);
     render(<ExcelColumnMapper file={file} fields={FIELDS} onConfirm={() => {}} onCancel={() => {}} />);

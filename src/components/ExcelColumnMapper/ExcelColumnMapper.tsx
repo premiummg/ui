@@ -109,7 +109,22 @@ export function ExcelColumnMapper({
         const wb = XLSX.read(data);
         const parsedRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(wb.Sheets[wb.SheetNames[0]]);
         if (!parsedRows.length) { setError(emptyFileMessage); return; }
-        const fileHeaders = Object.keys(parsedRows[0]);
+        // SheetJS only emits a key for a cell that actually has a value, so a
+        // column whose very first data row happens to be blank (e.g. nobody
+        // had "Archived" checked on the first project in the file) never got
+        // a key in that row's own object - reading only parsedRows[0]'s keys
+        // silently dropped the whole column from the mapper, with no way to
+        // map it at all, even though plenty of other rows had a value there.
+        // Union across every row instead: a column only disappears now if
+        // it's blank in literally every row, which is the only case where
+        // there's truly nothing to map.
+        const fileHeaders: string[] = [];
+        const seenHeaders = new Set<string>();
+        for (const row of parsedRows) {
+          for (const key of Object.keys(row)) {
+            if (!seenHeaders.has(key)) { seenHeaders.add(key); fileHeaders.push(key); }
+          }
+        }
         // Two columns never start out mapped to the same field - whichever
         // header matches first (file order) keeps the guess, the rest fall
         // back to unmapped rather than silently doubling up on one field.
