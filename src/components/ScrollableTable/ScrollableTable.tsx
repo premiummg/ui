@@ -16,8 +16,13 @@ export interface ScrollableTableProps {
 // How far the pointer has to move (px) before a mousedown-then-move counts
 // as a drag rather than a click - below this, releasing still fires the
 // click underneath (a row link, a sort header) exactly as if this feature
-// weren't here at all.
-const DRAG_THRESHOLD_PX = 5;
+// weren't here at all. 5px measured as too tight in practice: an ordinary
+// deliberate click almost always carries a little involuntary mouse
+// movement between press and release, which got misread as a drag and
+// swallowed the click it was supposed to leave alone - this app's own
+// Employees table went from "click anywhere in the row" to "only a very
+// precise click on the name link" before this was raised.
+const DRAG_THRESHOLD_PX = 10;
 
 const BTN = 'absolute z-20 w-7 h-7 rounded-full bg-white dark:bg-(--premium-steel-grey) border border-gray-200 dark:border-white/20 shadow-md flex items-center justify-center text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition';
 const FADE_H = 'pointer-events-none absolute left-0 right-0 h-10 z-10';
@@ -45,6 +50,9 @@ export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children, d
     if (!dragToScroll || e.pointerType !== 'mouse' || e.button !== 0) return;
     const el = ref.current;
     if (!el) return;
+    // Nothing to pan - never arm the drag at all, so a click anywhere on a
+    // table that currently fits can never be misread as one.
+    if (el.scrollWidth <= el.clientWidth + 1) return;
     dragRef.current = { startX: e.clientX, startScrollLeft: el.scrollLeft, moved: false };
     el.setPointerCapture?.(e.pointerId);
   }
