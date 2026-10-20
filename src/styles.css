@@ -205,6 +205,16 @@ input[type='number']::-webkit-inner-spin-button {
   }
 }
 
+/* ScrollableTable's dragToScroll - mouse-only (gated in JS too; touch
+   already scrolls natively by swiping, a cursor affordance means nothing
+   there). The "grabbing" cursor during an actual drag is set as an inline
+   style instead (ScrollableTable.tsx), which naturally overrides this. */
+@media (hover: hover) and (pointer: fine) {
+  .pmg-drag-scroll {
+    cursor: grab;
+  }
+}
+
 /* Unconditionally invisible, on every input type, unlike .pmg-scrollbar above
    - that one deliberately shows a thin styled bar on a real mouse/trackpad
    because it scrolls an ordinary list/table, where a scrollbar is the

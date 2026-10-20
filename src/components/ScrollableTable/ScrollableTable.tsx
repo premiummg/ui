@@ -1,10 +1,23 @@
-import { useRef, useState, useEffect, ReactNode } from 'react';
+import { useRef, useState, useEffect, ReactNode, PointerEvent as ReactPointerEvent, MouseEvent as ReactMouseEvent } from 'react';
 import { FiChevronLeft, FiChevronRight, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 export interface ScrollableTableProps {
   maxHeight?: string;
   children: ReactNode;
+  // Click-and-drag with the mouse pans the content sideways, like a touch
+  // swipe but mouse-only and horizontal-only (vertical scroll keeps working
+  // through the wheel/scrollbar/touch as usual, untouched). Off by default:
+  // it trades away click-drag text selection inside the scrolled content
+  // for the pan gesture, so it's opt-in rather than a silent behavior
+  // change for every existing table using this component.
+  dragToScroll?: boolean;
 }
+
+// How far the pointer has to move (px) before a mousedown-then-move counts
+// as a drag rather than a click - below this, releasing still fires the
+// click underneath (a row link, a sort header) exactly as if this feature
+// weren't here at all.
+const DRAG_THRESHOLD_PX = 5;
 
 const BTN = 'absolute z-20 w-7 h-7 rounded-full bg-white dark:bg-(--premium-steel-grey) border border-gray-200 dark:border-white/20 shadow-md flex items-center justify-center text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition';
 const FADE_H = 'pointer-events-none absolute left-0 right-0 h-10 z-10';
@@ -19,9 +32,55 @@ const FADE_V = 'pointer-events-none absolute top-0 bottom-0 w-16 z-10';
 // it's the other way around: a real, brand-red scrollbar is the familiar,
 // always-grabbable affordance, and the fade/chevron overlay is hidden so the
 // two don't double up.
-export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children }: ScrollableTableProps) {
+export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children, dragToScroll = false }: ScrollableTableProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [s, setS] = useState({ left: false, right: false, up: false, down: false });
+  // Plain refs, not state - a drag fires pointermove dozens of times a
+  // second, and none of it needs a re-render (scrollLeft and the cursor are
+  // set directly on the DOM node).
+  const dragRef = useRef<{ startX: number; startScrollLeft: number; moved: boolean } | null>(null);
+  const suppressClickRef = useRef(false);
+
+  function handlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+    if (!dragToScroll || e.pointerType !== 'mouse' || e.button !== 0) return;
+    const el = ref.current;
+    if (!el) return;
+    dragRef.current = { startX: e.clientX, startScrollLeft: el.scrollLeft, moved: false };
+    el.setPointerCapture?.(e.pointerId);
+  }
+
+  function handlePointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    const el = ref.current;
+    if (!drag || !el) return;
+    const dx = e.clientX - drag.startX;
+    if (!drag.moved && Math.abs(dx) > DRAG_THRESHOLD_PX) {
+      drag.moved = true;
+      el.style.cursor = 'grabbing';
+    }
+    if (drag.moved) el.scrollLeft = drag.startScrollLeft - dx;
+  }
+
+  function endDrag(e: ReactPointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    const el = ref.current;
+    if (!drag || !el) return;
+    if (el.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    // A real drag swallows the click that would otherwise fire on release
+    // (e.g. a row's own onClick, or a RowLink inside it) - a plain click
+    // (never crossed the threshold) is left alone, so this feature doesn't
+    // interfere with normal clicking anywhere in the table.
+    if (drag.moved) suppressClickRef.current = true;
+    el.style.cursor = '';
+    dragRef.current = null;
+  }
+
+  function handleClickCapture(e: ReactMouseEvent<HTMLDivElement>) {
+    if (!suppressClickRef.current) return;
+    suppressClickRef.current = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }
 
   function update() {
     const el = ref.current;
@@ -85,8 +144,13 @@ export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children }:
       <div
         ref={ref}
         onScroll={update}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClickCapture={handleClickCapture}
         style={{ maxHeight }}
-        className="overflow-auto pmg-scrollbar"
+        className={`overflow-auto pmg-scrollbar ${dragToScroll ? 'pmg-drag-scroll' : ''}`}
       >
         {children}
       </div>

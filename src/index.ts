@@ -43,6 +43,9 @@ export type { SortableColumnHeaderProps, SortDir } from './components/SortableCo
 export { TablePlaceholderRow } from './components/TablePlaceholderRow';
 export type { TablePlaceholderRowProps } from './components/TablePlaceholderRow';
 
+export { RowLink } from './components/RowLink';
+export type { RowLinkProps } from './components/RowLink';
+
 export { FilterLabel } from './components/FilterLabel';
 export type { FilterLabelProps } from './components/FilterLabel';
 
