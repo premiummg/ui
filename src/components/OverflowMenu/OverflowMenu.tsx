@@ -1,6 +1,7 @@
 import { FiMoreHorizontal } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
 import { usePopover } from '../../hooks/usePopover';
+import { usePopoverSide } from '../../hooks/usePopoverSide';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 export interface OverflowItem {
@@ -20,11 +21,11 @@ export interface OverflowMenuProps {
   // Invert the trigger's chrome for placement on a solid brand-red field.
   onDark?: boolean;
   label?: string;
-  // Which edge the menu hangs from - same contract as WeekNav's own `align`.
-  // Defaults to 'right', which suits a trigger sitting toward the right of
-  // its row (the common case: the last of several toolbar icons); a trigger
-  // anchored near the left edge of its own container (which would push the
-  // menu off-screen to the left) passes 'left' instead.
+  // Which edge the menu prefers to hang from - same contract as WeekNav's own
+  // `align`. Defaults to 'right', which suits a trigger sitting toward the right
+  // of its row (the common case: the last of several toolbar icons). It is only
+  // a preference: if the menu would run off the screen on that side it opens on
+  // the other one (see usePopoverSide).
   align?: 'left' | 'right';
 }
 
@@ -33,6 +34,7 @@ export interface OverflowMenuProps {
 // MAIN red keeps meaning "the one thing you can act on" everywhere else.
 export function OverflowMenu({ items, dangerItems, onDark = false, label = 'More actions', align = 'right' }: OverflowMenuProps) {
   const { open, setOpen, ref } = usePopover<HTMLDivElement>();
+  const { side, panelRef } = usePopoverSide(open, ref, align);
 
   const all = [...(items ?? []), ...(dangerItems ?? [])];
   if (all.length === 0) return null;
@@ -69,7 +71,7 @@ export function OverflowMenu({ items, dangerItems, onDark = false, label = 'More
           own right edge, so anchoring a full w-64 (256px) here can push its
           left edge a little past x=0 on a narrow phone. */}
       {open && (
-        <div className={`absolute top-full mt-2 ${align === 'left' ? 'left-0' : 'right-0'} w-56 sm:w-64 ${POPOVER_PANEL} border border-gray-200 dark:border-white/15 bg-white dark:bg-(--premium-steel-grey) py-1.5 overflow-hidden`}>
+        <div ref={panelRef} className={`absolute top-full mt-2 ${side === 'left' ? 'left-0' : 'right-0'} w-56 sm:w-64 ${POPOVER_PANEL} border border-gray-200 dark:border-white/15 bg-white dark:bg-(--premium-steel-grey) py-1.5 overflow-hidden`}>
           {items?.map(it => (
             <button
               key={it.label}

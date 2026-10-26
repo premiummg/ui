@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { usePopover } from '../../hooks/usePopover';
+import { usePopoverSide } from '../../hooks/usePopoverSide';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 export interface NotificationBellProps {
@@ -29,6 +30,7 @@ export interface NotificationBellProps {
 // pending" row don't share a shape worth forcing into one prop.
 export function NotificationBell({ icon: Icon, label, count, title, headerAction, children, footer, width = 'w-80' }: NotificationBellProps) {
   const { open, setOpen, ref } = usePopover<HTMLDivElement>();
+  const { side, panelRef } = usePopoverSide(open, ref, 'right');
 
   return (
     // inline-block, not a bare block div: see OverflowMenu's identical fix -
@@ -53,7 +55,7 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
       </button>
 
       {open && (
-        <div className={`absolute right-0 top-full mt-2 ${width} ${POPOVER_PANEL} bg-white dark:bg-(--premium-dark-grey) border border-gray-200 dark:border-white/10 overflow-hidden`}>
+        <div ref={panelRef} className={`absolute ${side === 'left' ? 'left-0' : 'right-0'} top-full mt-2 ${width} ${POPOVER_PANEL} bg-white dark:bg-(--premium-dark-grey) border border-gray-200 dark:border-white/10 overflow-hidden`}>
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</span>
             {headerAction && (

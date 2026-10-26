@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import type { Locale } from 'date-fns';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { usePopover } from '../../hooks/usePopover';
+import { usePopoverSide } from '../../hooks/usePopoverSide';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 const YEARS_PER_PAGE = 12;
@@ -66,6 +67,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
   const [view, setView]     = useState<View>('months');
   const [viewYear, setViewYear] = useState(displayYear);
   const { open, setOpen, ref: containerRef, close } = usePopover<HTMLDivElement>(() => setView('months'));
+  const { side, panelRef } = usePopoverSide(open, containerRef, 'right');
 
   // ── Outer arrow buttons (month-by-month navigation) ─────────────────────────
 
@@ -209,7 +211,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
 
       {/* Dropdown */}
       {open && (
-        <div className={`absolute mt-2 right-0 w-60 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
+        <div ref={panelRef} className={`absolute mt-2 ${side === 'left' ? 'left-0' : 'right-0'} w-60 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
 
           {/* Picker header — shared by both views */}
           <div className="flex items-center justify-between px-4 pt-3 pb-2">

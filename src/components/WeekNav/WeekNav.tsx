@@ -6,6 +6,7 @@ import {
 import type { Locale } from 'date-fns';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { usePopover } from '../../hooks/usePopover';
+import { usePopoverSide } from '../../hooks/usePopoverSide';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 export interface WeekNavProps {
@@ -93,6 +94,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
   const [view, setView] = useState<View>('weeks');
   const [viewMonth, setViewMonth] = useState<Date>(() => parseISO(displayMonday));
   const { open, setOpen, ref: containerRef, close } = usePopover<HTMLDivElement>(() => setView('weeks'));
+  const { side, panelRef } = usePopoverSide(open, containerRef, align);
 
   // ── outer arrows: jump between available weeks, same pattern as MonthNav ───
 
@@ -283,7 +285,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
 
       {/* Dropdown */}
       {open && (
-        <div className={`absolute mt-2 ${align === 'left' ? 'left-0' : 'right-0'} w-72 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
+        <div ref={panelRef} className={`absolute mt-2 ${side === 'left' ? 'left-0' : 'right-0'} w-72 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
 
           {/* Picker header - shared by all three views, click cycles weeks -> months -> years */}
           <div className="flex items-center justify-between px-4 pt-3 pb-2">

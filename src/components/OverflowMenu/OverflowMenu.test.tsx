@@ -58,4 +58,20 @@ describe('OverflowMenu', () => {
     await userEvent.click(screen.getByTestId('outside'));
     expect(screen.queryByText('Edit')).not.toBeInTheDocument();
   });
+
+  test('a menu whose trigger sits near the left edge opens rightward instead of running off the screen', async () => {
+    const original = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function () {
+      return { left: 90, right: 126, top: 0, bottom: 0, width: 36, height: 0, x: 90, y: 0, toJSON: () => ({}) } as DOMRect;
+    };
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 256 });
+    try {
+      const { container } = render(<OverflowMenu items={[{ icon: FiEdit, label: 'Edit', onClick: () => {} }]} />);
+      await userEvent.click(screen.getByLabelText('More actions'));
+      expect(container.querySelector('.absolute.top-full')).toHaveClass('left-0');
+    } finally {
+      Element.prototype.getBoundingClientRect = original;
+      Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 0 });
+    }
+  });
 });

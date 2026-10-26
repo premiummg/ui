@@ -7,6 +7,7 @@ import {
 import type { Locale } from 'date-fns';
 import { FiCalendar, FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
 import { usePopover } from '../../hooks/usePopover';
+import { usePopoverSide } from '../../hooks/usePopoverSide';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
 
 export interface DatePickerProps {
@@ -67,6 +68,7 @@ export function DatePicker({
     return p && isValid(p) ? p : new Date();
   });
   const { open, setOpen, ref: containerRef } = usePopover<HTMLDivElement>(() => setView('days'));
+  const { side, panelRef } = usePopoverSide(open, containerRef, 'left');
 
   const selected: Date | null = value && isValid(parseISO(value)) ? parseISO(value) : null;
   const today = new Date();
@@ -197,7 +199,7 @@ export function DatePicker({
 
       {/* Dropdown */}
       {open && (
-        <div className={`absolute mt-2 left-0 w-72 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
+        <div ref={panelRef} className={`absolute mt-2 ${side === 'left' ? 'left-0' : 'right-0'} w-72 bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}>
 
           {/* Month/year nav */}
           <div className="flex items-center justify-between px-4 pt-4 pb-3">
