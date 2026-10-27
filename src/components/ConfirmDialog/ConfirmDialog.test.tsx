@@ -86,4 +86,22 @@ describe('ConfirmDialog', () => {
     expect(screen.getByText('Delete').closest('button')).toBeDisabled();
     expect(screen.getByText('Cancel').closest('button')).toBeDisabled();
   });
+
+  test('children render between the message and the buttons and message accepts markup', async () => {
+    const onConfirm = vi.fn();
+    render(
+      <ConfirmDialog {...baseProps} open onClose={() => {}} onConfirm={onConfirm} message={<strong>Rich message</strong>}>
+        <label>
+          Reason
+          <input />
+        </label>
+      </ConfirmDialog>,
+    );
+    expect(screen.getByText('Rich message')).toBeInTheDocument();
+    const field = screen.getByLabelText('Reason');
+    await userEvent.type(field, 'because');
+    expect(field).toHaveValue('because');
+    await userEvent.click(screen.getByText('Delete'));
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+  });
 });

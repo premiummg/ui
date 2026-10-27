@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
@@ -22,7 +23,12 @@ export interface ConfirmDialogProps {
   // is given, same as when it isn't.
   icon?: IconType;
   title: string;
-  message: string;
+  message: ReactNode;
+  // Anything the confirmation needs to show or ask beyond the message (a list
+  // of who is affected, a checkbox, a field): rendered between the message and
+  // the buttons, so a confirm with a little form still gets the packaged shape
+  // instead of being hand-built from Modal.
+  children?: ReactNode;
   // Either the default confirm/cancel pair (confirmLabel/cancelLabel/
   // onConfirm) or, for a flow that needs something other than exactly two
   // buttons ("Save draft" / "Discard" / "Cancel", a single "Got it"...),
@@ -54,7 +60,7 @@ const TONE_STYLES: Record<ConfirmDialogTone, { tile: string; icon: string }> = {
 // exists for the ones that want the packaged shape instead of hand-rolling
 // it per confirm flow.
 export function ConfirmDialog({
-  open, onClose, onConfirm, tone = 'danger', icon: Icon, title, message,
+  open, onClose, onConfirm, tone = 'danger', icon: Icon, title, message, children,
   confirmLabel = 'Confirm', cancelLabel = 'Cancel', actions, confirmDisabled = false,
 }: ConfirmDialogProps) {
   if (!open) return null;
@@ -67,7 +73,8 @@ export function ConfirmDialog({
         </div>
       )}
       <h3 className={`font-heading font-bold text-gray-900 dark:text-gray-100 mb-1 ${Icon ? 'text-center' : ''}`}>{title}</h3>
-      <p className={`text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed ${Icon ? 'text-center' : ''}`}>{message}</p>
+      <p className={`text-sm text-gray-500 dark:text-gray-400 ${children ? 'mb-3' : 'mb-6'} leading-relaxed ${Icon ? 'text-center' : ''}`}>{message}</p>
+      {children && <div className="mb-6">{children}</div>}
       <div className="flex gap-2">
         {actions ? (
           actions.map((action, i) => (
