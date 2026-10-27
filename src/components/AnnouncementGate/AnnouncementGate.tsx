@@ -8,6 +8,23 @@ export interface AnnouncementSubmissionSummaryRow {
   task_label?: string | null;
   took_lunch?: boolean;
   hours: number | string;
+  // Dollars paid by the job (piece work). A row with an amount and no hours
+  // shows the amount instead of "0h"; with both, it shows both.
+  amount?: number | null;
+}
+
+// "$250.00" in English, "250,00 $" in French: the locale of the card's date line.
+function formatAmount(amount: number, locale?: string): string {
+  return new Intl.NumberFormat(locale, { style: 'currency', currency: 'CAD' }).format(amount);
+}
+
+// What the figure on a summary row reads: hours, dollars, or both.
+function rowFigure(r: AnnouncementSubmissionSummaryRow, locale?: string): string {
+  const hasAmount = r.amount != null && Number(r.amount) > 0;
+  const hasHours = Number(r.hours) > 0;
+  if (hasAmount && !hasHours) return formatAmount(Number(r.amount), locale);
+  if (hasAmount) return `${r.hours}h · ${formatAmount(Number(r.amount), locale)}`;
+  return `${r.hours}h`;
 }
 
 // Raised from a timesheet submission's own thread, shown ABOVE the message -
@@ -163,7 +180,7 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
                           {r.task_label ?? t.noTask}{r.took_lunch ? ` · ${t.lunch}` : ''}
                         </p>
                       </div>
-                      <span className="pmg-figure text-sm text-gray-900 dark:text-gray-100 shrink-0">{r.hours}h</span>
+                      <span className="pmg-figure text-sm text-gray-900 dark:text-gray-100 shrink-0">{rowFigure(r, t.dateLocale)}</span>
                     </div>
                   ))}
                 </div>

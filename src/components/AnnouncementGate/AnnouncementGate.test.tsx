@@ -115,4 +115,45 @@ describe('AnnouncementGate', () => {
     expect(screen.getByText('Lunch', { exact: false })).toBeInTheDocument();
     expect(screen.getByText('No task', { exact: false })).toBeInTheDocument();
   });
+
+  test('a piece work row shows its dollars instead of 0h, and a mixed row shows both', () => {
+    render(
+      <AnnouncementGate
+        queue={[item({
+          submission_summary: {
+            work_date: '2026-01-15',
+            status: 'pending',
+            rows: [
+              { project_number: '101', project_name: 'Main St', task_label: 'Hanging', hours: 6 },
+              { project_number: '102', project_name: 'Oak Ave', task_label: 'Taping', hours: 0, amount: 250 },
+              { project_number: '103', project_name: 'Elm Rd', task_label: 'Mixed', hours: 4, amount: 80.5 },
+            ],
+          },
+        })]}
+        onRespond={vi.fn()}
+        labels={{ ...labels, dateLocale: 'en-CA' }}
+      />,
+    );
+    expect(screen.getByText('6h')).toBeInTheDocument();
+    expect(screen.getByText('$250.00')).toBeInTheDocument();
+    expect(screen.getByText('4h · $80.50')).toBeInTheDocument();
+    expect(screen.queryByText('0h')).not.toBeInTheDocument();
+  });
+
+  test('the amount follows the card locale', () => {
+    render(
+      <AnnouncementGate
+        queue={[item({
+          submission_summary: {
+            work_date: '2026-01-15',
+            status: 'pending',
+            rows: [{ project_number: '102', project_name: 'Oak Ave', hours: 0, amount: 1250 }],
+          },
+        })]}
+        onRespond={vi.fn()}
+        labels={{ ...labels, dateLocale: 'fr-CA' }}
+      />,
+    );
+    expect(screen.getByText(/1\s250,00\s\$/)).toBeInTheDocument();
+  });
 });
