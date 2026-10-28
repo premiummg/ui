@@ -115,8 +115,11 @@ export type { NotificationBellProps } from './components/NotificationBell';
 export { MonthNav } from './components/MonthNav';
 export type { MonthNavProps } from './components/MonthNav';
 
+export { ImageAttachmentPicker, AttachmentImages, DEFAULT_MAX_IMAGES, DEFAULT_MAX_IMAGE_BYTES } from './components/ImageAttachments';
+export type { ImageAttachmentPickerProps, ImageAttachmentPickerStrings } from './components/ImageAttachments';
 export { ConversationThread } from './components/ConversationThread';
 export type {
+  ChatAttachment,
   ConversationThreadProps,
   ConversationThreadStrings,
   ChatMessage,

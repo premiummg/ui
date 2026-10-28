@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Modal } from '../Modal';
 import { FormLabel } from '../FormLabel';
 import { useToast } from '../Toaster';
+import { ImageAttachmentPicker, type ImageAttachmentPickerStrings } from '../ImageAttachments/ImageAttachments';
 
 const TITLE_MAX = 150;
 const MESSAGE_MAX = 4000;
@@ -35,6 +36,8 @@ export interface SendMessageFields {
   title: string;
   message: string;
   requiresReply: boolean;
+  // Only when the modal was given `images` and some were picked.
+  files?: File[];
 }
 
 export interface SendMessageModalProps {
@@ -52,6 +55,9 @@ export interface SendMessageModalProps {
   // bulk-selection mode or refresh a list.
   onSent?: () => void;
   labels: SendMessageModalLabels;
+  // Lets the sender attach images; omit to leave attachments out. `label` is the
+  // visible field label (e.g. "Images (optional)").
+  images?: ImageAttachmentPickerStrings & { label: string };
 }
 
 // Two labeled options instead of a checkbox - a checkbox needs prose to
@@ -96,11 +102,12 @@ function ReplyModeOption({ selected, onSelect, title, description }: {
 // system and pmg-intranet, which had each hand-written their own version.
 // Presentational only - onSend does the real API call; this has no opinion
 // on the payload shape beyond the three fields a person actually fills in.
-export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend, onSent, labels: t }: SendMessageModalProps) {
+export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend, onSent, labels: t, images }: SendMessageModalProps) {
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [requiresReply, setRequiresReply] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
 
@@ -113,7 +120,7 @@ export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend
     setError('');
     setSending(true);
     try {
-      await onSend({ title: title.trim(), message: message.trim(), requiresReply });
+      await onSend({ title: title.trim(), message: message.trim(), requiresReply, ...(files.length ? { files } : {}) });
       toast(t.sentToast(recipientLabel), 'success');
       onSent?.();
       onClose();
@@ -159,6 +166,13 @@ export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend
           />
           <p className="mt-1 text-right text-xs text-gray-400">{message.length}/{MESSAGE_MAX}</p>
         </div>
+
+        {images && (
+          <div>
+            <FormLabel text={images.label} />
+            <ImageAttachmentPicker files={files} onChange={setFiles} strings={images} disabled={sending} />
+          </div>
+        )}
 
         <div>
           <FormLabel text={t.responseLabel} />

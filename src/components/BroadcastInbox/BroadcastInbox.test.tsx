@@ -34,6 +34,55 @@ describe('BroadcastInbox', () => {
     await waitFor(() => expect(screen.getByText(/Sent by you/)).toBeInTheDocument());
   });
 
+  test('with showFeedback, feedback gets its own tab and leaves Sent and Received', async () => {
+    const feedback = broadcast({ id: 'f1', title: 'Feedback', isFeedback: true });
+    render(
+      <BroadcastInbox
+        {...baseProps}
+        showFeedback
+        strings={{ ...strings, feedbackTabLabel: 'Feedback', noFeedbackYet: 'No feedback yet.' }}
+        fetchSent={async () => [broadcast()]}
+        fetchReceived={async () => [feedback]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await waitFor(() => expect(screen.getByText('Confirm your hours')).toBeInTheDocument());
+    expect(screen.queryByText('Feedback', { selector: 'span' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /^Feedback 1$/ }));
+    expect(screen.getByText('Feedback', { selector: 'span.block' })).toBeInTheDocument();
+    expect(screen.queryByText('Confirm your hours')).not.toBeInTheDocument();
+  });
+
+  test('feedback on the received side can be deleted by whoever manages it', async () => {
+    const onDelete = vi.fn().mockResolvedValue(undefined);
+    render(
+      <BroadcastInbox
+        {...baseProps}
+        showFeedback
+        onDelete={onDelete}
+        canManageBroadcast={() => true}
+        strings={{ ...strings, feedbackTabLabel: 'Feedback' }}
+        fetchSent={async () => []}
+        fetchReceived={async () => [broadcast({ id: 'f1', title: 'Quiet note', isFeedback: true })]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Feedback 1$/ })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: /^Feedback 1$/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete conversation' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(onDelete).toHaveBeenCalledWith('f1'));
+    await waitFor(() => expect(screen.queryByText('Quiet note')).not.toBeInTheDocument());
+  });
+
+  test('without showFeedback there is no Feedback tab', async () => {
+    render(<BroadcastInbox {...baseProps} fetchSent={async () => [broadcast()]} currentUserId="admin-1" canSendMessages />);
+    await waitFor(() => expect(screen.getByText('Confirm your hours')).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: /Feedback/ })).not.toBeInTheDocument();
+  });
+
   test('clicking a row opens that conversation by id', async () => {
     const onOpen = vi.fn();
     render(<BroadcastInbox {...baseProps} onOpen={onOpen} fetchSent={async () => [broadcast()]} currentUserId="admin-1" canSendMessages />);
@@ -128,6 +177,21 @@ describe('BroadcastDetail', () => {
     );
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Confirm your hours' })).toBeInTheDocument());
     expect(screen.getByText('Carlos Vidana')).toBeInTheDocument();
+  });
+
+  test('a locked conversation shows its note instead of the composer', async () => {
+    render(
+      <BroadcastDetail
+        {...baseProps}
+        broadcastId="b1"
+        onBack={vi.fn()}
+        fetchSent={async () => [broadcast({ locked: 'Anonymous, cannot be answered' })]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await waitFor(() => expect(screen.getByText('Anonymous, cannot be answered')).toBeInTheDocument());
+    expect(screen.queryByPlaceholderText('Type a message…')).not.toBeInTheDocument();
   });
 
   test('back button calls onBack', async () => {

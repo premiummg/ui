@@ -4,6 +4,13 @@
 // back out on write (see each app's own chat adapter). Field names are
 // camelCase throughout, independent of whatever each backend actually returns.
 
+// An image that came with a message. Its URL is fetched on demand (signed and short-lived).
+export interface ChatAttachment {
+  id: string;
+  name: string;
+  mimeType: string;
+}
+
 export interface ChatMessage {
   id: string;
   authorId: string;
@@ -14,6 +21,7 @@ export interface ChatMessage {
   // conversation read it yet (the tick marks). Omit/undefined for a message
   // that isn't yours, or when the consumer doesn't track read receipts.
   read?: boolean;
+  attachments?: ChatAttachment[];
 }
 
 export interface ChatParticipant {
@@ -48,4 +56,12 @@ export interface ChatBroadcast {
   // a certificate, a case) - the component only ever renders the label/icon
   // and calls onClick, it never knows what X is.
   contextLink?: { label: string; onClick: () => void } | null;
+  // When set, nobody can write into this conversation and this text is shown
+  // where the composer would be (e.g. anonymous feedback has no one to answer).
+  locked?: string | null;
+  // Feedback about the app. With BroadcastInbox's `showFeedback` these get
+  // their own tab instead of living in Sent/Received.
+  isFeedback?: boolean;
+  // Images sent with the root message.
+  attachments?: ChatAttachment[];
 }

@@ -98,13 +98,14 @@ export function BroadcastInbox({
   canManageBroadcast,
   onOpen,
   onCompose,
+  showFeedback = false,
   strings,
   dateLocale,
   pollIntervalMs = 15_000,
 }: BroadcastInboxProps) {
   const canReadSent = canSendMessages && !!fetchSent;
   // Sent, Received, or every conversation with something new from both.
-  const [view, setView] = useState<BroadcastSide | 'unread'>(canReadSent ? 'sent' : 'received');
+  const [view, setView] = useState<BroadcastSide | 'unread' | 'feedback'>(canReadSent ? 'sent' : 'received');
   const [sent, setSent] = useState<ChatBroadcast[]>([]);
   const [received, setReceived] = useState<ChatBroadcast[]>([]);
   const [loadingSent, setLoadingSent] = useState(canReadSent);
@@ -142,18 +143,28 @@ export function BroadcastInbox({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canReadSent, pollIntervalMs]);
 
+  // With a Feedback tab, feedback lives there and not in Sent or Received.
+  const inSentReceived = (b: ChatBroadcast) => !(showFeedback && b.isFeedback);
+  const feedbackCount = new Set([...received, ...sent].filter((b) => b.isFeedback).map((b) => b.id)).size;
+
   // Each row carries the side it belongs to: the status and the people shown
   // depend on it, and the unread view mixes both.
   const rows = useMemo<{ b: ChatBroadcast; side: BroadcastSide }[]>(() => {
-    if (view === 'sent') return sent.map((b) => ({ b, side: 'sent' as const }));
-    if (view === 'received') return received.map((b) => ({ b, side: 'received' as const }));
+    if (view === 'feedback') {
+      const seenFeedback = new Set<string>();
+      return [...received, ...sent]
+        .filter((b) => b.isFeedback && !seenFeedback.has(b.id) && !!seenFeedback.add(b.id))
+        .map((b) => ({ b, side: 'received' as const }));
+    }
+    if (view === 'sent') return sent.filter(inSentReceived).map((b) => ({ b, side: 'sent' as const }));
+    if (view === 'received') return received.filter(inSentReceived).map((b) => ({ b, side: 'received' as const }));
     const unreadSent = sent.filter((b) => b.unread);
     const seen = new Set(unreadSent.map((b) => b.id));
     return [
       ...unreadSent.map((b) => ({ b, side: 'sent' as const })),
       ...received.filter((b) => b.unread && !seen.has(b.id)).map((b) => ({ b, side: 'received' as const })),
     ];
-  }, [view, sent, received]);
+  }, [view, sent, received, showFeedback]);
   const loadingItems = (view !== 'received' && canReadSent && loadingSent) || (view !== 'sent' && loadingReceived);
 
   const filtersActive = !!query.trim() || status !== 'all' || !!from || !!to;
@@ -173,7 +184,7 @@ export function BroadcastInbox({
 
   const visible = rows.filter(matchesFilters);
   const unreadCount = new Set([...(canReadSent ? sent : []), ...received].filter((b) => b.unread).map((b) => b.id)).size;
-  const deletingBroadcast = sent.find((b) => b.id === deletingId);
+  const deletingBroadcast = [...sent, ...received].find((b) => b.id === deletingId);
 
   function clearFilters() {
     setQuery('');
@@ -188,6 +199,7 @@ export function BroadcastInbox({
     try {
       await onDelete(deletingId);
       setSent((prev) => prev.filter((b) => b.id !== deletingId));
+      setReceived((prev) => prev.filter((b) => b.id !== deletingId));
       setDeletingId(null);
     } finally {
       setDeleting(false);
@@ -210,6 +222,7 @@ export function BroadcastInbox({
             ...(canReadSent ? [{ value: 'sent' as const, label: `${strings.sentTabLabel} ${sent.length}` }] : []),
             { value: 'received' as const, label: `${strings.receivedTabLabel} ${received.length}` },
             { value: 'unread' as const, label: strings.unreadOnlyLabel(unreadCount) },
+            ...(showFeedback ? [{ value: 'feedback' as const, label: `${strings.feedbackTabLabel ?? 'Feedback'} ${feedbackCount}` }] : []),
           ]}
           value={view}
           onChange={setView}
@@ -280,7 +293,7 @@ export function BroadcastInbox({
           <Card padding><p className="text-center text-sm text-gray-500 dark:text-gray-400">{strings.loadingLabel}</p></Card>
         ) : (
           <Card padding className="py-10 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">{view === 'sent' ? strings.noSentYet : view === 'received' ? strings.noReceivedYet : strings.noResultsLabel}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{view === 'sent' ? strings.noSentYet : view === 'received' ? strings.noReceivedYet : view === 'feedback' ? strings.noFeedbackYet ?? strings.noResultsLabel : strings.noResultsLabel}</p>
           </Card>
         )
       ) : !visible.length ? (
@@ -296,7 +309,8 @@ export function BroadcastInbox({
               side={side}
               currentUserId={currentUserId}
               strings={strings}
-              canManage={side === 'sent' && (canManageBroadcast?.(b) ?? false)}
+              // Feedback is managed by whoever reads it, even though it sits on the received side.
+              canManage={(side === 'sent' || !!b.isFeedback) && (canManageBroadcast?.(b) ?? false)}
               onOpen={() => onOpen(b.id)}
               onDeleteClick={() => setDeletingId(b.id)}
             />

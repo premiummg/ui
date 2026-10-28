@@ -15,6 +15,7 @@ export interface MessagesScreenProps extends BroadcastDataProps {
   onOpen: (broadcastId: string) => void;
   onBackToList: () => void;
   onCompose?: () => void;
+  showFeedback?: BroadcastInboxProps['showFeedback'];
   dateLocale?: BroadcastInboxProps['dateLocale'];
   // Anything the app wants above the page (an overlay gate, a banner).
   children?: ReactNode;
@@ -32,6 +33,7 @@ export function MessagesScreen({
   onOpen,
   onBackToList,
   onCompose,
+  showFeedback,
   dateLocale,
   children,
   ...data
@@ -46,7 +48,7 @@ export function MessagesScreen({
       {broadcastId ? (
         <BroadcastDetail {...data} broadcastId={broadcastId} onBack={onBackToList} />
       ) : (
-        <BroadcastInbox {...data} dateLocale={dateLocale} onOpen={onOpen} onCompose={onCompose} />
+        <BroadcastInbox {...data} dateLocale={dateLocale} onOpen={onOpen} onCompose={onCompose} showFeedback={showFeedback} />
       )}
     </div>
   );

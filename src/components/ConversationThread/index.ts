@@ -1,3 +1,3 @@
 export { ConversationThread } from './ConversationThread';
 export type { ConversationThreadProps, ConversationThreadStrings } from './ConversationThread';
-export type { ChatMessage, ChatParticipant, ChatRecipient, ChatBroadcast } from './types';
+export type { ChatAttachment, ChatMessage, ChatParticipant, ChatRecipient, ChatBroadcast } from './types';

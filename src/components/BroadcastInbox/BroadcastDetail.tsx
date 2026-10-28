@@ -25,6 +25,7 @@ export function BroadcastDetail({
   canSendMessages,
   canManageBroadcast,
   onAuthorClick,
+  getAttachmentUrl,
   onBack,
   strings,
   pollIntervalMs = 15_000,
@@ -128,7 +129,7 @@ export function BroadcastDetail({
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <StatusPill broadcast={broadcast} side={side} currentUserId={currentUserId} strings={strings} />
-            {side === 'sent' && canManage && (
+            {(side === 'sent' || broadcast.isFeedback) && canManage && (
               <IconButton tone="danger" aria-label={strings.deleteConversation} onClick={() => setConfirmingDelete(true)}>
                 <FiTrash2 size={14} />
               </IconButton>
@@ -144,17 +145,19 @@ export function BroadcastDetail({
 
         <div className="space-y-4 px-5 py-4">
           <div>
-            <RootMessageBubble broadcast={broadcast} mine={side === 'sent' && mine} onAuthorClick={onAuthorClick} />
+            <RootMessageBubble broadcast={broadcast} mine={side === 'sent' && mine} onAuthorClick={onAuthorClick} getAttachmentUrl={getAttachmentUrl} />
             <ContextLink broadcast={broadcast} />
           </div>
           <ConversationThread
             fetchFn={async () => broadcast.messages}
-            onSend={(body) => onSendMessage(broadcast.id, body)}
+            onSend={(body, files) => (files ? onSendMessage(broadcast.id, body, files) : onSendMessage(broadcast.id, body))}
+            getAttachmentUrl={getAttachmentUrl}
             onMarkRead={() => onMarkRead(broadcast.id)}
             currentUserId={currentUserId}
             strings={strings}
             pollIntervalMs={pollIntervalMs}
-            disabled={!!broadcast.closedAt || !canReply}
+            disabled={!!broadcast.closedAt || !canReply || !!broadcast.locked}
+            disabledMessage={broadcast.locked ?? undefined}
             onAuthorClick={onAuthorClick}
           />
         </div>

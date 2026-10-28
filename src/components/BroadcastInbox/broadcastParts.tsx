@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { FiCheck, FiClock, FiExternalLink, FiSlash } from 'react-icons/fi';
 import type { ChatBroadcast } from '../ConversationThread/types';
 import { Avatar } from '../ConversationThread/avatar';
+import { AttachmentImages } from '../ImageAttachments/ImageAttachments';
 import { StatusBadge, type StatusBadgeTone } from '../StatusBadge';
 import { TextButton } from '../TextButton';
 import type { BroadcastInboxStrings, BroadcastSide, BroadcastStatus } from './types';
@@ -81,16 +82,19 @@ export function RootMessageBubble({
   broadcast,
   mine,
   onAuthorClick,
+  getAttachmentUrl,
 }: {
   broadcast: ChatBroadcast;
   mine: boolean;
   onAuthorClick?: (authorId: string) => void;
+  getAttachmentUrl?: (attachmentId: string) => Promise<string>;
 }) {
   if (mine) {
     return (
       <div className="flex flex-col items-end">
         <div className="max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5" style={{ backgroundColor: 'var(--premium-red-dark)' }}>
           <p className="whitespace-pre-wrap text-sm text-white">{broadcast.body}</p>
+          <AttachmentImages attachments={broadcast.attachments} getUrl={getAttachmentUrl} className="mt-1.5 justify-end" />
         </div>
         <p className="mt-0.5 text-[10px] text-gray-400">{timeOf(broadcast.createdAt)}</p>
       </div>
@@ -103,6 +107,7 @@ export function RootMessageBubble({
         <p className="mb-0.5 text-[11px] text-gray-400">{broadcast.senderName ?? '?'}</p>
         <div className="inline-block rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-3.5 py-2.5 dark:border-white/20 dark:bg-(--premium-steel-grey)">
           <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">{broadcast.body}</p>
+          <AttachmentImages attachments={broadcast.attachments} getUrl={getAttachmentUrl} className="mt-1.5" />
         </div>
         <p className="mt-0.5 text-[10px] text-gray-400">{timeOf(broadcast.createdAt)}</p>
       </div>

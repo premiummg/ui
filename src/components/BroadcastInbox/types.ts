@@ -5,6 +5,9 @@ import type { ChatBroadcast, ChatMessage } from '../ConversationThread/types';
 export interface BroadcastInboxStrings extends ConversationThreadStrings {
   sentTabLabel: string;
   receivedTabLabel: string;
+  // Only needed when the inbox is given `showFeedback`.
+  feedbackTabLabel?: string;
+  noFeedbackYet?: string;
   newMessageLabel: string;
   unreadOnlyLabel: (count: number) => string;
   noSentYet: string;
@@ -64,7 +67,9 @@ export interface BroadcastDataProps {
   fetchReceived: () => Promise<ChatBroadcast[]>;
   // One shared conversation per broadcast - every reply and every follow-up
   // goes into it, from either side.
-  onSendMessage: (broadcastId: string, body: string) => Promise<ChatMessage>;
+  onSendMessage: (broadcastId: string, body: string, files?: File[]) => Promise<ChatMessage>;
+  // Turns on images in the conversation (see ConversationThread).
+  getAttachmentUrl?: (attachmentId: string) => Promise<string>;
   onMarkRead: (broadcastId: string) => Promise<void>;
   onClose: (broadcastId: string) => Promise<void>;
   onDelete: (broadcastId: string) => Promise<void>;
@@ -84,6 +89,9 @@ export interface BroadcastInboxProps extends BroadcastDataProps {
   // BroadcastDetail for that id.
   onOpen: (broadcastId: string) => void;
   onCompose?: () => void;
+  // Adds a Feedback tab (broadcasts flagged isFeedback) and keeps those out of
+  // Sent and Received. For the people who read the app's feedback.
+  showFeedback?: boolean;
   // date-fns locale for the From/To date pickers (month and weekday names).
   dateLocale?: DatePickerProps['locale'];
 }

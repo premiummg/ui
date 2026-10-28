@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiCheck, FiSend } from 'react-icons/fi';
 import type { ChatMessage } from './types';
 import { Avatar } from './avatar';
+import { AttachmentImages, ImageAttachmentPicker } from '../ImageAttachments/ImageAttachments';
+import type { ImageAttachmentPickerStrings } from '../ImageAttachments/ImageAttachments';
 
 export interface ConversationThreadStrings {
   placeholder: string;
@@ -10,11 +12,28 @@ export interface ConversationThreadStrings {
   readTooltipUnread: string;
   loadError: string;
   sendError: string;
+  // Only needed when the thread is given `getAttachmentUrl` (images enabled).
+  attachImagesLabel?: string;
+  removeImageLabel?: string;
+  imageTooLargeLabel?: string;
+  tooManyImagesLabel?: string;
+}
+
+function pickerStrings(s: ConversationThreadStrings): ImageAttachmentPickerStrings {
+  return {
+    addLabel: s.attachImagesLabel ?? 'Add images',
+    removeLabel: s.removeImageLabel ?? 'Remove',
+    tooLargeLabel: s.imageTooLargeLabel ?? 'An image is too large.',
+    tooManyLabel: s.tooManyImagesLabel ?? 'Too many images.',
+  };
 }
 
 export interface ConversationThreadProps {
   fetchFn: () => Promise<ChatMessage[]>;
-  onSend: (body: string) => Promise<ChatMessage>;
+  onSend: (body: string, files?: File[]) => Promise<ChatMessage>;
+  // Turns on images: shows them under each message and lets the composer attach
+  // them. Resolves an attachment id to a short-lived URL.
+  getAttachmentUrl?: (attachmentId: string) => Promise<string>;
   // Called whenever this thread is visible and focused - on mount, and again
   // each time a new message arrives while still being looked at. Safe to call
   // repeatedly (every real backend treats this as "set last_read_at = now",
@@ -49,11 +68,13 @@ function MessageBubble({
   mine,
   strings,
   onAuthorClick,
+  getAttachmentUrl,
 }: {
   message: ChatMessage;
   mine: boolean;
   strings: ConversationThreadStrings;
   onAuthorClick?: (authorId: string) => void;
+  getAttachmentUrl?: (attachmentId: string) => Promise<string>;
 }) {
   const nameLabel = onAuthorClick ? (
     <button type="button" onClick={() => onAuthorClick(message.authorId)} className="hover:underline">
@@ -68,6 +89,7 @@ function MessageBubble({
         <div className="max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5" style={{ backgroundColor: 'var(--premium-red-dark)' }}>
           <p className="mb-0.5 text-[11px] font-semibold text-white/70">{nameLabel}</p>
           <p className="whitespace-pre-wrap text-sm text-white">{message.body}</p>
+          <AttachmentImages attachments={message.attachments} getUrl={getAttachmentUrl} className="mt-1.5 justify-end" />
           <div className="flex items-center justify-end text-[10px] text-white/70">
             <span>{new Date(message.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span>
             {message.read !== undefined && <Ticks read={message.read} strings={strings} />}
@@ -83,6 +105,7 @@ function MessageBubble({
         <p className="mb-0.5 text-[11px] text-gray-400">{nameLabel}</p>
         <div className="inline-block rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-3.5 py-2.5 dark:border-white/20 dark:bg-(--premium-steel-grey)">
           <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">{message.body}</p>
+          <AttachmentImages attachments={message.attachments} getUrl={getAttachmentUrl} className="mt-1.5" />
         </div>
         <p className="mt-0.5 text-[10px] text-gray-400">
           {new Date(message.createdAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
@@ -95,11 +118,14 @@ function MessageBubble({
 function Composer({
   onSend,
   strings,
+  withImages,
 }: {
-  onSend: (body: string) => Promise<void>;
+  onSend: (body: string, files?: File[]) => Promise<void>;
   strings: ConversationThreadStrings;
+  withImages: boolean;
 }) {
   const [value, setValue] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
 
@@ -116,8 +142,9 @@ function Composer({
     setSending(true);
     setError('');
     try {
-      await onSend(trimmed);
+      await (files.length ? onSend(trimmed, files) : onSend(trimmed));
       setValue('');
+      setFiles([]);
     } catch {
       setError(strings.sendError);
     } finally {
@@ -127,7 +154,10 @@ function Composer({
 
   return (
     <div>
-      <div className="flex items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2">
+        {withImages && (
+          <ImageAttachmentPicker files={files} onChange={setFiles} strings={pickerStrings(strings)} disabled={sending} compact className="contents" />
+        )}
         <textarea
           value={value}
           onChange={(e) => setValue(e.target.value.slice(0, 2000))}
@@ -137,7 +167,7 @@ function Composer({
           placeholder={strings.placeholder}
           // text-base, not text-sm - iOS Safari auto-zooms on focus for any
           // text-entry element under 16px, and doesn't reliably zoom back out.
-          className="max-h-24 flex-1 resize-none overflow-y-auto rounded-2xl border border-gray-200 bg-white px-3.5 py-2 text-base text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-(--premium-red)/20 disabled:opacity-60 dark:border-white/20 dark:bg-(--premium-dark-grey) dark:text-gray-100"
+          className="max-h-24 min-w-0 flex-1 resize-none overflow-y-auto rounded-2xl border border-gray-200 bg-white px-3.5 py-2 text-base text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-(--premium-red)/20 disabled:opacity-60 dark:border-white/20 dark:bg-(--premium-dark-grey) dark:text-gray-100"
         />
         <button
           type="button"
@@ -169,6 +199,7 @@ export function ConversationThread({
   disabled = false,
   disabledMessage,
   onAuthorClick,
+  getAttachmentUrl,
 }: ConversationThreadProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -225,8 +256,8 @@ export function ConversationThread({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchFn, pollIntervalMs]);
 
-  async function handleSend(body: string) {
-    const message = await onSend(body);
+  async function handleSend(body: string, files?: File[]) {
+    const message = await (files ? onSend(body, files) : onSend(body));
     setMessages((prev) => [...prev, message]);
     messageCountRef.current += 1;
   }
@@ -239,13 +270,13 @@ export function ConversationThread({
         <p className="py-4 text-center text-xs" style={{ color: 'var(--premium-red)' }}>{strings.loadError}</p>
       ) : (
         messages.map((m) => (
-          <MessageBubble key={m.id} message={m} mine={m.authorId === currentUserId} strings={strings} onAuthorClick={onAuthorClick} />
+          <MessageBubble key={m.id} message={m} mine={m.authorId === currentUserId} strings={strings} onAuthorClick={onAuthorClick} getAttachmentUrl={getAttachmentUrl} />
         ))
       )}
       {disabled ? (
         disabledMessage && <p className="pt-1 text-center text-xs text-gray-400">{disabledMessage}</p>
       ) : (
-        <Composer onSend={handleSend} strings={strings} />
+        <Composer onSend={handleSend} strings={strings} withImages={!!getAttachmentUrl} />
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SendMessageModal, SendMessageModalLabels } from './SendMessageModal';
 
@@ -92,5 +92,29 @@ describe('SendMessageModal', () => {
     render(<SendMessageModal recipientIds={['1']} onClose={vi.fn()} onSend={onSend} labels={labels} />);
     await fillAndSend();
     expect(await screen.findByText('Could not send the message.')).toBeInTheDocument();
+  });
+});
+
+describe('SendMessageModal images', () => {
+  const images = { label: 'Images (optional)', addLabel: 'Add images', removeLabel: 'Remove', tooLargeLabel: 'Too large', tooManyLabel: 'Too many' };
+
+  test('has no image field unless the app asks for it', () => {
+    render(<SendMessageModal recipientIds={['1']} onClose={vi.fn()} onSend={vi.fn()} labels={labels} />);
+    expect(screen.queryByText('Images (optional)')).not.toBeInTheDocument();
+  });
+
+  test('sends the picked images along with the fields', async () => {
+    URL.createObjectURL = vi.fn(() => 'blob:preview');
+    URL.revokeObjectURL = vi.fn();
+    const onSend = vi.fn().mockResolvedValue(undefined);
+    const { container } = render(<SendMessageModal recipientIds={['1']} onClose={vi.fn()} onSend={onSend} labels={labels} images={images} />);
+    expect(screen.getByText('Images (optional)')).toBeInTheDocument();
+    const file = new File(['x'], 'a.png', { type: 'image/png' });
+    fireEvent.change(container.querySelector('input[type="file"]')!, { target: { files: [file] } });
+    await userEvent.type(screen.getByPlaceholderText(labels.titlePlaceholder), 'Hi');
+    await userEvent.type(screen.getByPlaceholderText(labels.messagePlaceholder), 'Look');
+    await userEvent.click(screen.getByText('Send'));
+    await waitFor(() => expect(onSend).toHaveBeenCalled());
+    expect(onSend.mock.calls[0][0].files).toEqual([file]);
   });
 });
