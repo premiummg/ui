@@ -44,6 +44,10 @@ export interface AnnouncementItem {
   message: string;
   requires_reply: boolean;
   submission_summary?: AnnouncementSubmissionSummary | null;
+  // Everyone the message went to. When more than one person is listed the
+  // gate says it is a group message and names them, so a reply isn't mistaken
+  // for a private one-to-one answer. Omit for a single-recipient message.
+  recipients?: { id?: string; name: string }[] | null;
 }
 
 export interface AnnouncementGateLabels {
@@ -62,6 +66,8 @@ export interface AnnouncementGateLabels {
   needsReplyNotice: string;
   confirmReadNotice: string;
   waitingBehind: (n: number) => string;
+  // "Group message · 5 people". Omit to never show the group notice.
+  groupMessage?: (count: number) => string;
   // Only used inside a submission-summary card - omit both if no item in
   // `queue` will ever carry one.
   noTask?: string;
@@ -158,6 +164,20 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
           <div className="pmg-stripe h-0.75" />
 
           <div className="px-6 py-5">
+            {/* A reply here is read by everyone on the thread, not just the
+                sender - say so up front, with the names, before they type. */}
+            {t.groupMessage && current.recipients && current.recipients.length > 1 && (
+              <div className="mb-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 dark:border-white/10 dark:bg-white/5">
+                <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">{t.groupMessage(current.recipients.length)}</p>
+                <p
+                  className="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400"
+                  title={current.recipients.map((r) => r.name).join(', ')}
+                >
+                  {current.recipients.map((r) => r.name).join(', ')}
+                </p>
+              </div>
+            )}
+
             <h2 className="font-heading font-extrabold text-lg text-gray-900 dark:text-gray-100 mb-4">{current.title}</h2>
 
             {/* Shown ABOVE the message so a worker asked to confirm their

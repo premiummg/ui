@@ -17,6 +17,7 @@ const labels: AnnouncementGateLabels = {
   needsReplyNotice: 'This message needs a reply before you can carry on.',
   confirmReadNotice: 'Confirm you have read this to carry on.',
   waitingBehind: (n) => ` ${n} more ${n === 1 ? 'is' : 'are'} waiting behind it.`,
+  groupMessage: (count) => `Group message · ${count} people`,
   noTask: 'No task',
   lunch: 'Lunch',
   dateLocale: 'en-CA',
@@ -44,6 +45,27 @@ describe('AnnouncementGate', () => {
     expect(screen.getByText('Jordan Reid')).toBeInTheDocument();
     expect(screen.getByText('Please confirm')).toBeInTheDocument();
     expect(screen.getByText('Did you really work these hours?')).toBeInTheDocument();
+  });
+
+  test('says it is a group message and names the recipients when there are several', () => {
+    render(
+      <AnnouncementGate
+        queue={[item({ recipients: [{ name: 'Ana Ruiz' }, { name: 'Luis Gómez' }, { name: 'Carla Díaz' }] })]}
+        onRespond={vi.fn()}
+        labels={labels}
+      />,
+    );
+    expect(screen.getByText('Group message · 3 people')).toBeInTheDocument();
+    expect(screen.getByText('Ana Ruiz, Luis Gómez, Carla Díaz')).toBeInTheDocument();
+  });
+
+  test('shows no group notice for a single recipient or when none are given', () => {
+    const { rerender } = render(
+      <AnnouncementGate queue={[item({ recipients: [{ name: 'Ana Ruiz' }] })]} onRespond={vi.fn()} labels={labels} />,
+    );
+    expect(screen.queryByText(/Group message/)).not.toBeInTheDocument();
+    rerender(<AnnouncementGate queue={[item()]} onRespond={vi.fn()} labels={labels} />);
+    expect(screen.queryByText(/Group message/)).not.toBeInTheDocument();
   });
 
   test('falls back to labels.defaultSender when sender_name is missing', () => {
