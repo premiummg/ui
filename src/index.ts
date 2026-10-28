@@ -302,6 +302,7 @@ export { useDarkMode } from './hooks/useDarkMode';
 export { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 export { useCopyToClipboard } from './hooks/useCopyToClipboard';
 export { useScrollToError } from './hooks/useScrollToError';
+export { useScrollToErrors } from './hooks/useScrollToErrors';
 export { useGoBack, useLeaveTo, useHistoryTracker } from './hooks/useGoBack';
 
 export { importedHeaderSet, resolveImportRow, diffForImportUpdate, runMultiPassImport } from './lib/bulkImport';

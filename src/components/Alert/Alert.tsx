@@ -49,7 +49,9 @@ export interface AlertProps {
 export function Alert({ variant = 'error', text, action, className = '' }: AlertProps) {
   const { cls, edge, Icon } = STYLES[variant];
   return (
-    <div className={`flex items-center gap-2.5 pl-0 pr-4 py-3 rounded-2xl text-sm overflow-hidden ${cls} ${className}`}>
+    <div
+      {...(variant === 'error' ? { role: 'alert', 'data-form-error': true } : {})}
+      className={`flex items-center gap-2.5 pl-0 pr-4 py-3 rounded-2xl text-sm overflow-hidden ${cls} ${className}`}>
       <span className="self-stretch w-[3px] shrink-0" style={{ backgroundColor: edge }} />
       <Icon size={15} className="shrink-0" />
       <span className="flex-1">{text}</span>

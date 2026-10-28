@@ -83,7 +83,7 @@ export function PasswordInput({
         </button>
       </div>
       {error ? (
-        <p className="mt-1 text-xs" style={{ color: 'var(--premium-red)' }}>
+        <p role="alert" data-form-error data-field-error className="mt-1 text-xs" style={{ color: 'var(--premium-red)' }}>
           {error}
         </p>
       ) : hint ? (
