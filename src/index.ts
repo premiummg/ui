@@ -224,6 +224,10 @@ export type {
   AnnouncementSubmissionSummaryRow,
 } from './components/AnnouncementGate';
 
+export { PremiumMark } from './components/PremiumMark';
+export type { PremiumMarkProps } from './components/PremiumMark';
+export { RecipientPickerModal } from './components/RecipientPickerModal';
+export type { RecipientPickerModalProps, RecipientPickerLabels, RecipientPerson } from './components/RecipientPickerModal';
 export { SendMessageModal } from './components/SendMessageModal';
 export type { SendMessageModalProps, SendMessageModalLabels, SendMessageFields } from './components/SendMessageModal';
 
