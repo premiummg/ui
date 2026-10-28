@@ -36,4 +36,21 @@ describe('AttachmentTile', () => {
     await userEvent.click(screen.getByTitle('Download'));
     expect(onDownload).toHaveBeenCalledTimes(1);
   });
+
+  test('children replace the built-in preview body', () => {
+    render(<AttachmentTile name="report.pdf" size="1.2 MB" type="pdf"><iframe title="viewer" /></AttachmentTile>);
+    expect(screen.getByTitle('viewer')).toBeInTheDocument();
+  });
+
+  test('downloadLabel, noPreviewLabel and actions are overridable', () => {
+    render(
+      <AttachmentTile
+        name="doc.docx" size="10 KB" type="other" onDownload={() => {}}
+        downloadLabel="Télécharger" noPreviewLabel="Aucun aperçu." actions={<button>Supprimer</button>}
+      />,
+    );
+    expect(screen.getByTitle('Télécharger')).toBeInTheDocument();
+    expect(screen.getByText('Aucun aperçu.')).toBeInTheDocument();
+    expect(screen.getByText('Supprimer')).toBeInTheDocument();
+  });
 });

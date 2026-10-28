@@ -13,6 +13,8 @@ type Story = StoryObj<typeof NavTile>;
 
 export const Default: Story = { args: { icon: FiUsers, label: 'Employees', description: 'Manage team members' } };
 
+export const AsLink: Story = { args: { icon: FiUsers, label: 'Employees', description: 'Manage team members', href: '/employees' } };
+
 export const Grid: Story = {
   render: () => (
     <div className="grid grid-cols-2 gap-3 w-full max-w-lg">

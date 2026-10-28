@@ -5,7 +5,14 @@ export interface NavTileProps {
   icon: IconType;
   label: string;
   description: string;
-  onClick: () => void;
+  // A real URL for the tile. With it the tile renders as an <a>, so
+  // middle-click, Ctrl/Cmd/Shift-click and "Open in new tab" all work natively
+  // (a <button> has no href for the browser to act on). Pair it with `onClick`
+  // for client-side routing: a plain left-click calls onClick instead of a full
+  // page load, exactly like RowLink's `onNavigate`. Without `href` it stays a
+  // plain button.
+  href?: string;
+  onClick?: () => void;
 }
 
 // A big clickable tile for "go to this section of the app" grids (a
@@ -13,15 +20,12 @@ export interface NavTileProps {
 // the brand mark's own slant grid; the left accent bar grows in from the
 // top rather than just appearing, so the hover state reads as a beat rather
 // than a snap.
-export function NavTile({ icon: Icon, label, description, onClick }: NavTileProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group relative text-left bg-white dark:bg-(--premium-dark-grey) rounded-xl border border-gray-100 dark:border-white/10 p-5 overflow-hidden
+export function NavTile({ icon: Icon, label, description, href, onClick }: NavTileProps) {
+  const className = `group relative ${href ? 'block ' : ''}text-left bg-white dark:bg-(--premium-dark-grey) rounded-xl border border-gray-100 dark:border-white/10 p-5 overflow-hidden
                  hover:border-(--premium-red) dark:hover:border-(--premium-red) hover:shadow-lg dark:hover:shadow-black/40
-                 hover:-translate-y-0.5 transition-all duration-200"
-    >
+                 hover:-translate-y-0.5 transition-all duration-200`;
+  const body = (
+    <>
       <span
         className="absolute top-0 right-0 w-0 h-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
         style={{ borderLeft: '18px solid transparent', borderTop: '18px solid var(--premium-red)' }}
@@ -51,6 +55,27 @@ export function NavTile({ icon: Icon, label, description, onClick }: NavTileProp
       </div>
       <p className="font-heading font-bold text-gray-900 dark:text-gray-100 text-sm leading-snug">{label}</p>
       <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 leading-relaxed">{description}</p>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        className={className}
+        onClick={(e) => {
+          if (!onClick || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          e.preventDefault();
+          onClick();
+        }}
+      >
+        {body}
+      </a>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} className={className}>
+      {body}
     </button>
   );
 }

@@ -19,4 +19,15 @@ describe('Eyebrow', () => {
     rerender(<Eyebrow tone="amber" text="Label" />);
     expect(screen.getByText('Label').className).toContain('text-[#FAAD00]');
   });
+
+  test('neutral tones, a custom element and layout classes', () => {
+    render(
+      <table><thead><tr><Eyebrow as="th" tone="muted" className="px-5 text-left" text="Name" /></tr></thead></table>,
+    );
+    const th = screen.getByText('Name');
+    expect(th.tagName).toBe('TH');
+    expect(th.className).toContain('pmg-eyebrow');
+    expect(th.className).toContain('text-gray-400');
+    expect(th.className).toContain('px-5');
+  });
 });
