@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiCheck, FiSend } from 'react-icons/fi';
 import type { ChatMessage } from './types';
 import { Avatar } from './avatar';
+import { UserFacingError } from './errors';
 import { AttachmentImages, ImageAttachmentPicker } from '../ImageAttachments/ImageAttachments';
 import type { ImageAttachmentPickerStrings } from '../ImageAttachments/ImageAttachments';
 
@@ -12,19 +13,25 @@ export interface ConversationThreadStrings {
   readTooltipUnread: string;
   loadError: string;
   sendError: string;
-  // Only needed when the thread is given `getAttachmentUrl` (images enabled).
+  // The composer offers to attach images only when the thread has `getAttachmentUrl`
+  // AND all five of these. There are no built in words: an app that wants image
+  // sending supplies them in its own language.
   attachImagesLabel?: string;
   removeImageLabel?: string;
   imageTooLargeLabel?: string;
   tooManyImagesLabel?: string;
+  unsupportedImageLabel?: string;
 }
 
-function pickerStrings(s: ConversationThreadStrings): ImageAttachmentPickerStrings {
+function pickerStrings(s: ConversationThreadStrings): ImageAttachmentPickerStrings | null {
+  const { attachImagesLabel, removeImageLabel, imageTooLargeLabel, tooManyImagesLabel, unsupportedImageLabel } = s;
+  if (!attachImagesLabel || !removeImageLabel || !imageTooLargeLabel || !tooManyImagesLabel || !unsupportedImageLabel) return null;
   return {
-    addLabel: s.attachImagesLabel ?? 'Add images',
-    removeLabel: s.removeImageLabel ?? 'Remove',
-    tooLargeLabel: s.imageTooLargeLabel ?? 'An image is too large.',
-    tooManyLabel: s.tooManyImagesLabel ?? 'Too many images.',
+    addLabel: attachImagesLabel,
+    removeLabel: removeImageLabel,
+    tooLargeLabel: imageTooLargeLabel,
+    tooManyLabel: tooManyImagesLabel,
+    unsupportedLabel: unsupportedImageLabel,
   };
 }
 
@@ -118,11 +125,11 @@ function MessageBubble({
 function Composer({
   onSend,
   strings,
-  withImages,
+  imageStrings,
 }: {
   onSend: (body: string, files?: File[]) => Promise<void>;
   strings: ConversationThreadStrings;
-  withImages: boolean;
+  imageStrings: ImageAttachmentPickerStrings | null;
 }) {
   const [value, setValue] = useState('');
   const [files, setFiles] = useState<File[]>([]);
@@ -145,8 +152,9 @@ function Composer({
       await (files.length ? onSend(trimmed, files) : onSend(trimmed));
       setValue('');
       setFiles([]);
-    } catch {
-      setError(strings.sendError);
+    } catch (e) {
+      // The server's own reason (an unsupported file, a rate limit) when the app passes it on.
+      setError(e instanceof UserFacingError ? e.message : strings.sendError);
     } finally {
       setSending(false);
     }
@@ -155,8 +163,8 @@ function Composer({
   return (
     <div>
       <div className="flex flex-wrap items-end gap-2">
-        {withImages && (
-          <ImageAttachmentPicker files={files} onChange={setFiles} strings={pickerStrings(strings)} disabled={sending} compact className="contents" />
+        {imageStrings && (
+          <ImageAttachmentPicker files={files} onChange={setFiles} strings={imageStrings} disabled={sending} compact className="contents" />
         )}
         <textarea
           value={value}
@@ -276,7 +284,7 @@ export function ConversationThread({
       {disabled ? (
         disabledMessage && <p className="pt-1 text-center text-xs text-gray-400">{disabledMessage}</p>
       ) : (
-        <Composer onSend={handleSend} strings={strings} withImages={!!getAttachmentUrl} />
+        <Composer onSend={handleSend} strings={strings} imageStrings={getAttachmentUrl ? pickerStrings(strings) : null} />
       )}
     </div>
   );

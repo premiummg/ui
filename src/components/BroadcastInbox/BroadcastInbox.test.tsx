@@ -77,6 +77,24 @@ describe('BroadcastInbox', () => {
     await waitFor(() => expect(screen.queryByText('Quiet note')).not.toBeInTheDocument());
   });
 
+  test('feedback is not stamped as answered, though nobody was asked to reply', async () => {
+    render(
+      <BroadcastInbox
+        {...baseProps}
+        showFeedback
+        strings={{ ...strings, feedbackTabLabel: 'Feedback' }}
+        fetchSent={async () => []}
+        fetchReceived={async () => [broadcast({ id: 'f1', title: 'Quiet note', isFeedback: true, recipients: [{ participant: { id: 'admin-1', name: 'Admin' }, respondedAt: '2026-10-05T10:00:00Z' }] })]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await userEvent.click(await screen.findByRole('button', { name: /^Feedback 1$/ }));
+    await waitFor(() => expect(screen.getByText('Quiet note')).toBeInTheDocument());
+    // The status filter has an "Answered" option; what must be missing is the label on the row.
+    expect(screen.queryAllByText(strings.answeredLabel).filter((el) => el.tagName !== 'OPTION')).toHaveLength(0);
+  });
+
   test('without showFeedback there is no Feedback tab', async () => {
     render(<BroadcastInbox {...baseProps} fetchSent={async () => [broadcast()]} currentUserId="admin-1" canSendMessages />);
     await waitFor(() => expect(screen.getByText('Confirm your hours')).toBeInTheDocument());

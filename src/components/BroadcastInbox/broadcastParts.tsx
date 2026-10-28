@@ -58,6 +58,9 @@ export function StatusPill({
   strings: BroadcastInboxStrings;
 }) {
   const status = broadcastStatus(broadcast, side, currentUserId);
+  // Feedback is not something to answer: it is not stamped "answered" just because
+  // nobody was asked to reply. Closed, and the back and forth of a reply, still show.
+  if (broadcast.isFeedback && status === 'answered') return null;
   if (status === 'closed') {
     const everyoneAnswered = broadcast.recipients.length > 0 && broadcast.recipients.every((r) => r.respondedAt);
     if (side === 'received' ? broadcast.recipients[0]?.respondedAt : everyoneAnswered) {

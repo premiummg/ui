@@ -117,7 +117,7 @@ export type { MonthNavProps } from './components/MonthNav';
 
 export { ImageAttachmentPicker, AttachmentImages, DEFAULT_MAX_IMAGES, DEFAULT_MAX_IMAGE_BYTES } from './components/ImageAttachments';
 export type { ImageAttachmentPickerProps, ImageAttachmentPickerStrings } from './components/ImageAttachments';
-export { ConversationThread } from './components/ConversationThread';
+export { ConversationThread, UserFacingError } from './components/ConversationThread';
 export type {
   ChatAttachment,
   ConversationThreadProps,
@@ -231,6 +231,8 @@ export { PremiumMark } from './components/PremiumMark';
 export type { PremiumMarkProps } from './components/PremiumMark';
 export { RecipientPickerModal } from './components/RecipientPickerModal';
 export type { RecipientPickerModalProps, RecipientPickerLabels, RecipientPerson } from './components/RecipientPickerModal';
+export { FeedbackModal } from './components/FeedbackModal';
+export type { FeedbackModalProps, FeedbackModalLabels, FeedbackFields } from './components/FeedbackModal';
 export { SendMessageModal } from './components/SendMessageModal';
 export type { SendMessageModalProps, SendMessageModalLabels, SendMessageFields } from './components/SendMessageModal';
 

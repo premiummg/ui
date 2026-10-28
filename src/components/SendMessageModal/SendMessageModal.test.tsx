@@ -96,7 +96,7 @@ describe('SendMessageModal', () => {
 });
 
 describe('SendMessageModal images', () => {
-  const images = { label: 'Images (optional)', addLabel: 'Add images', removeLabel: 'Remove', tooLargeLabel: 'Too large', tooManyLabel: 'Too many' };
+  const images = { label: 'Images (optional)', addLabel: 'Add images', removeLabel: 'Remove', tooLargeLabel: 'Too large', tooManyLabel: 'Too many', unsupportedLabel: 'Unsupported' };
 
   test('has no image field unless the app asks for it', () => {
     render(<SendMessageModal recipientIds={['1']} onClose={vi.fn()} onSend={vi.fn()} labels={labels} />);

@@ -19,6 +19,7 @@ import * as ConfirmDialogStories from '../../../src/components/ConfirmDialog/Con
 import * as ErrorBoundaryStories from '../../../src/components/ErrorBoundary/ErrorBoundary.stories';
 import * as AttachmentTileStories from '../../../src/components/AttachmentTile/AttachmentTile.stories';
 import * as ConversationThreadStories from '../../../src/components/ConversationThread/ConversationThread.stories';
+import * as ImageAttachmentsStories from '../../../src/components/ImageAttachments/ImageAttachments.stories';
 import * as BroadcastInboxStories from '../../../src/components/BroadcastInbox/BroadcastInbox.stories';
 import { EmployeeTableDemo } from './demos/EmployeeTableDemo';
 
@@ -145,6 +146,12 @@ export const dataDisplay: ComponentDoc[] = [
     summary: 'A single thread of messages - fetches and polls its own data via fetchFn, always labels every message with its real author.',
     notes: 'No react-router/auth-context/i18n dependency - onAuthorClick, currentUserId, and a grouped strings prop are how it stays app-agnostic. Every message always shows its author name, even the viewer\'s own - "unlabeled = you" only holds for exactly one possible viewer, which a shared/multi-admin thread never guarantees. See BroadcastInbox for the layer that composes several of these into a Sent/Received broadcast inbox.',
     demos: frame(demosFromModule(ConversationThreadStories), 420),
+  },
+  {
+    name: 'ImageAttachments',
+    summary: 'Pick images to send with a message (ImageAttachmentPicker, form or compact) and show the ones that came with a message (AttachmentImages).',
+    notes: 'Turned on per app: ConversationThread, BroadcastInbox and SendMessageModal show the picker only when the app passes getAttachmentUrl / the images prop. The picker accepts the formats a server is expected to take (JPEG, PNG, GIF, WebP, HEIC, including a HEIC with no reported type) and names the ones it refuses. AttachmentImages asks for each image URL only when it is about to be seen, refreshes a signed URL that expired, and releases an object URL when the image goes away. The size and count limits are the app’s to pass; the server must enforce them too.',
+    demos: demosFromModule(ImageAttachmentsStories),
   },
   {
     name: 'BroadcastInbox',
