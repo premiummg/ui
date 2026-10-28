@@ -52,8 +52,6 @@ export const strings: BroadcastInboxStrings = {
   statusClosedLabel: 'Closed',
   dateFromLabel: 'From',
   dateToLabel: 'To',
-  personFilterLabel: 'Person',
-  personFilterPlaceholder: 'Type a name…',
   clearFiltersLabel: 'Clear filters',
   noResultsLabel: 'No conversations match these filters.',
   backToMessagesLabel: 'Back to messages',

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BroadcastInbox } from './BroadcastInbox';
 import { BroadcastDetail } from './BroadcastDetail';
@@ -79,25 +79,6 @@ describe('BroadcastInbox', () => {
     await userEvent.selectOptions(screen.getByLabelText('Status'), 'needsReply');
     expect(screen.getByText('Needs answer')).toBeInTheDocument();
     expect(screen.queryByText('Waiting one')).not.toBeInTheDocument();
-  });
-
-  test('person filter autocompletes a name and keeps only that person', async () => {
-    const sent = [
-      broadcast({ id: 'b1', title: 'For Carlos' }),
-      broadcast({
-        id: 'b2',
-        title: 'For Ana',
-        recipients: [{ participant: { id: 'worker-2', name: 'Ana Ruiz' }, respondedAt: null, openedAt: null }],
-      }),
-    ];
-    render(<BroadcastInbox {...baseProps} fetchSent={async () => sent} currentUserId="admin-1" canSendMessages />);
-    await waitFor(() => expect(screen.getByText('For Carlos')).toBeInTheDocument());
-
-    await userEvent.type(screen.getByLabelText('Person'), 'ana');
-    const suggestions = screen.getByRole('list');
-    await userEvent.click(within(suggestions).getByRole('button', { name: 'Ana Ruiz' }));
-    expect(screen.getByText('For Ana')).toBeInTheDocument();
-    expect(screen.queryByText('For Carlos')).not.toBeInTheDocument();
   });
 
   test('delete requires confirmation before calling onDelete', async () => {

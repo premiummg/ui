@@ -22,16 +22,31 @@ describe('BroadcastInbox filters', () => {
     expect(screen.queryByText('Nothing new')).not.toBeInTheDocument();
   });
 
+  test('Unread is its own view next to Sent and Received, and gathers the new activity of both', async () => {
+    const sent = [broadcast({ id: 'b1', title: 'Sent with news', unread: true }), broadcast({ id: 'b2', title: 'Sent quiet', unread: false })];
+    const received = [broadcast({ id: 'b3', title: 'Received with news', unread: true, createdBy: 'admin-2', senderName: 'Another Admin' })];
+    render(<BroadcastInbox {...baseProps} fetchSent={async () => sent} fetchReceived={async () => received} currentUserId="admin-1" canSendMessages />);
+    await waitFor(() => expect(screen.getByText('Sent quiet')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByRole('button', { name: /Unread \(/ }));
+    expect(screen.getByText('Sent with news')).toBeInTheDocument();
+    expect(screen.getByText('Received with news')).toBeInTheDocument();
+    expect(screen.queryByText('Sent quiet')).not.toBeInTheDocument();
+    // Picking it leaves the other two unselected.
+    expect(screen.getByRole('button', { name: /^Sent \d/ })).toHaveAttribute('aria-pressed', 'false');
+  });
+
   test('date range keeps only conversations created inside it', async () => {
     const sent = [
-      broadcast({ id: 'b1', title: 'Recent one', createdAt: daysAgo(1) }),
+      broadcast({ id: 'b1', title: 'Recent one', createdAt: new Date().toISOString() }),
       broadcast({ id: 'b2', title: 'Old one', createdAt: daysAgo(30) }),
     ];
     render(<BroadcastInbox {...baseProps} fetchSent={async () => sent} currentUserId="admin-1" canSendMessages />);
     await waitFor(() => expect(screen.getByText('Old one')).toBeInTheDocument());
 
-    const from = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10);
-    await userEvent.type(screen.getByLabelText('From'), from);
+    // The shared date picker: open it and take its Today shortcut.
+    await userEvent.click(screen.getByLabelText('From'));
+    await userEvent.click(screen.getByRole('button', { name: 'Today' }));
     expect(screen.getByText('Recent one')).toBeInTheDocument();
     expect(screen.queryByText('Old one')).not.toBeInTheDocument();
   });

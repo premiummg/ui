@@ -65,7 +65,7 @@ function MessageBubble({
   if (mine) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5" style={{ backgroundColor: 'var(--premium-red)' }}>
+        <div className="max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5" style={{ backgroundColor: 'var(--premium-red-dark)' }}>
           <p className="mb-0.5 text-[11px] font-semibold text-white/70">{nameLabel}</p>
           <p className="whitespace-pre-wrap text-sm text-white">{message.body}</p>
           <div className="flex items-center justify-end text-[10px] text-white/70">

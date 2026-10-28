@@ -1,3 +1,4 @@
+import type { DatePickerProps } from '../DatePicker';
 import type { ConversationThreadStrings } from '../ConversationThread/ConversationThread';
 import type { ChatBroadcast, ChatMessage } from '../ConversationThread/types';
 
@@ -44,8 +45,9 @@ export interface BroadcastInboxStrings extends ConversationThreadStrings {
   statusClosedLabel: string;
   dateFromLabel: string;
   dateToLabel: string;
-  personFilterLabel: string;
-  personFilterPlaceholder: string;
+  // Optional: the date picker falls back to its English defaults.
+  dateClearLabel?: string;
+  dateTodayLabel?: string;
   clearFiltersLabel: string;
   noResultsLabel: string;
   backToMessagesLabel: string;
@@ -82,6 +84,8 @@ export interface BroadcastInboxProps extends BroadcastDataProps {
   // BroadcastDetail for that id.
   onOpen: (broadcastId: string) => void;
   onCompose?: () => void;
+  // date-fns locale for the From/To date pickers (month and weekday names).
+  dateLocale?: DatePickerProps['locale'];
 }
 
 export interface BroadcastDetailProps extends BroadcastDataProps {

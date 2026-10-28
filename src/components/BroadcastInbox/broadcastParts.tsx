@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { FiCheck, FiClock, FiExternalLink, FiSlash } from 'react-icons/fi';
 import type { ChatBroadcast } from '../ConversationThread/types';
 import { Avatar } from '../ConversationThread/avatar';
+import { StatusBadge, type StatusBadgeTone } from '../StatusBadge';
+import { TextButton } from '../TextButton';
 import type { BroadcastInboxStrings, BroadcastSide, BroadcastStatus } from './types';
 
 export function formatDate(iso: string): string {
@@ -40,17 +42,7 @@ export function peopleOf(broadcast: ChatBroadcast, side: BroadcastSide): { id: s
 }
 
 export function Pill({ tone, icon, children }: { tone: 'amber' | 'green' | 'gray'; icon: ReactNode; children: ReactNode }) {
-  const classes = {
-    amber: 'bg-[#FAAD00]/15 text-[#7A5300] dark:text-[#FAAD00]',
-    green: 'bg-green-500/15 text-green-700 dark:text-green-400',
-    gray: 'bg-gray-400/15 text-gray-600 dark:text-gray-300',
-  }[tone];
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap ${classes}`}>
-      {icon}
-      {children}
-    </span>
-  );
+  return <StatusBadge label={String(children)} icon={icon} tone={{ amber: 'warning', green: 'success', gray: 'neutral' }[tone] as StatusBadgeTone} className="whitespace-nowrap" />;
 }
 
 export function StatusPill({
@@ -97,7 +89,7 @@ export function RootMessageBubble({
   if (mine) {
     return (
       <div className="flex flex-col items-end">
-        <div className="max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5" style={{ backgroundColor: 'var(--premium-red)' }}>
+        <div className="max-w-[85%] rounded-2xl rounded-br-sm px-3.5 py-2.5" style={{ backgroundColor: 'var(--premium-red-dark)' }}>
           <p className="whitespace-pre-wrap text-sm text-white">{broadcast.body}</p>
         </div>
         <p className="mt-0.5 text-[10px] text-gray-400">{timeOf(broadcast.createdAt)}</p>
@@ -121,13 +113,9 @@ export function RootMessageBubble({
 export function ContextLink({ broadcast }: { broadcast: ChatBroadcast }) {
   if (!broadcast.contextLink) return null;
   return (
-    <button
-      type="button"
-      onClick={broadcast.contextLink.onClick}
-      className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 transition hover:text-(--premium-red) dark:text-gray-400"
-    >
+    <TextButton tone="accent" onClick={broadcast.contextLink.onClick} className="mt-2">
       <FiExternalLink size={11} /> {broadcast.contextLink.label}
-    </button>
+    </TextButton>
   );
 }
 
