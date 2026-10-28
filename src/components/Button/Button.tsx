@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'onColor';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'onColor' | 'onColorOutline';
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 // 'secondary' consolidates a pattern that was hand-repeated across dozens of
@@ -27,6 +27,10 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   // as SiteButton's onRed/onDark do for the marketing-page equivalent of
   // this same idea.
   onColor: 'rounded-lg bg-white font-semibold hover:bg-white/90 transition disabled:opacity-60',
+  // The quieter sibling of onColor for the other actions on the same colored
+  // field (Cancel, Message, a secondary link back): an outline instead of a fill,
+  // so the one white pill stays the one thing to act on.
+  onColorOutline: 'rounded-lg border border-white/25 text-white/90 font-medium hover:bg-white/10 transition disabled:opacity-50',
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {

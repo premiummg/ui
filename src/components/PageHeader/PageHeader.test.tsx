@@ -50,4 +50,13 @@ describe('PageHeader', () => {
     );
     expect(screen.getByText('Kris Jenkins')).toBeInTheDocument();
   });
+
+  test('eyebrow renders above the title and is omitted when not given', () => {
+    const { rerender } = render(<PageHeader eyebrow="Vendors catalogue" title="Vendors" />);
+    const eyebrow = screen.getByText('Vendors catalogue');
+    const title = screen.getByText('Vendors');
+    expect(eyebrow.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    rerender(<PageHeader title="Vendors" />);
+    expect(screen.queryByText('Vendors catalogue')).not.toBeInTheDocument();
+  });
 });

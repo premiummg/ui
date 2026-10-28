@@ -10,6 +10,8 @@ export interface PageHeaderProps {
   // The common shape - an index page's title, an optional row-count figure
   // next to it, and optional actions on the right. Covers most real pages.
   title?: ReactNode;
+  // A small uppercase line above the title ("Vendors catalogue", "Reports"). Optional.
+  eyebrow?: ReactNode;
   count?: ReactNode;
   actions?: ReactNode;
   // For the header rows that don't fit that shape - a detail page's avatar
@@ -36,7 +38,7 @@ export interface PageHeaderProps {
 // `.pmg-bars` (BRAND.md pg. 16's "solid blocks of color that command
 // attention", the same device as `ColorField`), rounded at the top to sit
 // flush above a page's own white/dark content panel.
-export function PageHeader({ backLabel, onBack, title, count, actions, children, color, barsColor, countColor, className = '' }: PageHeaderProps) {
+export function PageHeader({ backLabel, onBack, title, eyebrow, count, actions, children, color, barsColor, countColor, className = '' }: PageHeaderProps) {
   return (
     <div
       className={`relative pmg-field rounded-t-2xl px-6 py-5 ${className}`}
@@ -64,16 +66,19 @@ export function PageHeader({ backLabel, onBack, title, count, actions, children,
           // center or bottom-align it against the taller sibling - the
           // gap that read as "too separated from the back link" above.
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-baseline gap-2.5">
-              <h1 className="font-heading font-black text-2xl text-white leading-none">{title}</h1>
-              {count != null && (
-                <span
-                  className={`pmg-figure text-lg ${countColor ? '' : 'text-white/70'}`}
-                  style={countColor ? { color: countColor } : undefined}
-                >
-                  {count}
-                </span>
-              )}
+            <div>
+              {eyebrow != null && <p className="pmg-eyebrow text-white/70 mb-1.5">{eyebrow}</p>}
+              <div className="flex items-baseline gap-2.5">
+                <h1 className="font-heading font-black text-2xl text-white leading-none">{title}</h1>
+                {count != null && (
+                  <span
+                    className={`pmg-figure text-lg ${countColor ? '' : 'text-white/70'}`}
+                    style={countColor ? { color: countColor } : undefined}
+                  >
+                    {count}
+                  </span>
+                )}
+              </div>
             </div>
             {/* flex-wrap, no shrink-0: `shrink-0` disables the browser's
                 default flex-shrink, which is what lets this div size itself

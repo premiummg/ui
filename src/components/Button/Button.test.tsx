@@ -55,4 +55,12 @@ describe('Button', () => {
     render(<Button size="xl">Get an estimate</Button>);
     expect(screen.getByRole('button').className).toContain('text-base');
   });
+
+  test('onColorOutline is an outline on the colored field, not a fill', () => {
+    render(<Button variant="onColorOutline">Cancel</Button>);
+    const button = screen.getByRole('button', { name: 'Cancel' });
+    expect(button.className).toContain('border-white/25');
+    expect(button.className).not.toMatch(/(^|\s)bg-white(\s|$)/);
+    expect(button.className).not.toContain('btn-primary');
+  });
 });

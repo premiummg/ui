@@ -29,6 +29,14 @@ export const OnColor: Story = {
     </div>
   ),
 };
+export const OnColorOutline: Story = {
+  render: () => (
+    <div className="pmg-field p-6 rounded-xl flex gap-2">
+      <Button variant="onColorOutline">Cancel</Button>
+      <Button variant="onColor" style={{ color: 'var(--premium-red-dark)' }}>Save</Button>
+    </div>
+  ),
+};
 export const Small: Story = { args: { size: 'sm' } };
 export const ExtraSmall: Story = { args: { size: 'xs', children: 'Reorder' } };
 // Same size SiteButton's own hero CTA ships today, just available on this
