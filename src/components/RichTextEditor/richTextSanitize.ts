@@ -43,8 +43,55 @@ const PASTE_ALLOWED_ATTR = ['style', 'href', 'target', 'rel', 'size', 'color', '
 // consuming app's own server-side sanitizer should mirror this identical hook.
 const UNSAFE_CSS = /expression\s*\(|url\s*\(|@import|behavior\s*:|position\s*:\s*(?:fixed|absolute|sticky)/i;
 
-DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+// Only these properties survive in a style attribute (what execCommand and the image/video wrappers
+// emit, plus ordinary text and box formatting). Anything else, such as filter, content, cursor or
+// z-index, is dropped instead of relying on a list of known-bad ones.
+const ALLOWED_CSS_PROPERTIES = new Set([
+  'color', 'background', 'background-color', 'font', 'font-size', 'font-family', 'font-weight', 'font-style',
+  'text-decoration', 'text-decoration-line', 'text-align', 'text-indent', 'text-transform', 'line-height',
+  'letter-spacing', 'white-space', 'word-wrap', 'overflow-wrap', 'vertical-align', 'list-style-type',
+  'width', 'height', 'max-width', 'min-width', 'max-height', 'min-height', 'display', 'position', 'float', 'box-sizing',
+  'aspect-ratio', 'object-fit', 'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
+  'border-color', 'border-style', 'border-width', 'border-radius', 'border-collapse',
+  'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+  'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+]);
+
+// A private DOMPurify instance, created on first use: adding hooks to the shared default export would
+// change how every other part of the host page sanitizes, and creating it at import time would break
+// where there is no window yet.
+let purifier: ReturnType<typeof DOMPurify> | null = null;
+function getPurifier() {
+  if (purifier) return purifier;
+  const instance = DOMPurify(window);
+  instance.addHook('afterSanitizeAttributes', cleanAttributes);
+  purifier = instance;
+  return instance;
+}
+
+// An <img> in stored rich text is one the editor made from a pasted screenshot: an embedded data:image.
+// A src pointing at someone else's server would tell that server who read the post and when (and from
+// which address), so only embedded images and ones on this site itself survive.
+function isAllowedImageSrc(src: string): boolean {
+  const value = src.trim();
+  if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value)) return true;
+  if (/^blob:/i.test(value)) return true;
+  if (value.startsWith('//')) return false;
+  if (value.startsWith('/') || !/^[a-z][a-z0-9+.-]*:/i.test(value)) return true;
+  try {
+    return new URL(value).origin === window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+function cleanAttributes(node: Element) {
   if (typeof node.getAttribute !== 'function') return;
+
+  if (node.tagName === 'IMG' && !isAllowedImageSrc(node.getAttribute('src') || '')) {
+    node.remove();
+    return;
+  }
 
   // A data-youtube value is about to be interpolated into an embed URL, so it
   // has to be exactly a video id and nothing else.
@@ -59,15 +106,19 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   const cleaned = String(node.getAttribute('style'))
     .split(';')
     .map((decl) => decl.trim())
-    .filter((decl) => decl && !UNSAFE_CSS.test(decl))
+    .filter((decl) => {
+      if (!decl || UNSAFE_CSS.test(decl)) return false;
+      const property = decl.split(':')[0].trim().toLowerCase();
+      return ALLOWED_CSS_PROPERTIES.has(property);
+    })
     .join('; ');
   if (cleaned) node.setAttribute('style', cleaned);
   else node.removeAttribute('style');
-});
+}
 
 export function sanitizeRichText(html?: string | null): string {
   if (!html) return '';
-  return DOMPurify.sanitize(html, {
+  return getPurifier().sanitize(html, {
     ALLOWED_TAGS: DISPLAY_ALLOWED_TAGS,
     ALLOWED_ATTR: DISPLAY_ALLOWED_ATTR,
     ADD_ATTR: ['target'],
@@ -76,7 +127,7 @@ export function sanitizeRichText(html?: string | null): string {
 
 export function sanitizePastedHtml(html?: string | null): string {
   if (!html) return '';
-  return DOMPurify.sanitize(html, {
+  return getPurifier().sanitize(html, {
     ALLOWED_TAGS: PASTE_ALLOWED_TAGS,
     ALLOWED_ATTR: PASTE_ALLOWED_ATTR,
   });

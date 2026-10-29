@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import DOMPurify from 'dompurify';
 import { normalizeAutoInkColors, renderRichTextHtml } from './richTextSanitize';
 
 describe('normalizeAutoInkColors', () => {
@@ -45,5 +46,41 @@ describe('renderRichTextHtml', () => {
     const rendered = renderRichTextHtml('<font color="#ffffff">hi</font>');
     expect(rendered).not.toContain('color="#ffffff"');
     expect(rendered).toContain('rte-auto-ink');
+  });
+});
+
+describe('sanitizeRichText style attribute', () => {
+  test('keeps formatting properties and drops the rest', () => {
+    const out = renderRichTextHtml('<span style="font-weight: bold; filter: blur(9px); z-index: 99; content: x">hi</span>');
+    expect(out).toContain('font-weight');
+    expect(out).not.toContain('filter');
+    expect(out).not.toContain('z-index');
+    expect(out).not.toContain('content');
+  });
+
+  test('still drops url(), and fixed positioning', () => {
+    const out = renderRichTextHtml('<div style="background: url(https://x.test/a.png); position: fixed; color: red">hi</div>');
+    expect(out).not.toContain('url(');
+    expect(out).not.toContain('fixed');
+    expect(out).toContain('color');
+  });
+
+  test('does not install hooks on the shared DOMPurify', () => {
+    renderRichTextHtml('<p>x</p>');
+    const out = DOMPurify.sanitize('<span style="filter: blur(9px)" data-youtube="nope">x</span>', { ALLOWED_ATTR: ['style', 'data-youtube'] });
+    expect(out).toContain('filter');
+    expect(out).toContain('data-youtube');
+  });
+});
+
+describe('sanitizeRichText images', () => {
+  test('keeps embedded and same-site images, drops remote ones', () => {
+    const data = 'data:image/png;base64,iVBORw0KGgo=';
+    expect(renderRichTextHtml(`<img src="${data}">`)).toContain(data);
+    expect(renderRichTextHtml('<img src="/uploads/a.png">')).toContain('/uploads/a.png');
+    expect(renderRichTextHtml(`<img src="${window.location.origin}/a.png">`)).toContain('/a.png');
+    expect(renderRichTextHtml('<img src="https://tracker.test/p.gif">')).not.toContain('img');
+    expect(renderRichTextHtml('<img src="//tracker.test/p.gif">')).not.toContain('img');
+    expect(renderRichTextHtml('<img src="data:image/svg+xml;base64,PHN2Zz4=">')).not.toContain('img');
   });
 });
