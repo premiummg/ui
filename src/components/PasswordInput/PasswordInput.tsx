@@ -30,10 +30,10 @@ export interface PasswordInputProps {
   hideLabel?: string;
 }
 
-// Password field with a show/hide toggle. tabIndex={-1} on the button keeps
-// it out of the tab order: tabbing from the password should reach Submit,
-// not the eye. The icon shows the state you are IN, not the action - an open
-// eye means the password is currently visible.
+// Password field with a show/hide toggle. The toggle is a normal tab stop, so
+// someone using only the keyboard (or a screen reader) can reveal the password
+// too. The icon shows the state you are IN, not the action: an open eye
+// means the password is currently visible.
 export function PasswordInput({
   label,
   registration,
@@ -76,7 +76,6 @@ export function PasswordInput({
           type="button"
           onClick={() => setShow(s => !s)}
           className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition"
-          tabIndex={-1}
           aria-label={show ? hideLabel : showLabel}
         >
           {show ? <FiEye size={18} /> : <FiEyeOff size={18} />}

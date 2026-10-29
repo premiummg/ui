@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { Modal } from './Modal';
 
 describe('Modal', () => {
@@ -67,5 +68,64 @@ describe('Modal', () => {
   test('title with a description gets the tighter bottom margin', () => {
     render(<Modal onClose={() => {}} title="Delete this?" description="No undo." />);
     expect(screen.getByText('Delete this?').className).toContain('mb-1');
+  });
+
+  test('is a named modal dialog', () => {
+    render(<Modal onClose={() => {}} title="Delete this?" description="No undo." />);
+    const dialog = screen.getByRole('dialog', { name: 'Delete this?' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAccessibleDescription('No undo.');
+  });
+
+  test('without a title it takes the ariaLabel', () => {
+    render(<Modal onClose={() => {}} ariaLabel="Custom form" />);
+    expect(screen.getByRole('dialog', { name: 'Custom form' })).toBeInTheDocument();
+  });
+
+  test('focus moves in, wraps with Tab, and returns to the opener on close', async () => {
+    function Host() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button onClick={() => setOpen(true)}>open</button>
+          {open && <Modal onClose={() => setOpen(false)}><button>first</button><button>last</button></Modal>}
+        </>
+      );
+    }
+    render(<Host />);
+    const opener = screen.getByRole('button', { name: 'open' });
+    await userEvent.click(opener);
+    expect(screen.getByRole('dialog')).toHaveFocus();
+    await userEvent.tab();
+    expect(screen.getByRole('button', { name: 'first' })).toHaveFocus();
+    await userEvent.tab();
+    expect(screen.getByRole('button', { name: 'last' })).toHaveFocus();
+    await userEvent.tab();
+    expect(screen.getByRole('button', { name: 'first' })).toHaveFocus();
+    await userEvent.keyboard('{Escape}');
+    expect(opener).toHaveFocus();
+  });
+
+  test('only the top modal answers Escape', async () => {
+    const outer = vi.fn();
+    const inner = vi.fn();
+    render(<Modal onClose={outer}>under</Modal>);
+    render(<Modal onClose={inner}>over</Modal>);
+    await userEvent.keyboard('{Escape}');
+    expect(inner).toHaveBeenCalledTimes(1);
+    expect(outer).not.toHaveBeenCalled();
+  });
+
+  test('dismissable={false} ignores Escape and the backdrop', async () => {
+    const onClose = vi.fn();
+    const { container } = render(<Modal onClose={onClose} dismissable={false}>x</Modal>);
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(container.firstChild as Element);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  test('the overlay scrolls, so a modal taller than the screen can still be reached', () => {
+    const { container } = render(<Modal onClose={() => {}}>tall</Modal>);
+    expect(container.firstChild).toHaveClass('overflow-y-auto');
   });
 });

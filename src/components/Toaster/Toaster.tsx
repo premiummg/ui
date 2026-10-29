@@ -27,13 +27,13 @@ const CONFIG: Record<ToastType, { bg: string; icon: React.ReactNode }> = {
 // Reads from the `ToastProvider` context (wrap the app in it once, mount
 // this once, call `useToast().toast(...)` anywhere). `@keyframes toast-in`
 // ships in this package's styles.css.
-export function Toaster() {
+// The container is always mounted: a screen reader only announces what is added to a live region that
+// was already there, so one created together with its first toast would stay silent.
+export function Toaster({ dismissLabel = 'Dismiss' }: { dismissLabel?: string } = {}) {
   const { toasts, dismiss } = useToast();
 
-  if (toasts.length === 0) return null;
-
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div role="status" aria-live="polite" className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
       {toasts.map(t => {
         const { bg, icon } = CONFIG[t.type] ?? CONFIG.info;
         return (
@@ -46,6 +46,7 @@ export function Toaster() {
             <p className="text-sm flex-1 leading-snug">{t.message}</p>
             <button
               onClick={() => dismiss(t.id)}
+              aria-label={dismissLabel}
               className="text-gray-400 hover:text-white transition shrink-0"
             >
               <FiX size={14} />

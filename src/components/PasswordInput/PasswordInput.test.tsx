@@ -42,4 +42,14 @@ describe('PasswordInput', () => {
     render(<PasswordInput label="Password" name="password" value="secret" onChange={() => {}} />);
     expect(screen.getByLabelText('Password')).toHaveValue('secret');
   });
+
+  test('the show/hide button is reachable with Tab and works from the keyboard', async () => {
+    render(<PasswordInput label="Password" name="pw" value="secret" onChange={() => {}} />);
+    await userEvent.tab();
+    expect(screen.getByLabelText('Password')).toHaveFocus();
+    await userEvent.tab();
+    expect(screen.getByRole('button', { name: 'Show password' })).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'text');
+  });
 });

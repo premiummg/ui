@@ -354,7 +354,9 @@ export function DatePicker({
             <button
               type="button"
               onClick={() => selectDay(today)}
-              className="text-xs font-semibold transition hover:opacity-80"
+              // Today is a day like any other: outside min/maxDate, or an unavailable one, it cannot be picked.
+              disabled={isDayDisabled(today)}
+              className="text-xs font-semibold transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ color: 'var(--premium-red)' }}
             >
               {todayLabel}

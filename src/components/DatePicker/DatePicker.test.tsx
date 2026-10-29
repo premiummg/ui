@@ -61,4 +61,10 @@ describe('DatePicker', () => {
       expect(header.nextElementSibling).toBeDisabled();
     });
   });
+
+  test('the Today button is disabled when today is outside minDate/maxDate', async () => {
+    render(<DatePicker value="" onChange={() => {}} placeholder="Pick" maxDate={new Date(2000, 0, 1)} />);
+    await userEvent.click(screen.getByText('Pick'));
+    expect(screen.getByRole('button', { name: 'Today' })).toBeDisabled();
+  });
 });

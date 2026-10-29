@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -60,8 +60,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     return () => { externalToast = null; };
   }, [toast]);
 
+  // Timers still pending when the provider goes away would call setState on nothing.
+  useEffect(() => {
+    const pending = timers.current;
+    return () => { Object.values(pending).forEach(clearTimeout); };
+  }, []);
+
+  // A new value only when the list changes, so a consumer that only calls toast() is not re-rendered
+  // by every parent render of the provider.
+  const value = useMemo(() => ({ toasts, toast, dismiss }), [toasts, toast, dismiss]);
+
   return (
-    <ToastContext.Provider value={{ toasts, toast, dismiss }}>
+    <ToastContext.Provider value={value}>
       {children}
     </ToastContext.Provider>
   );

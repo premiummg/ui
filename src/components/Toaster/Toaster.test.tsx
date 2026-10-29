@@ -8,9 +8,9 @@ import { ToastProvider, useToast, emitToast, ToastType } from './ToastContext';
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
 describe('Toaster + ToastProvider', () => {
-  test('renders nothing with no toasts', () => {
-    const { container } = render(<Toaster />, { wrapper });
-    expect(container).toBeEmptyDOMElement();
+  test('renders an empty live region with no toasts', () => {
+    render(<Toaster />, { wrapper });
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
   });
 
   test('toast() adds a message that Toaster renders', () => {
@@ -33,7 +33,7 @@ describe('Toaster + ToastProvider', () => {
     render(<Demo />, { wrapper });
     await userEvent.click(screen.getByText('Fire'));
     expect(screen.getByText('Hello')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: '' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
     expect(screen.queryByText('Hello')).not.toBeInTheDocument();
   });
 
