@@ -45,16 +45,20 @@ export interface FeedbackModalProps {
   // displays as is, falling back to labels.sendError.
   onSend: (fields: FeedbackFields) => Promise<void>;
   labels: FeedbackModalLabels;
+  // Always anonymous: no checkbox, and the anonymous note is always shown. For a
+  // box that only takes anonymous messages (complaints, say).
+  anonymousOnly?: boolean;
 }
 
 // Feedback about the app, from any role, with an anonymous option and images.
 // Presentational only: onSend does the real request. Anonymous means the sender
 // cannot be contacted, which the app's backend has to honor (no sender stored).
-export function FeedbackModal({ onClose, onSend, labels: t }: FeedbackModalProps) {
+export function FeedbackModal({ onClose, onSend, labels: t, anonymousOnly = false }: FeedbackModalProps) {
   const { toast } = useToast();
   const messageId = useId();
   const [message, setMessage] = useState('');
-  const [anonymous, setAnonymous] = useState(false);
+  const [anonymousChoice, setAnonymous] = useState(false);
+  const anonymous = anonymousOnly || anonymousChoice;
   const [files, setFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -110,10 +114,12 @@ export function FeedbackModal({ onClose, onSend, labels: t }: FeedbackModalProps
           />
         </div>
         <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-            <input type="checkbox" checked={anonymous} onChange={(e) => setAnonymous(e.target.checked)} />
-            {t.anonymousLabel}
-          </label>
+          {!anonymousOnly && (
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <input type="checkbox" checked={anonymousChoice} onChange={(e) => setAnonymous(e.target.checked)} />
+              {t.anonymousLabel}
+            </label>
+          )}
           {anonymous && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t.anonymousNote}</p>}
         </div>
         <div className="flex justify-end gap-2">

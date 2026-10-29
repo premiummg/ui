@@ -51,6 +51,16 @@ describe('FeedbackModal', () => {
     await waitFor(() => expect(onSend).toHaveBeenCalledWith({ message: 'quiet', anonymous: true }));
   });
 
+  test('anonymousOnly has no checkbox, always shows the note and always sends anonymously', async () => {
+    const onSend = vi.fn().mockResolvedValue(undefined);
+    render(<FeedbackModal onClose={vi.fn()} onSend={onSend} labels={labels} anonymousOnly />);
+    expect(screen.queryByLabelText('Send anonymously')).not.toBeInTheDocument();
+    expect(screen.getByText(labels.anonymousNote)).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText('Your feedback'), 'too many meetings');
+    await userEvent.click(screen.getByRole('button', { name: 'Submit feedback' }));
+    await waitFor(() => expect(onSend).toHaveBeenCalledWith({ message: 'too many meetings', anonymous: true }));
+  });
+
   test('sends the picked images', async () => {
     const onSend = vi.fn().mockResolvedValue(undefined);
     const { baseElement } = render(<FeedbackModal onClose={vi.fn()} onSend={onSend} labels={labels} />);
