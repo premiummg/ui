@@ -18,6 +18,33 @@ const seed: ChatMessage[] = [
 ];
 
 describe('ConversationThread', () => {
+  test('marking the thread read happens once, not again each time the parent hands in a new fetch function', async () => {
+    const onMarkRead = vi.fn().mockResolvedValue(undefined);
+    const messages = [{ id: '1', authorId: 'a', authorName: 'Ana', body: 'Hi', createdAt: new Date().toISOString() }];
+    const view = (fetchFn: () => Promise<ChatMessage[]>) => (
+      <ConversationThread fetchFn={fetchFn} onSend={vi.fn()} onMarkRead={onMarkRead} currentUserId="w" strings={strings} />
+    );
+    const { rerender } = render(view(async () => messages));
+    await waitFor(() => expect(screen.getByText('Hi')).toBeInTheDocument());
+    const afterFirst = onMarkRead.mock.calls.length;
+    for (let i = 0; i < 5; i++) rerender(view(async () => messages));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(onMarkRead.mock.calls.length).toBe(afterFirst);
+  });
+
+  test('a slow answer for a conversation that was swapped out does not overwrite the new one', async () => {
+    let releaseOld: (m: ChatMessage[]) => void = () => {};
+    const oldFetch = () => new Promise<ChatMessage[]>((resolve) => { releaseOld = resolve; });
+    const newFetch = async () => [{ id: '9', authorId: 'a', authorName: 'Ana', body: 'New conversation', createdAt: new Date().toISOString() }];
+    const { rerender } = render(<ConversationThread fetchFn={oldFetch} onSend={vi.fn()} currentUserId="w" strings={strings} />);
+    rerender(<ConversationThread fetchFn={newFetch} onSend={vi.fn()} currentUserId="w" strings={strings} />);
+    await waitFor(() => expect(screen.getByText('New conversation')).toBeInTheDocument());
+    releaseOld([{ id: '1', authorId: 'a', authorName: 'Ana', body: 'Old conversation', createdAt: new Date().toISOString() }]);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(screen.queryByText('Old conversation')).not.toBeInTheDocument();
+    expect(screen.getByText('New conversation')).toBeInTheDocument();
+  });
+
   test('fetches on mount and renders every message with its author name', async () => {
     render(
       <ConversationThread fetchFn={async () => seed} onSend={vi.fn()} currentUserId="worker-1" strings={strings} />,

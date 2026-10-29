@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FiArrowLeft, FiTrash2 } from 'react-icons/fi';
 import { ConversationThread } from '../ConversationThread/ConversationThread';
 import type { ChatBroadcast } from '../ConversationThread/types';
@@ -32,6 +32,9 @@ export function BroadcastDetail({
 }: BroadcastDetailProps) {
   const canReadSent = canSendMessages && !!fetchSent;
   const [found, setFound] = useState<{ broadcast: ChatBroadcast; side: BroadcastSide } | null>(null);
+  // Steady identity while the messages are the same: the thread restarts its checks whenever this changes.
+  const messages = found?.broadcast.messages;
+  const fetchMessages = useCallback(async () => messages ?? [], [messages]);
   const [loaded, setLoaded] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -149,7 +152,7 @@ export function BroadcastDetail({
             <ContextLink broadcast={broadcast} />
           </div>
           <ConversationThread
-            fetchFn={async () => broadcast.messages}
+            fetchFn={fetchMessages}
             onSend={(body, files) => (files ? onSendMessage(broadcast.id, body, files) : onSendMessage(broadcast.id, body))}
             getAttachmentUrl={getAttachmentUrl}
             onMarkRead={() => onMarkRead(broadcast.id)}

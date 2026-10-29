@@ -125,17 +125,37 @@ export function BroadcastInbox({
   };
 
   useEffect(() => {
+    // Only the latest request of each list may write to the screen, and none after this effect is
+    // torn down (unmounted, or fetchers swapped): an older, slower answer would otherwise bring back
+    // rows that a newer one (or a delete) had already removed.
+    let live = true;
+    let sentSeq = 0;
+    let receivedSeq = 0;
+    const loadSent = () => {
+      const seq = ++sentSeq;
+      return fetchSent!().then((rows) => { if (live && seq === sentSeq) setSent(rows); }).catch(() => {});
+    };
+    const loadReceived = () => {
+      const seq = ++receivedSeq;
+      return fetchReceived().then((rows) => { if (live && seq === receivedSeq) setReceived(rows); }).catch(() => {});
+    };
+    // Coming back to the tab fires visibilitychange and focus together: one refresh, not two.
+    let lastRun = 0;
     function refresh() {
       if (document.visibilityState === 'hidden') return;
-      if (canReadSent) fetchSent!().then(setSent).catch(() => {});
-      fetchReceived().then(setReceived).catch(() => {});
+      if (Date.now() - lastRun < 10_000) return;
+      lastRun = Date.now();
+      if (canReadSent) loadSent();
+      loadReceived();
     }
-    if (canReadSent) fetchSent!().then(setSent).catch(() => {}).finally(() => setLoadingSent(false));
-    fetchReceived().then(setReceived).catch(() => {}).finally(() => setLoadingReceived(false));
-    const interval = setInterval(refresh, pollIntervalMs);
+    if (canReadSent) loadSent().finally(() => { if (live) setLoadingSent(false); });
+    loadReceived().finally(() => { if (live) setLoadingReceived(false); });
+    // The timer is the regular pace (hidden tabs are skipped inside refresh), so it is never held back by the gap.
+    const interval = setInterval(() => { lastRun = 0; refresh(); }, pollIntervalMs);
     document.addEventListener('visibilitychange', refresh);
     window.addEventListener('focus', refresh);
     return () => {
+      live = false;
       clearInterval(interval);
       document.removeEventListener('visibilitychange', refresh);
       window.removeEventListener('focus', refresh);

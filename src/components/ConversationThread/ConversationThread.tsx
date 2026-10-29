@@ -213,6 +213,10 @@ export function ConversationThread({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const messageCountRef = useRef(0);
+  // Which load is the latest one. A slow response that arrives after a newer one (polling overlapping
+  // itself), after the conversation was swapped for another, or after the thread was closed is dropped
+  // instead of overwriting what is on screen.
+  const loadSeqRef = useRef(0);
   // A mark-read attempt that couldn't fire because the tab was unfocused when
   // a new message landed isn't dropped - it's retried the next time this tab
   // is actually focused, mirroring exactly how a human would notice it.
@@ -229,8 +233,10 @@ export function ConversationThread({
   }, [onMarkRead]);
 
   const load = useCallback(async () => {
+    const seq = ++loadSeqRef.current;
     try {
       const next = await fetchFn();
+      if (seq !== loadSeqRef.current) return;
       setMessages(next);
       setError(false);
       if (next.length !== messageCountRef.current) {
@@ -238,25 +244,31 @@ export function ConversationThread({
         attemptMarkRead();
       }
     } catch {
-      setError(true);
+      if (seq === loadSeqRef.current) setError(true);
     } finally {
-      setLoading(false);
+      if (seq === loadSeqRef.current) setLoading(false);
     }
   }, [fetchFn, attemptMarkRead]);
 
   useEffect(() => {
+    // Opening the thread reads it: load() marks it read as soon as there is something to read, so there is no
+    // separate mark-read here (a re-run of this effect would otherwise send one more request each time).
     load();
-    attemptMarkRead();
     const interval = setInterval(() => {
       if (document.visibilityState !== 'hidden') load();
     }, pollIntervalMs);
+    // Coming back to the tab fires visibilitychange and focus together: one check, not two.
+    let lastWake = 0;
     function onFocusOrVisible() {
+      if (Date.now() - lastWake < 10_000) return;
+      lastWake = Date.now();
       load();
       if (pendingMarkReadRef.current) attemptMarkRead();
     }
     document.addEventListener('visibilitychange', onFocusOrVisible);
     window.addEventListener('focus', onFocusOrVisible);
     return () => {
+      loadSeqRef.current++;
       clearInterval(interval);
       document.removeEventListener('visibilitychange', onFocusOrVisible);
       window.removeEventListener('focus', onFocusOrVisible);
@@ -265,7 +277,10 @@ export function ConversationThread({
   }, [fetchFn, pollIntervalMs]);
 
   async function handleSend(body: string, files?: File[]) {
+    const seqAtSend = loadSeqRef.current;
     const message = await (files ? onSend(body, files) : onSend(body));
+    // The conversation changed (or closed) while sending: the message went out, but it does not belong on this screen.
+    if (seqAtSend !== loadSeqRef.current) return;
     setMessages((prev) => [...prev, message]);
     messageCountRef.current += 1;
   }
