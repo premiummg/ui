@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import * as XLSX from 'xlsx';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
 import { SearchPicker } from '../SearchPicker';
@@ -103,8 +102,10 @@ export function ExcelColumnMapper({
       return;
     }
     let cancelled = false;
-    file.arrayBuffer()
-      .then(data => {
+    // The spreadsheet reader is a large library: loaded only when a file is actually picked, so an app
+    // that merely includes this component does not carry it in its first download.
+    Promise.all([file.arrayBuffer(), import('xlsx')])
+      .then(([data, XLSX]) => {
         if (cancelled) return;
         const wb = XLSX.read(data);
         const parsedRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(wb.Sheets[wb.SheetNames[0]]);
