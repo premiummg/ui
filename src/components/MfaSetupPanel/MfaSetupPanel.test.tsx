@@ -74,8 +74,12 @@ describe('MfaSetupPanel', () => {
     await userEvent.click(screen.getByText('Disable MFA'));
     expect(onDisable).not.toHaveBeenCalled();
     expect(screen.getByText('Are you sure?')).toBeInTheDocument();
+    // Switching it off needs the current code: without six digits the button stays disabled.
+    expect(screen.getByRole('button', { name: 'Yes, disable MFA' })).toBeDisabled();
+    await userEvent.type(screen.getByLabelText('Current 6-digit code from your authenticator'), '654321');
     await userEvent.click(screen.getByText('Yes, disable MFA'));
     expect(onDisable).toHaveBeenCalledTimes(1);
+    expect(onDisable).toHaveBeenCalledWith('654321');
   });
 
   test('a setup failure shows the error without advancing past idle', async () => {

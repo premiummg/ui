@@ -22,6 +22,8 @@ export interface MfaSetupPanelLabels {
   confirmDisable: string;
   disabling: string;
   yesDisable: string;
+  // Label of the field asking for the current authenticator code that proves it is really the owner.
+  disableCodeLabel?: string;
   cancel: string;
   step1: string;
   scanWith: string;
@@ -49,7 +51,8 @@ export interface MfaSetupPanelProps {
   mandatory: boolean;
   onStartSetup: () => Promise<{ qrCode: string; secret: string }>;
   onConfirmCode: (code: string) => Promise<void>;
-  onDisable: () => Promise<void>;
+  // Receives the current 6-digit authenticator code, which the server checks before switching MFA off.
+  onDisable: (code: string) => Promise<void>;
 }
 
 // The "turn two-factor on/off" panel on a person's own profile page - pulled
@@ -67,6 +70,7 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmDisable, setConfirmDisable] = useState(false);
+  const [disableCode, setDisableCode] = useState('');
 
   const on = enabled || step === 'done';
 
@@ -89,8 +93,9 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
     setLoading(true);
     setError('');
     try {
-      await onDisable();
+      await onDisable(disableCode);
       setConfirmDisable(false);
+      setDisableCode('');
       setStep('idle');
     } catch (err: any) {
       setError(err?.message || t.disableFailed);
@@ -172,17 +177,31 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
           ) : (
             <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: 'rgba(250,173,0,0.35)', backgroundColor: 'rgba(250,173,0,0.10)' }}>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{t.confirmDisable}</p>
+              <div>
+                <label htmlFor="mfa-disable-code" className="block text-sm text-gray-700 dark:text-gray-200 mb-1.5">{t.disableCodeLabel ?? 'Current 6-digit code from your authenticator'}</label>
+                <input
+                  id="mfa-disable-code"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={disableCode}
+                  onChange={(e) => setDisableCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  className="input-field w-40 text-center font-heading text-lg tracking-[0.4em] tabular-nums"
+                />
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={handleDisable}
-                  disabled={loading}
+                  disabled={loading || disableCode.length !== 6}
                   className="text-sm font-semibold px-4 py-2 rounded-lg text-white disabled:opacity-60"
                   style={{ backgroundColor: 'var(--premium-red)' }}
                 >
                   {loading ? t.disabling : t.yesDisable}
                 </button>
                 <button
-                  onClick={() => setConfirmDisable(false)}
+                  onClick={() => { setConfirmDisable(false); setDisableCode(''); setError(''); }}
                   className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 dark:border-white/20 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition"
                 >
                   {t.cancel}
