@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Modal } from '../Modal';
 import { FormLabel } from '../FormLabel';
+import { Avatar } from '../Avatar';
 import { useToast } from '../Toaster';
 import { ImageAttachmentPicker, type ImageAttachmentPickerStrings } from '../ImageAttachments/ImageAttachments';
 
@@ -58,6 +59,9 @@ export interface SendMessageModalProps {
   // Lets the sender attach images; omit to leave attachments out. `label` is the
   // visible field label (e.g. "Images (optional)").
   images?: ImageAttachmentPickerStrings & { label: string };
+  // false hides the "how should they respond" choice and always sends requiresReply: false, for a sender
+  // who may only write ordinary messages. Defaults to true.
+  allowResponseRequest?: boolean;
 }
 
 // Two labeled options instead of a checkbox - a checkbox needs prose to
@@ -102,7 +106,7 @@ function ReplyModeOption({ selected, onSelect, title, description }: {
 // system and pmg-intranet, which had each hand-written their own version.
 // Presentational only - onSend does the real API call; this has no opinion
 // on the payload shape beyond the three fields a person actually fills in.
-export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend, onSent, labels: t, images }: SendMessageModalProps) {
+export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend, onSent, labels: t, images, allowResponseRequest = true }: SendMessageModalProps) {
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -120,7 +124,7 @@ export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend
     setError('');
     setSending(true);
     try {
-      await onSend({ title: title.trim(), message: message.trim(), requiresReply, ...(files.length ? { files } : {}) });
+      await onSend({ title: title.trim(), message: message.trim(), requiresReply: allowResponseRequest && requiresReply, ...(files.length ? { files } : {}) });
       toast(t.sentToast(recipientLabel), 'success');
       onSent?.();
       onClose();
@@ -136,9 +140,25 @@ export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend
       <form onSubmit={submit} className="space-y-4">
         <div>
           <FormLabel text={t.to} />
-          <p className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 dark:border-white/15 dark:bg-white/5 dark:text-gray-300">
-            {recipientLabel}
-          </p>
+          {recipientNames?.length ? (
+            // One person per line with their avatar, in a box that scrolls: a message to a whole division
+            // used to become one long wall of names that pushed the form out of the window.
+            <ul
+              aria-label={t.to}
+              className="max-h-44 divide-y divide-gray-100 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 dark:divide-white/10 dark:border-white/15 dark:bg-white/5"
+            >
+              {recipientNames.map((name, i) => (
+                <li key={`${name}-${i}`} className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300">
+                  <Avatar fullName={name} size={26} />
+                  <span className="min-w-0 truncate">{name}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 dark:border-white/15 dark:bg-white/5 dark:text-gray-300">
+              {recipientLabel}
+            </p>
+          )}
         </div>
 
         <div>
@@ -174,7 +194,7 @@ export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend
           </div>
         )}
 
-        <div>
+        {allowResponseRequest && <div>
           <FormLabel text={t.responseLabel} />
           <div className="space-y-2">
             <ReplyModeOption
@@ -190,7 +210,7 @@ export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend
               description={t.writtenReplyDescription}
             />
           </div>
-        </div>
+        </div>}
 
         {error && <p className="text-sm" style={{ color: 'var(--premium-red)' }}>{error}</p>}
 

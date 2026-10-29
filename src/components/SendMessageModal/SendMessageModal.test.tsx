@@ -32,11 +32,17 @@ async function fillAndSend() {
 }
 
 describe('SendMessageModal', () => {
-  test('shows joined recipient names when given', () => {
+  test('lists each recipient on its own line, with an avatar, in a scrollable list', () => {
     render(
-      <SendMessageModal recipientIds={['1', '2']} recipientNames={['Ada', 'Grace']} onClose={vi.fn()} onSend={vi.fn()} labels={labels} />,
+      <SendMessageModal recipientIds={['1', '2']} recipientNames={['Ada Lovelace', 'Grace Hopper']} onClose={vi.fn()} onSend={vi.fn()} labels={labels} />,
     );
-    expect(screen.getByText('Ada, Grace')).toBeInTheDocument();
+    const list = screen.getByRole('list', { name: 'To' });
+    expect(list).toHaveClass('overflow-y-auto');
+    const items = screen.getAllByRole('listitem');
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveTextContent('Ada Lovelace');
+    expect(items[0]).toHaveTextContent('AL');
+    expect(items[1]).toHaveTextContent('Grace Hopper');
   });
 
   test('falls back to a plain count when recipientNames is omitted', () => {
@@ -116,5 +122,14 @@ describe('SendMessageModal images', () => {
     await userEvent.click(screen.getByText('Send'));
     await waitFor(() => expect(onSend).toHaveBeenCalled());
     expect(onSend.mock.calls[0][0].files).toEqual([file]);
+  });
+
+  test('allowResponseRequest={false} hides the response choice and never asks for a reply', async () => {
+    const onSend = vi.fn().mockResolvedValue(undefined);
+    render(<SendMessageModal recipientIds={['a']} onClose={() => {}} onSend={onSend} labels={labels} allowResponseRequest={false} />);
+    expect(screen.queryByText(labels.responseLabel)).not.toBeInTheDocument();
+    await fillAndSend();
+    await waitFor(() => expect(onSend).toHaveBeenCalled());
+    expect(onSend.mock.calls[0][0].requiresReply).toBe(false);
   });
 });
