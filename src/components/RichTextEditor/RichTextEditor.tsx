@@ -248,6 +248,9 @@ export function RichTextEditor({
           <div
             ref={editorRef}
             contentEditable
+            role="textbox"
+            aria-multiline="true"
+            aria-label={placeholder}
             suppressContentEditableWarning
             onInput={emit}
             onPaste={handlePaste}
@@ -346,6 +349,9 @@ function RichTextFullEditor({ title, initialHtml, onSave, onClose }: {
           <div
             ref={editorRef}
             contentEditable
+            role="textbox"
+            aria-multiline="true"
+            aria-label="Write here, or paste a screenshot (Ctrl+V)…"
             suppressContentEditableWarning
             onInput={emit}
             onPaste={handlePaste}

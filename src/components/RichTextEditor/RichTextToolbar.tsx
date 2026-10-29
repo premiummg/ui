@@ -167,7 +167,11 @@ function ToolBtn({ onRun, title, children }: { onRun: () => void; title: string;
     <button
       type="button"
       onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); onRun(); }}
+      // A keyboard press (Enter or Space on the focused button) arrives as a click with no pointer
+      // (detail 0); a mouse click already ran on mouseDown and must not run twice.
+      onClick={(e) => { if (e.detail === 0) onRun(); }}
       title={title}
+      aria-label={title}
       className="select-none rounded px-2 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600"
     >
       {children}
@@ -202,6 +206,8 @@ function Swatches({ colors, active, onPick, label, indicator }: {
             key={c.value}
             type="button"
             onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); onPick(c.value); }}
+            onClick={(e) => { if (e.detail === 0) onPick(c.value); }}
+            aria-pressed={active === c.value}
             title={c.name}
             aria-label={`${label}: ${c.name}`}
             className={`flex h-5 w-5 items-center justify-center rounded-sm ${c.cls} ${
