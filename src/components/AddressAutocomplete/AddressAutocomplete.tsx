@@ -113,6 +113,9 @@ export function AddressAutocomplete({
       e.preventDefault();
       selectSuggestion(suggestions[highlightedIndex]);
     } else if (e.key === 'Escape') {
+      // Closes the list only: a modal around this field must stay open.
+      e.preventDefault();
+      e.stopPropagation();
       setSuggestions([]);
       setHighlightedIndex(-1);
     }

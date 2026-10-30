@@ -18,9 +18,15 @@ export interface ModalProps {
   ariaLabel?: string;
 }
 
-// Open modals, innermost last. Only the top one answers Escape, so a confirm opened over an edit
-// modal closes alone instead of taking the modal underneath with it.
-const openModals: symbol[] = [];
+// Only the top modal answers Escape and traps Tab, so a confirm opened over an edit modal closes alone instead
+// of taking the modal underneath with it. The top one is the last panel in the document: an inner modal sits after
+// the one it was opened from, and it stays so even when both mount in the same render (their effects then run
+// innermost first, which a list kept in effect order would get backwards).
+const MODAL_ATTRIBUTE = 'data-pmg-modal';
+const isTopModal = (panel: HTMLElement | null): boolean => {
+  const all = document.querySelectorAll(`[${MODAL_ATTRIBUTE}]`);
+  return !!panel && all[all.length - 1] === panel;
+};
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -37,8 +43,6 @@ export function Modal({ onClose, title, description, children, maxWidth = 'max-w
   dismissableRef.current = dismissable;
 
   useEffect(() => {
-    const me = Symbol('modal');
-    openModals.push(me);
     const previouslyFocused = document.activeElement as HTMLElement | null;
 
     // Focus moves into the panel and comes back to where it was when the modal closes. The panel itself
@@ -48,9 +52,11 @@ export function Modal({ onClose, title, description, children, maxWidth = 'max-w
     if (panel && !panel.contains(document.activeElement)) panel.focus();
 
     const onKey = (e: KeyboardEvent) => {
-      if (openModals[openModals.length - 1] !== me) return;
+      if (!isTopModal(panelRef.current)) return;
       if (e.key === 'Escape') {
-        if (dismissableRef.current) onCloseRef.current();
+        // A widget inside the modal that used Escape for itself (closing its own list, cancelling an inline edit)
+        // marks the event as handled; the modal stays open.
+        if (!e.defaultPrevented && dismissableRef.current) onCloseRef.current();
         return;
       }
       if (e.key !== 'Tab' || !panel) return;
@@ -67,8 +73,6 @@ export function Modal({ onClose, title, description, children, maxWidth = 'max-w
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('keydown', onKey);
-      const at = openModals.indexOf(me);
-      if (at !== -1) openModals.splice(at, 1);
       if (previouslyFocused && document.contains(previouslyFocused)) previouslyFocused.focus();
     };
   }, []);
@@ -92,6 +96,7 @@ export function Modal({ onClose, title, description, children, maxWidth = 'max-w
       <div
         ref={panelRef}
         role="dialog"
+        {...{ [MODAL_ATTRIBUTE]: '' }}
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
         aria-label={title ? undefined : ariaLabel}

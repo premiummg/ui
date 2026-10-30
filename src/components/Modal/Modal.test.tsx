@@ -116,6 +116,28 @@ describe('Modal', () => {
     expect(outer).not.toHaveBeenCalled();
   });
 
+  test('a modal opened inside another in the same render is the one that answers Escape', async () => {
+    const outer = vi.fn();
+    const inner = vi.fn();
+    render(<Modal onClose={outer}>under<Modal onClose={inner}>over</Modal></Modal>);
+    await userEvent.keyboard('{Escape}');
+    expect(inner).toHaveBeenCalledTimes(1);
+    expect(outer).not.toHaveBeenCalled();
+  });
+
+  test('an Escape a widget inside already used for itself does not close the modal', async () => {
+    const onClose = vi.fn();
+    const onEscape = vi.fn();
+    render(
+      <Modal onClose={onClose}>
+        <input aria-label="Name" onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); onEscape(); } }} />
+      </Modal>,
+    );
+    await userEvent.type(screen.getByLabelText('Name'), '{Escape}');
+    expect(onEscape).toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   test('dismissable={false} ignores Escape and the backdrop', async () => {
     const onClose = vi.fn();
     const { container } = render(<Modal onClose={onClose} dismissable={false}>x</Modal>);
