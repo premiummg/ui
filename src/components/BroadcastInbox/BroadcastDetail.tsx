@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FiArrowLeft, FiTrash2 } from 'react-icons/fi';
 import { ConversationThread } from '../ConversationThread/ConversationThread';
 import type { ChatBroadcast } from '../ConversationThread/types';
@@ -32,9 +32,11 @@ export function BroadcastDetail({
 }: BroadcastDetailProps) {
   const canReadSent = canSendMessages && !!fetchSent;
   const [found, setFound] = useState<{ broadcast: ChatBroadcast; side: BroadcastSide } | null>(null);
-  // Steady identity while the messages are the same: the thread restarts its checks whenever this changes.
-  const messages = found?.broadcast.messages;
-  const fetchMessages = useCallback(async () => messages ?? [], [messages]);
+  // The thread reads the latest messages from here. Its function keeps one identity per conversation: the thread
+  // treats a new function as a different conversation, which would drop a message being sent when a poll lands.
+  const messagesRef = useRef(found?.broadcast.messages ?? []);
+  messagesRef.current = found?.broadcast.messages ?? messagesRef.current;
+  const fetchMessages = useCallback(async () => messagesRef.current, [broadcastId]);
   const [loaded, setLoaded] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -42,25 +44,40 @@ export function BroadcastDetail({
 
   useEffect(() => {
     let cancelled = false;
+    // Only the latest check may update the screen: a slow, older answer must not overwrite a newer one.
+    let latest = 0;
     async function load() {
       if (document.visibilityState === 'hidden') return;
-      const sentList = canReadSent ? await fetchSent!().catch(() => null) : null;
-      const receivedList = await fetchReceived().catch(() => null);
-      if (cancelled) return;
+      const seq = ++latest;
+      let failed = false;
+      const read = (fetchList: () => Promise<ChatBroadcast[]>) => fetchList().catch(() => { failed = true; return null; });
+      const sentList = canReadSent ? await read(fetchSent!) : null;
+      const receivedList = await read(fetchReceived);
+      if (cancelled || seq !== latest) return;
       const sentHit = sentList?.find((b) => b.id === broadcastId);
       const receivedHit = receivedList?.find((b) => b.id === broadcastId);
-      setFound(sentHit ? { broadcast: sentHit, side: 'sent' } : receivedHit ? { broadcast: receivedHit, side: 'received' } : null);
+      if (sentHit) setFound({ broadcast: sentHit, side: 'sent' });
+      else if (receivedHit) setFound({ broadcast: receivedHit, side: 'received' });
+      // A failed check says nothing about the conversation: keep what is on screen (and what is being typed).
+      else if (!failed) setFound(null);
       setLoaded(true);
     }
     load();
     const interval = setInterval(load, pollIntervalMs);
-    document.addEventListener('visibilitychange', load);
-    window.addEventListener('focus', load);
+    // Coming back to the tab fires visibilitychange and focus together: one check, not two.
+    let lastWake = 0;
+    function onWake() {
+      if (Date.now() - lastWake < 10_000) return;
+      lastWake = Date.now();
+      load();
+    }
+    document.addEventListener('visibilitychange', onWake);
+    window.addEventListener('focus', onWake);
     return () => {
       cancelled = true;
       clearInterval(interval);
-      document.removeEventListener('visibilitychange', load);
-      window.removeEventListener('focus', load);
+      document.removeEventListener('visibilitychange', onWake);
+      window.removeEventListener('focus', onWake);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [broadcastId, canReadSent, pollIntervalMs]);
@@ -152,6 +169,7 @@ export function BroadcastDetail({
             <ContextLink broadcast={broadcast} />
           </div>
           <ConversationThread
+            key={broadcast.id}
             fetchFn={fetchMessages}
             onSend={(body, files) => (files ? onSendMessage(broadcast.id, body, files) : onSendMessage(broadcast.id, body))}
             getAttachmentUrl={getAttachmentUrl}

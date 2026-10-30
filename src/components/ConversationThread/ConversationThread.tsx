@@ -217,6 +217,8 @@ export function ConversationThread({
   // itself), after the conversation was swapped for another, or after the thread was closed is dropped
   // instead of overwriting what is on screen.
   const loadSeqRef = useRef(0);
+  // Messages sent from this screen that the list has not returned yet.
+  const sentRef = useRef<ChatMessage[]>([]);
   // A mark-read attempt that couldn't fire because the tab was unfocused when
   // a new message landed isn't dropped - it's retried the next time this tab
   // is actually focused, mirroring exactly how a human would notice it.
@@ -237,10 +239,14 @@ export function ConversationThread({
     try {
       const next = await fetchFn();
       if (seq !== loadSeqRef.current) return;
-      setMessages(next);
+      // What this person just sent stays until the list itself carries it, so a check that started before the
+      // send cannot make it vanish.
+      sentRef.current = sentRef.current.filter((s) => !next.some((m) => m.id === s.id));
+      const merged = sentRef.current.length ? [...next, ...sentRef.current] : next;
+      setMessages(merged);
       setError(false);
-      if (next.length !== messageCountRef.current) {
-        messageCountRef.current = next.length;
+      if (merged.length !== messageCountRef.current) {
+        messageCountRef.current = merged.length;
         attemptMarkRead();
       }
     } catch {
@@ -269,6 +275,7 @@ export function ConversationThread({
     window.addEventListener('focus', onFocusOrVisible);
     return () => {
       loadSeqRef.current++;
+      sentRef.current = [];
       clearInterval(interval);
       document.removeEventListener('visibilitychange', onFocusOrVisible);
       window.removeEventListener('focus', onFocusOrVisible);
@@ -277,11 +284,11 @@ export function ConversationThread({
   }, [fetchFn, pollIntervalMs]);
 
   async function handleSend(body: string, files?: File[]) {
-    const seqAtSend = loadSeqRef.current;
     const message = await (files ? onSend(body, files) : onSend(body));
-    // The conversation changed (or closed) while sending: the message went out, but it does not belong on this screen.
-    if (seqAtSend !== loadSeqRef.current) return;
-    setMessages((prev) => [...prev, message]);
+    // A poll landing while the message was going out must not drop it. Showing a message of another conversation
+    // is the one thing to avoid, and that is a different thread instance (give each conversation its own key).
+    sentRef.current = [...sentRef.current, message];
+    setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
     messageCountRef.current += 1;
   }
 
@@ -289,12 +296,14 @@ export function ConversationThread({
     <div className="space-y-2.5">
       {loading ? (
         <p className="py-4 text-center text-xs text-gray-400">…</p>
-      ) : error ? (
-        <p className="py-4 text-center text-xs" style={{ color: 'var(--premium-red)' }}>{strings.loadError}</p>
       ) : (
-        messages.map((m) => (
-          <MessageBubble key={m.id} message={m} mine={m.authorId === currentUserId} strings={strings} onAuthorClick={onAuthorClick} getAttachmentUrl={getAttachmentUrl} />
-        ))
+        <>
+          {/* A failed check keeps the messages already loaded and says so above them. */}
+          {error && <p className="py-2 text-center text-xs" style={{ color: 'var(--premium-red)' }}>{strings.loadError}</p>}
+          {messages.map((m) => (
+            <MessageBubble key={m.id} message={m} mine={m.authorId === currentUserId} strings={strings} onAuthorClick={onAuthorClick} getAttachmentUrl={getAttachmentUrl} />
+          ))}
+        </>
       )}
       {disabled ? (
         disabledMessage && <p className="pt-1 text-center text-xs text-gray-400">{disabledMessage}</p>

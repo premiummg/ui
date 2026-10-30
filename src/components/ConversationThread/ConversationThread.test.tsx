@@ -78,6 +78,44 @@ describe('ConversationThread', () => {
     await waitFor(() => expect(screen.getByText('New reply')).toBeInTheDocument());
   });
 
+  test('a failed check keeps the messages already on screen and says so above them', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      let fail = false;
+      const fetchFn = async () => { if (fail) throw new Error('down'); return seed; };
+      render(<ConversationThread fetchFn={fetchFn} onSend={vi.fn()} currentUserId="w" strings={strings} pollIntervalMs={1000} />);
+      await waitFor(() => expect(screen.getByText('Hello there')).toBeInTheDocument());
+      fail = true;
+      await vi.advanceTimersByTimeAsync(1100);
+      await waitFor(() => expect(screen.getByText(strings.loadError)).toBeInTheDocument());
+      expect(screen.getByText('Hello there')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test('a message sent while a check was in flight stays on screen', async () => {
+    let releaseCheck: (m: ChatMessage[]) => void = () => {};
+    let calls = 0;
+    const fetchFn = () => (++calls === 1 ? Promise.resolve([]) : new Promise<ChatMessage[]>((resolve) => { releaseCheck = resolve; }));
+    const sent: ChatMessage = { id: '7', authorId: 'w', authorName: 'Wen', body: 'Sent during a check', createdAt: new Date().toISOString() };
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      render(<ConversationThread fetchFn={fetchFn} onSend={vi.fn().mockResolvedValue(sent)} currentUserId="w" strings={strings} pollIntervalMs={1000} />);
+      await waitFor(() => expect(screen.getByPlaceholderText(strings.placeholder)).toBeInTheDocument());
+      await vi.advanceTimersByTimeAsync(1100);
+      await userEvent.type(screen.getByPlaceholderText(strings.placeholder), 'Sent during a check');
+      await userEvent.click(screen.getByLabelText(strings.send));
+      await waitFor(() => expect(screen.getByText('Sent during a check')).toBeInTheDocument());
+      // The slow check started before the send and does not know the message yet.
+      releaseCheck([]);
+      await vi.advanceTimersByTimeAsync(50);
+      expect(screen.getByText('Sent during a check')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test('disabled hides the composer and shows disabledMessage instead', async () => {
     render(
       <ConversationThread
