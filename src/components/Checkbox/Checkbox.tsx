@@ -15,7 +15,7 @@ export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement
 }
 
 // A checkbox in the brand red, labeled. With a label, the whole line (box and text) is the click target.
-export function Checkbox({ checked, onChange, label, hint, align = 'center', indeterminate, className = '', disabled, ...rest }: CheckboxProps) {
+export function Checkbox({ checked, onChange, label, hint, align = 'center', indeterminate, className = '', disabled, title, ...rest }: CheckboxProps) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (ref.current) ref.current.indeterminate = !!indeterminate;
@@ -23,6 +23,9 @@ export function Checkbox({ checked, onChange, label, hint, align = 'center', ind
   const box = (
     <input
       {...rest}
+      // With a label the tooltip belongs to the whole line (the box is 14 px wide, and a disabled control often
+      // shows none); a bare box has nothing else to carry it.
+      title={label === undefined ? title : undefined}
       ref={ref}
       type="checkbox"
       checked={checked}
@@ -33,7 +36,7 @@ export function Checkbox({ checked, onChange, label, hint, align = 'center', ind
   );
   if (label === undefined) return box;
   return (
-    <label className={`flex ${align === 'start' ? 'items-start' : 'items-center'} gap-2 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${className}`}>
+    <label title={title} className={`flex ${align === 'start' ? 'items-start' : 'items-center'} gap-2 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'} ${className}`}>
       {box}
       <span className="text-sm text-gray-700 dark:text-gray-300">
         {label}

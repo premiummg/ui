@@ -32,6 +32,14 @@ describe('Checkbox', () => {
     expect(onChange).toHaveBeenCalledWith(true, expect.anything());
   });
 
+  test('the tooltip is on the whole line when there is a label, on the box when there is not', () => {
+    const { rerender } = render(<Checkbox checked onChange={() => {}} label="Locked" title="Why it is locked" disabled />);
+    expect(screen.getByText('Locked').closest('label')).toHaveAttribute('title', 'Why it is locked');
+    expect(screen.getByRole('checkbox')).not.toHaveAttribute('title');
+    rerender(<Checkbox checked onChange={() => {}} aria-label="Row" title="Select this row" />);
+    expect(screen.getByRole('checkbox')).toHaveAttribute('title', 'Select this row');
+  });
+
   test('shows a hint under the label', () => {
     render(<Checkbox checked onChange={() => {}} label="Quebec flag" hint="Shows the fleur-de-lis" />);
     expect(screen.getByText('Shows the fleur-de-lis')).toBeInTheDocument();
