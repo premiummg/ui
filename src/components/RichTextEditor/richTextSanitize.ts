@@ -41,7 +41,9 @@ const PASTE_ALLOWED_ATTR = ['style', 'href', 'target', 'rel', 'size', 'color', '
 // dropping: url() would let a stored post beacon every reader's IP to an
 // external host, and position:fixed would let one cover the whole page. A
 // consuming app's own server-side sanitizer should mirror this identical hook.
-const UNSAFE_CSS = /expression\s*\(|url\s*\(|@import|behavior\s*:|position\s*:\s*(?:fixed|absolute|sticky)/i;
+// A backslash is dropped as well: in CSS it spells other characters (`u\72l(` is `url(`), so a check on the written
+// text alone is not enough. Comments and image-set() are dropped for the same reason, they can hide or fetch an image.
+const UNSAFE_CSS = /expression\s*\(|url\s*\(|image-set\s*\(|@import|behavior\s*:|position\s*:\s*(?:fixed|absolute|sticky)|\\|\/\*/i;
 
 // Only these properties survive in a style attribute (what execCommand and the image/video wrappers
 // emit, plus ordinary text and box formatting). Anything else, such as filter, content, cursor or
@@ -74,6 +76,8 @@ function getPurifier() {
 // which address), so only embedded images and ones on this site itself survive.
 function isAllowedImageSrc(src: string): boolean {
   const value = src.trim();
+  // A browser reads a backslash in a URL as a slash, so "/\host/x.png" and "\\host/x.png" point at another site.
+  if (value.includes('\\')) return false;
   if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value)) return true;
   if (/^blob:/i.test(value)) return true;
   if (value.startsWith('//')) return false;

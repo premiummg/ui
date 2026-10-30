@@ -65,6 +65,13 @@ describe('sanitizeRichText style attribute', () => {
     expect(out).toContain('color');
   });
 
+  test('drops a url() written with a CSS escape, and comments that hide one', () => {
+    expect(renderRichTextHtml('<div style="background: u\\72l(https://x.test/a.png); color: red">hi</div>')).not.toContain('x.test');
+    expect(renderRichTextHtml('<div style="background: ur/**/l(https://x.test/a.png); color: red">hi</div>')).not.toContain('x.test');
+    expect(renderRichTextHtml('<div style="background: image-set(\'https://x.test/a.png\' 1x); color: red">hi</div>')).not.toContain('x.test');
+    expect(renderRichTextHtml('<div style="background: u\\72l(https://x.test/a.png); color: red">hi</div>')).toContain('color');
+  });
+
   test('does not install hooks on the shared DOMPurify', () => {
     renderRichTextHtml('<p>x</p>');
     const out = DOMPurify.sanitize('<span style="filter: blur(9px)" data-youtube="nope">x</span>', { ALLOWED_ATTR: ['style', 'data-youtube'] });
@@ -82,5 +89,8 @@ describe('sanitizeRichText images', () => {
     expect(renderRichTextHtml('<img src="https://tracker.test/p.gif">')).not.toContain('img');
     expect(renderRichTextHtml('<img src="//tracker.test/p.gif">')).not.toContain('img');
     expect(renderRichTextHtml('<img src="data:image/svg+xml;base64,PHN2Zz4=">')).not.toContain('img');
+    // A browser reads a backslash as a slash: these point at another site.
+    expect(renderRichTextHtml('<img src="/\\tracker.test/p.gif">')).not.toContain('img');
+    expect(renderRichTextHtml('<img src="\\\\tracker.test/p.gif">')).not.toContain('img');
   });
 });
