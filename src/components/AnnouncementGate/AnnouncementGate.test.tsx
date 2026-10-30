@@ -56,7 +56,12 @@ describe('AnnouncementGate', () => {
       />,
     );
     expect(screen.getByText('Group message · 3 people')).toBeInTheDocument();
-    expect(screen.getByText('Ana Ruiz, Luis Gómez, Carla Díaz')).toBeInTheDocument();
+    // One person per line, not a comma-separated run.
+    expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      expect.stringContaining('Ana Ruiz'),
+      expect.stringContaining('Luis Gómez'),
+      expect.stringContaining('Carla Díaz'),
+    ]);
   });
 
   test('shows no group notice for a single recipient or when none are given', () => {

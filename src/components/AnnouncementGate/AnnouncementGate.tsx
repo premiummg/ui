@@ -167,14 +167,18 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
             {/* A reply here is read by everyone on the thread, not just the
                 sender - say so up front, with the names, before they type. */}
             {t.groupMessage && current.recipients && current.recipients.length > 1 && (
-              <div className="mb-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">{t.groupMessage(current.recipients.length)}</p>
-                <p
-                  className="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400"
-                  title={current.recipients.map((r) => r.name).join(', ')}
-                >
-                  {current.recipients.map((r) => r.name).join(', ')}
-                </p>
+              <div className="mb-3 overflow-hidden rounded-lg border border-gray-100 bg-gray-50 dark:border-white/10 dark:bg-white/5">
+                <p className="px-3 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300">{t.groupMessage(current.recipients.length)}</p>
+                {/* One person per line with their avatar, in a box that scrolls: a message to a whole
+                    division used to become a wall of names pushing the message down. */}
+                <ul className="max-h-36 divide-y divide-gray-100 overflow-y-auto border-t border-gray-100 dark:divide-white/10 dark:border-white/10">
+                  {current.recipients.map((r, i) => (
+                    <li key={`${r.id ?? r.name}-${i}`} className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300">
+                      <Avatar fullName={r.name} size={24} />
+                      <span className="min-w-0 truncate">{r.name}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
