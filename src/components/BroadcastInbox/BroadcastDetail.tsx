@@ -29,6 +29,7 @@ export function BroadcastDetail({
   onBack,
   strings,
   pollIntervalMs = 15_000,
+  pausePolling,
 }: BroadcastDetailProps) {
   const canReadSent = canSendMessages && !!fetchSent;
   const [found, setFound] = useState<{ broadcast: ChatBroadcast; side: BroadcastSide } | null>(null);
@@ -38,6 +39,8 @@ export function BroadcastDetail({
   messagesRef.current = found?.broadcast.messages ?? messagesRef.current;
   const fetchMessages = useCallback(async () => messagesRef.current, [broadcastId]);
   const [loaded, setLoaded] = useState(false);
+  const pausePollingRef = useRef(pausePolling);
+  pausePollingRef.current = pausePolling;
   const [closing, setClosing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -46,8 +49,10 @@ export function BroadcastDetail({
     let cancelled = false;
     // Only the latest check may update the screen: a slow, older answer must not overwrite a newer one.
     let latest = 0;
+    // The first check always runs: the screen has nothing to show until it does.
+    let loadedOnce = false;
     async function load() {
-      if (document.visibilityState === 'hidden') return;
+      if (document.visibilityState === 'hidden' || (loadedOnce && pausePollingRef.current?.())) return;
       const seq = ++latest;
       let failed = false;
       const read = (fetchList: () => Promise<ChatBroadcast[]>) => fetchList().catch(() => { failed = true; return null; });
@@ -61,6 +66,7 @@ export function BroadcastDetail({
       // A failed check says nothing about the conversation: keep what is on screen (and what is being typed).
       else if (!failed) setFound(null);
       setLoaded(true);
+      loadedOnce = true;
     }
     load();
     const interval = setInterval(load, pollIntervalMs);
@@ -177,6 +183,7 @@ export function BroadcastDetail({
             currentUserId={currentUserId}
             strings={strings}
             pollIntervalMs={pollIntervalMs}
+            pausePolling={pausePolling}
             disabled={!!broadcast.closedAt || !canReply || !!broadcast.locked}
             disabledMessage={broadcast.locked ?? undefined}
             onAuthorClick={onAuthorClick}

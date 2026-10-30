@@ -82,6 +82,9 @@ export interface BroadcastDataProps {
   onAuthorClick?: (authorId: string) => void;
   strings: BroadcastInboxStrings;
   pollIntervalMs?: number;
+  // Return true while polling should wait (an app that was told "too many requests" says so here). The regular
+  // checks skip their turn; the next one after it returns false runs as usual.
+  pausePolling?: () => boolean;
 }
 
 export interface BroadcastInboxProps extends BroadcastDataProps {

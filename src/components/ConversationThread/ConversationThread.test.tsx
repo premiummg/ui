@@ -94,6 +94,25 @@ describe('ConversationThread', () => {
     }
   });
 
+  test('the regular checks wait while the app says to pause, and resume afterwards', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      let paused = false;
+      const fetchFn = vi.fn().mockResolvedValue(seed);
+      render(<ConversationThread fetchFn={fetchFn} onSend={vi.fn()} currentUserId="w" strings={strings} pollIntervalMs={1000} pausePolling={() => paused} />);
+      await waitFor(() => expect(screen.getByText('Hello there')).toBeInTheDocument());
+      paused = true;
+      const before = fetchFn.mock.calls.length;
+      await vi.advanceTimersByTimeAsync(3500);
+      expect(fetchFn.mock.calls.length).toBe(before);
+      paused = false;
+      await vi.advanceTimersByTimeAsync(1100);
+      expect(fetchFn.mock.calls.length).toBeGreaterThan(before);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test('a message sent while a check was in flight stays on screen', async () => {
     let releaseCheck: (m: ChatMessage[]) => void = () => {};
     let calls = 0;

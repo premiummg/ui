@@ -51,6 +51,9 @@ export interface ConversationThreadProps {
   strings: ConversationThreadStrings;
   // Matches both apps' own current choice.
   pollIntervalMs?: number;
+  // Return true while polling should wait (an app that was told "too many requests" says so here). The regular
+  // checks skip their turn; the next one after it returns false runs as usual.
+  pausePolling?: () => boolean;
   // A closed conversation - hides the composer, shows disabledMessage instead.
   disabled?: boolean;
   disabledMessage?: string;
@@ -204,6 +207,7 @@ export function ConversationThread({
   currentUserId,
   strings,
   pollIntervalMs = 15_000,
+  pausePolling,
   disabled = false,
   disabledMessage,
   onAuthorClick,
@@ -219,6 +223,8 @@ export function ConversationThread({
   const loadSeqRef = useRef(0);
   // Messages sent from this screen that the list has not returned yet.
   const sentRef = useRef<ChatMessage[]>([]);
+  const pausePollingRef = useRef(pausePolling);
+  pausePollingRef.current = pausePolling;
   // A mark-read attempt that couldn't fire because the tab was unfocused when
   // a new message landed isn't dropped - it's retried the next time this tab
   // is actually focused, mirroring exactly how a human would notice it.
@@ -261,12 +267,12 @@ export function ConversationThread({
     // separate mark-read here (a re-run of this effect would otherwise send one more request each time).
     load();
     const interval = setInterval(() => {
-      if (document.visibilityState !== 'hidden') load();
+      if (document.visibilityState !== 'hidden' && !pausePollingRef.current?.()) load();
     }, pollIntervalMs);
     // Coming back to the tab fires visibilitychange and focus together: one check, not two.
     let lastWake = 0;
     function onFocusOrVisible() {
-      if (Date.now() - lastWake < 10_000) return;
+      if (Date.now() - lastWake < 10_000 || pausePollingRef.current?.()) return;
       lastWake = Date.now();
       load();
       if (pendingMarkReadRef.current) attemptMarkRead();

@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { FiPlus, FiSearch, FiTrash2, FiX } from 'react-icons/fi';
 import type { ChatBroadcast } from '../ConversationThread/types';
 import { Button } from '../Button';
@@ -102,6 +102,7 @@ export function BroadcastInbox({
   strings,
   dateLocale,
   pollIntervalMs = 15_000,
+  pausePolling,
 }: BroadcastInboxProps) {
   const canReadSent = canSendMessages && !!fetchSent;
   // Sent, Received, or every conversation with something new from both.
@@ -109,6 +110,8 @@ export function BroadcastInbox({
   const [sent, setSent] = useState<ChatBroadcast[]>([]);
   const [received, setReceived] = useState<ChatBroadcast[]>([]);
   const [loadingSent, setLoadingSent] = useState(canReadSent);
+  const pausePollingRef = useRef(pausePolling);
+  pausePollingRef.current = pausePolling;
   const [loadingReceived, setLoadingReceived] = useState(true);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
@@ -142,7 +145,7 @@ export function BroadcastInbox({
     // Coming back to the tab fires visibilitychange and focus together: one refresh, not two.
     let lastRun = 0;
     function refresh() {
-      if (document.visibilityState === 'hidden') return;
+      if (document.visibilityState === 'hidden' || pausePollingRef.current?.()) return;
       if (Date.now() - lastRun < 10_000) return;
       lastRun = Date.now();
       if (canReadSent) loadSent();
