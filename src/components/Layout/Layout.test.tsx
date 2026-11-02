@@ -18,4 +18,9 @@ describe('Layout', () => {
     const { container } = render(<Layout>page content</Layout>);
     expect(container.querySelector('nav')).not.toBeInTheDocument();
   });
+
+  test('renders the footer after main', () => {
+    render(<Layout footer={<footer>My Footer</footer>}>page content</Layout>);
+    expect(screen.getByText('My Footer')).toBeInTheDocument();
+  });
 });

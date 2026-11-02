@@ -145,6 +145,8 @@ export type { WeekNavProps } from './components/WeekNav';
 export { AuthShell, AuthError } from './components/AuthShell';
 export type { AuthShellProps, AuthShellLabels, AuthErrorProps } from './components/AuthShell';
 
+export { AppFooter } from './components/AppFooter';
+export type { AppFooterProps } from './components/AppFooter';
 export { Layout } from './components/Layout';
 export type { LayoutProps } from './components/Layout';
 
@@ -211,7 +213,7 @@ export type { MediaCardProps } from './components/MediaCard';
 export { Avatar } from './components/Avatar';
 export type { AvatarProps } from './components/Avatar';
 export { ProfilePhoto } from './components/ProfilePhoto';
-export type { ProfilePhotoProps } from './components/ProfilePhoto';
+export type { ProfilePhotoProps, ProfilePhotoRemoveLabels } from './components/ProfilePhoto';
 
 export { ConfirmDialog } from './components/ConfirmDialog';
 export type { ConfirmDialogProps, ConfirmDialogTone, ConfirmDialogAction } from './components/ConfirmDialog';
