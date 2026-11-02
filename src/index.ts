@@ -15,7 +15,7 @@ export type { ToggleChipProps } from './components/ToggleChip';
 export { RipplingLinkModal } from './components/RipplingLinkModal';
 export type { RipplingLinkModalProps, RipplingLinkModalLabels, RipplingCandidate } from './components/RipplingLinkModal';
 export { RipplingFillModal } from './components/RipplingFillModal';
-export type { RipplingFillModalProps, RipplingFillModalLabels, RipplingFillFields } from './components/RipplingFillModal';
+export type { RipplingFillModalProps, RipplingFillModalLabels, RipplingFillFields, RipplingPhotoOffer } from './components/RipplingFillModal';
 export { RipplingBulkLinkModal } from './components/RipplingBulkLinkModal';
 export type { RipplingBulkLinkModalProps, RipplingBulkLinkModalLabels } from './components/RipplingBulkLinkModal';
 export { RipplingBulkFillModal } from './components/RipplingBulkFillModal';
@@ -210,6 +210,8 @@ export type { MediaCardProps } from './components/MediaCard';
 
 export { Avatar } from './components/Avatar';
 export type { AvatarProps } from './components/Avatar';
+export { ProfilePhoto } from './components/ProfilePhoto';
+export type { ProfilePhotoProps } from './components/ProfilePhoto';
 
 export { ConfirmDialog } from './components/ConfirmDialog';
 export type { ConfirmDialogProps, ConfirmDialogTone, ConfirmDialogAction } from './components/ConfirmDialog';

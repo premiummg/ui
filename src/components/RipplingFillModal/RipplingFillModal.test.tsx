@@ -16,6 +16,12 @@ const labels: RipplingFillModalLabels = {
   close: 'Close',
   filledToast: (n) => `Filled ${n}`,
   fillError: 'Could not fill',
+  photo: 'Photo',
+  photoDifferentHint: 'The photo in Rippling is not the one this person has.',
+  photoCurrent: 'Current',
+  photoFromRippling: 'In Rippling',
+  photoKeepCurrent: 'Keep current',
+  photoUseRippling: 'Use the one from Rippling',
 };
 
 function renderModal(over: Partial<React.ComponentProps<typeof RipplingFillModal>> = {}) {
@@ -72,5 +78,68 @@ describe('RipplingFillModal', () => {
     expect(await screen.findByText('Could not load')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Phone')).toBeInTheDocument();
+  });
+});
+
+describe('RipplingFillModal photo', () => {
+  const preview = (photo: any, fields: Record<string, string> = {}) => vi.fn().mockResolvedValue({ fields, photo });
+  const newPhoto = { status: 'new', ripplingPreview: 'data:image/webp;base64,AAAA' } as const;
+  const differentPhoto = { status: 'different', currentUrl: '/api/photos/mine?size=thumb', ripplingPreview: 'data:image/webp;base64,BBBB' } as const;
+
+  test('a photo for somebody with none is filled in with the rest of the fields', async () => {
+    const onUsePhoto = vi.fn().mockResolvedValue(undefined);
+    const props = renderModal({ loadFields: undefined, loadPreview: preview(newPhoto, { phone: '506-555-0100' }), onUsePhoto });
+    expect(await screen.findByText('Photo')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Fill' }));
+    await waitFor(() => expect(props.onFill).toHaveBeenCalledWith({ phone: '506-555-0100' }));
+    expect(onUsePhoto).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('Filled 2')).toBeInTheDocument();
+  });
+
+  test('a photo alone is enough to fill, without calling the save of the fields', async () => {
+    const onUsePhoto = vi.fn().mockResolvedValue(undefined);
+    const props = renderModal({ loadFields: undefined, loadPreview: preview(newPhoto), onUsePhoto });
+    await userEvent.click(await screen.findByRole('button', { name: 'Fill' }));
+    await waitFor(() => expect(onUsePhoto).toHaveBeenCalledTimes(1));
+    expect(props.onFill).not.toHaveBeenCalled();
+  });
+
+  test('a different photo shows both and starts on keeping the current one: nothing to fill', async () => {
+    const onUsePhoto = vi.fn();
+    renderModal({ loadFields: undefined, loadPreview: preview(differentPhoto), onUsePhoto });
+    expect(await screen.findByText('The photo in Rippling is not the one this person has.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Keep current')).toBeChecked();
+    expect(screen.getByLabelText('Use the one from Rippling')).not.toBeChecked();
+    expect(screen.queryByRole('button', { name: 'Fill' })).not.toBeInTheDocument();
+    expect(onUsePhoto).not.toHaveBeenCalled();
+  });
+
+  test('choosing the one from Rippling brings it', async () => {
+    const onUsePhoto = vi.fn().mockResolvedValue(undefined);
+    renderModal({ loadFields: undefined, loadPreview: preview(differentPhoto), onUsePhoto });
+    await userEvent.click(await screen.findByLabelText('Use the one from Rippling'));
+    await userEvent.click(screen.getByRole('button', { name: 'Fill' }));
+    await waitFor(() => expect(onUsePhoto).toHaveBeenCalledTimes(1));
+  });
+
+  test('keeping the current one still fills the other fields, and leaves the photo alone', async () => {
+    const onUsePhoto = vi.fn();
+    const props = renderModal({ loadFields: undefined, loadPreview: preview(differentPhoto, { phone: '506-555-0100' }), onUsePhoto });
+    await userEvent.click(await screen.findByRole('button', { name: 'Fill' }));
+    await waitFor(() => expect(props.onFill).toHaveBeenCalledWith({ phone: '506-555-0100' }));
+    expect(onUsePhoto).not.toHaveBeenCalled();
+  });
+
+  test('a photo that cannot be brought reports the failure and keeps the dialog open', async () => {
+    const onUsePhoto = vi.fn().mockRejectedValue(new Error('cdn down'));
+    const props = renderModal({ loadFields: undefined, loadPreview: preview(newPhoto), onUsePhoto });
+    await userEvent.click(await screen.findByRole('button', { name: 'Fill' }));
+    expect(await screen.findByText('Could not fill')).toBeInTheDocument();
+    expect(props.onClose).not.toHaveBeenCalled();
+  });
+
+  test('with no photo to offer it reads as before', async () => {
+    renderModal({ loadFields: undefined, loadPreview: preview(null, {}) });
+    expect(await screen.findByText('Nothing to fill')).toBeInTheDocument();
   });
 });

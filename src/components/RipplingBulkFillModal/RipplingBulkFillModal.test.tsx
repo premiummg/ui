@@ -96,4 +96,33 @@ describe('RipplingBulkFillModal', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Ana Ruiz')).toBeInTheDocument();
   });
+
+  describe('the photo of a person', () => {
+    const withPhoto = (photo: string): RipplingBulkFillPreview => ({
+      rows: [{ employee_id: 'e1', employee_name: 'Ana Ruiz', fields: { phone: '506-555-0100', photo } }],
+      failed: 0, total: 1, truncated: 0,
+    });
+
+    test('is shown small, as an image, instead of its address', async () => {
+      const { container } = (renderModal({ loadPreview: vi.fn().mockResolvedValue(withPhoto('https://x.ripplingcdn.com/ana.jpg')), fieldLabel: (f: string) => ({ phone: 'Phone', photo: 'Photo' }[f] ?? f) }), { container: document.body });
+      expect(await screen.findByText('Photo')).toBeInTheDocument();
+      const image = container.querySelector('img');
+      expect(image).toHaveAttribute('src', 'https://x.ripplingcdn.com/ana.jpg');
+      expect(screen.queryByText('https://x.ripplingcdn.com/ana.jpg')).not.toBeInTheDocument();
+    });
+
+    test('a value that is not an image address stays as text, so nothing else is ever loaded', async () => {
+      const { container } = (renderModal({ loadPreview: vi.fn().mockResolvedValue(withPhoto('✓')), fieldLabel: (f: string) => ({ phone: 'Phone', photo: 'Photo' }[f] ?? f) }), { container: document.body });
+      expect(await screen.findByText('Photo')).toBeInTheDocument();
+      expect(screen.getByText('✓')).toBeInTheDocument();
+      expect(container.querySelector('img')).toBeNull();
+    });
+
+    test('an address on another field is text, not an image', async () => {
+      const preview: RipplingBulkFillPreview = { rows: [{ employee_id: 'e1', employee_name: 'Ana Ruiz', fields: { city: 'https://evil.example/x.gif' } }], failed: 0, total: 1, truncated: 0 };
+      const { container } = (renderModal({ loadPreview: vi.fn().mockResolvedValue(preview) }), { container: document.body });
+      expect(await screen.findByText('https://evil.example/x.gif')).toBeInTheDocument();
+      expect(container.querySelector('img')).toBeNull();
+    });
+  });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Avatar } from './Avatar';
 
@@ -61,5 +61,47 @@ describe('Avatar', () => {
     const { container } = render(<Avatar fullName="Jordan Reid" />);
     const el = container.firstElementChild as HTMLElement;
     expect(el.className).not.toContain('cursor-pointer');
+  });
+
+  describe('with a photo', () => {
+    test('shows the photo instead of the initials', () => {
+      const { container } = render(<Avatar fullName="Jordan Reid" src="/api/photos/abc?size=thumb" />);
+      expect(container.querySelector('img')).toHaveAttribute('src', '/api/photos/abc?size=thumb');
+      expect(screen.queryByText('JR')).not.toBeInTheDocument();
+    });
+
+    test('goes back to the initials when the photo does not load', () => {
+      const { container } = render(<Avatar fullName="Jordan Reid" src="/api/photos/gone" />);
+      fireEvent.error(container.querySelector('img')!);
+      expect(container.querySelector('img')).toBeNull();
+      expect(screen.getByText('JR')).toBeInTheDocument();
+    });
+
+    test('tries a new address after a failed one', () => {
+      const { container, rerender } = render(<Avatar fullName="Jordan Reid" src="/api/photos/gone" />);
+      fireEvent.error(container.querySelector('img')!);
+      rerender(<Avatar fullName="Jordan Reid" src="/api/photos/new-one" />);
+      expect(container.querySelector('img')).toHaveAttribute('src', '/api/photos/new-one');
+    });
+
+    test('shows the initials when there is no address, or an empty one', () => {
+      const { container, rerender } = render(<Avatar fullName="Jordan Reid" src={null} />);
+      expect(container.querySelector('img')).toBeNull();
+      rerender(<Avatar fullName="Jordan Reid" src="" />);
+      expect(container.querySelector('img')).toBeNull();
+      expect(screen.getByText('JR')).toBeInTheDocument();
+    });
+  });
+
+  describe('shape', () => {
+    test('is a circle by default and a rounded square as a tile, with or without a photo', () => {
+      const { container, rerender } = render(<Avatar fullName="Jordan Reid" />);
+      expect(container.firstElementChild).toHaveClass('rounded-full');
+      rerender(<Avatar fullName="Jordan Reid" shape="tile" />);
+      expect(container.firstElementChild).toHaveClass('rounded-xl');
+      expect(container.firstElementChild).not.toHaveClass('rounded-full');
+      rerender(<Avatar fullName="Jordan Reid" shape="tile" src="/api/photos/abc" />);
+      expect(container.firstElementChild).toHaveClass('rounded-xl');
+    });
   });
 });

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '../Button';
 import { Modal } from '../Modal';
+import { Avatar } from '../Avatar';
 import { useToast } from '../Toaster';
 import { ModalLoading, ModalLoadError, SelectAllRow, BatchFailures, useIdSelection } from '../RipplingBulk/shared';
 import type { RipplingBulkFillPreview, RipplingBulkFillResult } from '../RipplingBulk/types';
@@ -146,9 +147,14 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
                           </span>
                           <span className="mt-1 grid grid-cols-1 gap-x-6 gap-y-0.5 sm:grid-cols-2">
                             {entries.map(([field, value]) => (
-                              <span key={field} className="flex items-baseline gap-2 text-xs">
+                              <span key={field} className="flex items-center gap-2 text-xs">
                                 <span className="pmg-eyebrow shrink-0 text-gray-400 dark:text-gray-500">{fieldLabel(field)}</span>
-                                <span className="truncate text-gray-800 dark:text-gray-100">{value}</span>
+                                {field === 'photo' && /^(https:\/\/|data:image\/)/.test(value) ? (
+                                  // The photo of Rippling, small, instead of its address.
+                                  <Avatar fullName={row.employee_name} size={28} src={value} />
+                                ) : (
+                                  <span className="truncate text-gray-800 dark:text-gray-100">{value}</span>
+                                )}
                               </span>
                             ))}
                           </span>
