@@ -43,4 +43,24 @@ describe('RowLink', () => {
     fireEvent(link, event);
     expect(event.defaultPrevented).toBe(false);
   });
+
+  test('a click that the link handles does not reach the row that holds it, so the page is opened once', () => {
+    const onNavigate = vi.fn();
+    const onRowClick = vi.fn();
+    render(
+      <table><tbody><tr onClick={onRowClick}><td className="relative"><RowLink href="/employees/e1" label="Open Alex Rivera" onNavigate={onNavigate} /></td></tr></tbody></table>,
+    );
+    fireEvent.click(screen.getByRole('link', { name: 'Open Alex Rivera' }), { button: 0 });
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+    expect(onRowClick).not.toHaveBeenCalled();
+  });
+
+  test('a click the link leaves to the browser (ctrl-click) is not swallowed', () => {
+    const onRowClick = vi.fn();
+    render(
+      <table><tbody><tr onClick={onRowClick}><td className="relative"><RowLink href="/employees/e1" label="Open Alex Rivera" onNavigate={vi.fn()} /></td></tr></tbody></table>,
+    );
+    fireEvent.click(screen.getByRole('link', { name: 'Open Alex Rivera' }), { button: 0, ctrlKey: true });
+    expect(onRowClick).toHaveBeenCalledTimes(1);
+  });
 });

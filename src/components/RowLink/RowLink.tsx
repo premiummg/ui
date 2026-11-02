@@ -30,6 +30,9 @@ export function RowLink({ href, onNavigate, label }: RowLinkProps) {
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
     if (!onNavigate || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
+    // The row that holds this link usually answers a click by opening the same page. When the click then also reached the
+    // row, the page was opened twice and the history held it twice: the arrow back needed two clicks.
+    e.stopPropagation();
     onNavigate();
   }
   return (
