@@ -54,7 +54,7 @@ export type { StatusDotProps } from './components/StatusDot';
 export { RankBadge } from './components/RankBadge';
 export type { RankBadgeProps } from './components/RankBadge';
 
-export { Pagination } from './components/Pagination';
+export { Pagination, PAGE_SIZE_ALL } from './components/Pagination';
 export type { PaginationProps } from './components/Pagination';
 
 export { Modal } from './components/Modal';

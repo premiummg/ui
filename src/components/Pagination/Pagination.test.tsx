@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Pagination } from './Pagination';
+import { Pagination, PAGE_SIZE_ALL } from './Pagination';
 
 describe('Pagination', () => {
   test('renders nothing when there is only one page and no children', () => {
@@ -74,5 +74,37 @@ describe('Pagination', () => {
     );
     await userEvent.selectOptions(screen.getByLabelText('per page'), '50');
     expect(onPageSizeChange).toHaveBeenCalledWith(50);
+  });
+
+  test('the page size that means everything reads as the "All" label, in the selector and in the language given', async () => {
+    const onPageSizeChange = vi.fn();
+    const { rerender } = render(
+      <Pagination page={1} totalPages={1} total={45} limit={20} onPageChange={() => {}} pageSizeOptions={[20, 50, PAGE_SIZE_ALL]} onPageSizeChange={onPageSizeChange} />,
+    );
+    expect(screen.getByRole('option', { name: 'All' })).toHaveValue(String(PAGE_SIZE_ALL));
+    await userEvent.selectOptions(screen.getByLabelText('per page'), String(PAGE_SIZE_ALL));
+    expect(onPageSizeChange).toHaveBeenCalledWith(PAGE_SIZE_ALL);
+
+    rerender(
+      <Pagination page={1} totalPages={1} total={45} limit={PAGE_SIZE_ALL} onPageChange={() => {}} pageSizeOptions={[20, PAGE_SIZE_ALL]} onPageSizeChange={onPageSizeChange} allLabel="Tout" />,
+    );
+    expect(screen.getByRole('option', { name: 'Tout' })).toBeInTheDocument();
+    // Everything on one page: the range ends at the total, not at the size of the page.
+    expect(screen.getAllByText('45')).toHaveLength(2);
+  });
+
+  test('the selector always ends with All, even when the sizes given do not include it', () => {
+    render(<Pagination page={1} totalPages={3} total={120} limit={20} onPageChange={() => {}} pageSizeOptions={[20, 50]} onPageSizeChange={() => {}} />);
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['20', '50', 'All']);
+  });
+
+  test('and so does the usual set of sizes', () => {
+    render(<Pagination page={1} totalPages={3} total={120} limit={20} onPageChange={() => {}} onPageSizeChange={() => {}} />);
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['20', '50', '100', 'All']);
+  });
+
+  test('without a size handler there is no selector at all', () => {
+    render(<Pagination page={1} totalPages={3} total={120} limit={20} onPageChange={() => {}} />);
+    expect(screen.queryByLabelText('per page')).toBeNull();
   });
 });
