@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Avatar, AvatarProps } from '../Avatar';
 import { Button } from '../Button';
 import { ConfirmDialog } from '../ConfirmDialog';
@@ -33,14 +33,28 @@ export function ProfilePhoto({ fullSrc, viewLabel, closeLabel, onRemove, removeL
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [removing, setRemoving] = useState(false);
-  const [broken, setBroken] = useState(false);
-  if (!avatar.src) return <Avatar {...avatar} />;
+  // The image that failed to load, not a yes or no: a new photo (or the same one, later) gets its own chance.
+  const [brokenSrc, setBrokenSrc] = useState<string | null>(null);
+  // Set when the photo was taken off from here, so focus has somewhere to go once the button that held it is gone.
+  const [removedHere, setRemovedHere] = useState(false);
+  const holder = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!avatar.src) { if (removedHere) holder.current?.focus(); } else if (removedHere) setRemovedHere(false);
+  }, [removedHere, avatar.src]);
+  if (!avatar.src) {
+    return removedHere
+      ? <span ref={holder} tabIndex={-1} className="inline-flex shrink-0 outline-none"><Avatar {...avatar} /></span>
+      : <Avatar {...avatar} />;
+  }
+  const largeSrc = fullSrc ?? avatar.src;
+  const broken = brokenSrc === largeSrc;
   const canRemove = !!onRemove && !!removeLabels;
 
   async function handleRemove() {
     setRemoving(true);
     try {
       await onRemove!();
+      setRemovedHere(true);
       setConfirming(false);
       setOpen(false);
     } catch {
@@ -68,9 +82,9 @@ export function ProfilePhoto({ fullSrc, viewLabel, closeLabel, onRemove, removeL
               <Avatar fullName={avatar.fullName} size={160} shape="tile" />
             ) : (
               <img
-                src={fullSrc ?? avatar.src}
+                src={largeSrc}
                 alt={avatar.fullName}
-                onError={() => setBroken(true)}
+                onError={() => setBrokenSrc(largeSrc)}
                 className="mx-auto max-h-[70vh] w-full rounded-xl object-contain"
               />
             )}

@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ProfilePhoto } from './ProfilePhoto';
 
@@ -52,6 +53,16 @@ describe('ProfilePhoto', () => {
     expect(dialog).toHaveTextContent('AR');
   });
 
+  test('a new photo gets its own chance after one that did not load', async () => {
+    const { rerender } = render(<ProfilePhoto {...base} src="/api/photos/old" />);
+    await userEvent.click(screen.getByRole('button', { name: 'View photo' }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.error(dialog.querySelector('img')!);
+    expect(dialog.querySelector('img')).toBeNull();
+    rerender(<ProfilePhoto {...base} src="/api/photos/new" />);
+    expect(screen.getByRole('dialog').querySelector('img')).toHaveAttribute('src', '/api/photos/new');
+  });
+
   describe('taking the photo off', () => {
     const removeLabels = { remove: 'Remove photo', title: 'Remove the photo?', message: 'Their initials will be shown instead.', confirm: 'Yes, remove it', cancel: 'Keep it' };
     const open = async (extra: Record<string, unknown>) => {
@@ -92,6 +103,19 @@ describe('ProfilePhoto', () => {
       await userEvent.click(await screen.findByRole('button', { name: 'Yes, remove it' }));
       expect(onRemove).toHaveBeenCalledTimes(1);
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    test('once it is off, focus stays on the avatar instead of falling to the page', async () => {
+      const onRemove = vi.fn().mockResolvedValue(undefined);
+      const Host = () => {
+        const [src, setSrc] = useState<string | null>('/api/photos/abc');
+        return <ProfilePhoto {...base} src={src} removeLabels={removeLabels} onRemove={async () => { await onRemove(); setSrc(null); }} />;
+      };
+      const { container } = render(<Host />);
+      await userEvent.click(screen.getByRole('button', { name: 'View photo' }));
+      await userEvent.click(await screen.findByRole('button', { name: 'Remove photo' }));
+      await userEvent.click(await screen.findByRole('button', { name: 'Yes, remove it' }));
+      await waitFor(() => expect(container.querySelector('span[tabindex="-1"]')).toHaveFocus());
     });
 
     test('a removal that fails leaves the photo, and the confirmation, to try again', async () => {

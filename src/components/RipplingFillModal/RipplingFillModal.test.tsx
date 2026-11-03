@@ -130,6 +130,26 @@ describe('RipplingFillModal photo', () => {
     expect(onUsePhoto).not.toHaveBeenCalled();
   });
 
+  test('when the photo fails after the fields were saved, the page is told and only the photo is left to try again', async () => {
+    const onUsePhoto = vi.fn().mockRejectedValueOnce(new Error('cdn down')).mockResolvedValue(undefined);
+    const onFilled = vi.fn();
+    const props = renderModal({ loadFields: undefined, loadPreview: preview(newPhoto, { phone: '506-555-0100' }), onUsePhoto, onFilled });
+    await userEvent.click(await screen.findByRole('button', { name: 'Fill' }));
+    expect(await screen.findByText('Could not fill')).toBeInTheDocument();
+    expect(onFilled).toHaveBeenCalledWith({ phone: '506-555-0100' });
+    expect(screen.queryByText('506-555-0100')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Fill' }));
+    await waitFor(() => expect(onUsePhoto).toHaveBeenCalledTimes(2));
+    expect(props.onFill).toHaveBeenCalledTimes(1);
+  });
+
+  test('a picture address that is not a path, an https address or an embedded image is never put in an image', async () => {
+    const bad = { status: 'new', ripplingPreview: 'javascript:alert(1)' } as const;
+    renderModal({ loadFields: undefined, loadPreview: preview(bad), onUsePhoto: vi.fn() });
+    await screen.findByRole('button', { name: 'Fill' });
+    expect(document.querySelector('img')).toBeNull();
+  });
+
   test('a photo that cannot be brought reports the failure and keeps the dialog open', async () => {
     const onUsePhoto = vi.fn().mockRejectedValue(new Error('cdn down'));
     const props = renderModal({ loadFields: undefined, loadPreview: preview(newPhoto), onUsePhoto });

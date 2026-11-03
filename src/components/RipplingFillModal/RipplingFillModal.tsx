@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
 import { TextButton } from '../TextButton';
 import { useToast } from '../Toaster';
 import { Avatar } from '../Avatar';
+
+// Pictures that come from the server are shown only if they are a path of the same site, a small embedded image or an
+// https address: nothing else (a script address, another protocol) ever reaches an image.
+const SAFE_IMAGE = /^(\/(?!\/)|https:\/\/|data:image\/(png|jpeg|webp|gif);base64,)/;
+const safeImage = (src: string | null | undefined): string | null => (src && SAFE_IMAGE.test(src) ? src : null);
 
 export interface RipplingFillModalLabels {
   heading: string;
@@ -64,6 +69,7 @@ export function RipplingFillModal({
   loadFields, loadPreview, onFill, onUsePhoto, onClose, onFilled, fieldLabel, errorMessage, labels: t,
 }: RipplingFillModalProps) {
   const { toast } = useToast();
+  const photoId = useId();
   const [fields, setFields] = useState<RipplingFillFields | null>(null);
   const [photo, setPhoto] = useState<RipplingPhotoOffer | null>(null);
   const [useRipplingPhoto, setUseRipplingPhoto] = useState(false);
@@ -97,13 +103,20 @@ export function RipplingFillModal({
   async function handleFill() {
     if (!fields || nothingToDo) return;
     setFilling(true);
+    let fieldsSaved = false;
     try {
-      if (entries.length > 0) await onFill(fields);
+      if (entries.length > 0) { await onFill(fields); fieldsSaved = true; }
       if (photoToApply) await onUsePhoto!();
       toast(t.filledToast(entries.length + (photoToApply ? 1 : 0)), 'success');
       onFilled?.(fields);
       onClose();
     } catch (err) {
+      // The fields were saved before the photo failed: say so to the page (so it shows them) and stop offering them
+      // again, leaving only the photo to try again.
+      if (fieldsSaved) {
+        onFilled?.(fields);
+        setFields({});
+      }
       toast(errorMessage?.(err) || t.fillError, 'error');
     } finally {
       setFilling(false);
@@ -136,7 +149,7 @@ export function RipplingFillModal({
           {photo?.status === 'new' && (
             <div className="flex items-center justify-between gap-3 py-2.5">
               <span className="pmg-eyebrow text-gray-400 dark:text-gray-500">{t.photo ?? 'Photo'}</span>
-              <Avatar fullName="" size={40} src={photo.ripplingPreview} />
+              <Avatar fullName="" size={40} src={safeImage(photo.ripplingPreview)} />
             </div>
           )}
           {photo?.status === 'different' && (
@@ -155,17 +168,17 @@ export function RipplingFillModal({
                       option.checked ? 'border-(--premium-red) bg-red-50/50 dark:bg-white/5' : 'border-gray-200 dark:border-white/10'
                     }`}
                   >
-                    <Avatar fullName="" size={72} src={option.src} />
+                    <Avatar fullName="" size={72} src={safeImage(option.src)} />
                     <span className="text-xs text-gray-500 dark:text-gray-400">{option.caption}</span>
                     <span className="flex items-center gap-1.5 text-sm font-medium text-gray-800 dark:text-gray-100">
                       <input
-                        id={`rippling-photo-${option.key}`}
+                        id={`${photoId}-${option.key}`}
                         type="radio"
                         name="rippling-photo-choice"
                         checked={option.checked}
                         onChange={() => setUseRipplingPhoto(option.key === 'rippling')}
                       />
-                      <label htmlFor={`rippling-photo-${option.key}`} className="cursor-pointer">{option.label}</label>
+                      <label htmlFor={`${photoId}-${option.key}`} className="cursor-pointer">{option.label}</label>
                     </span>
                   </div>
                 ))}
