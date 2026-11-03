@@ -31,6 +31,19 @@ export function Avatar({ fullName, size = 40, src, shape = 'circle', color, onCl
   return (
     <div
       onClick={onClick}
+      {...(onClick
+        ? {
+            role: 'button',
+            tabIndex: 0,
+            'aria-label': fullName || undefined,
+            onKeyDown: (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            },
+          }
+        : {})}
       className={`shrink-0 overflow-hidden ${shape === 'tile' ? 'rounded-xl' : 'rounded-full'} grid place-items-center font-heading font-bold text-white ${showPhoto || color ? '' : 'bg-(--premium-steel-grey)'} ${onClick ? 'cursor-pointer' : ''} ${className}`}
       style={{ width: size, height: size, fontSize: Math.max(11, size * 0.36), ...(color && !showPhoto ? { backgroundColor: color } : {}) }}
     >
@@ -41,6 +54,7 @@ export function Avatar({ fullName, size = 40, src, shape = 'circle', color, onCl
           width={size}
           height={size}
           loading="lazy"
+          referrerPolicy="no-referrer"
           draggable={false}
           className="h-full w-full object-cover"
           onError={() => setFailedSrc(src!)}

@@ -57,6 +57,16 @@ describe('Avatar', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
+  test('with onClick the keyboard reaches it and Enter or Space activates it', async () => {
+    const onClick = vi.fn();
+    render(<Avatar fullName="Jordan Reid" onClick={onClick} />);
+    await userEvent.tab();
+    expect(screen.getByRole('button', { name: 'Jordan Reid' })).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await userEvent.keyboard(' ');
+    expect(onClick).toHaveBeenCalledTimes(2);
+  });
+
   test('without onClick it stays non-interactive', () => {
     const { container } = render(<Avatar fullName="Jordan Reid" />);
     const el = container.firstElementChild as HTMLElement;
