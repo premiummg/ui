@@ -103,11 +103,18 @@ export function RootMessageBubble({
       </div>
     );
   }
+  const nameLabel = onAuthorClick ? (
+    <button type="button" onClick={() => onAuthorClick(broadcast.createdBy)} className="hover:underline">
+      {broadcast.senderName ?? '?'}
+    </button>
+  ) : (
+    broadcast.senderName ?? '?'
+  );
   return (
     <div className="flex items-start gap-2">
       <Avatar name={broadcast.senderName} onClick={onAuthorClick ? () => onAuthorClick(broadcast.createdBy) : undefined} />
       <div className="min-w-0 max-w-[85%]">
-        <p className="mb-0.5 text-[11px] text-gray-400">{broadcast.senderName ?? '?'}</p>
+        <p className="mb-0.5 text-[11px] text-gray-400">{nameLabel}</p>
         <div className="inline-block rounded-2xl rounded-tl-sm border border-gray-100 bg-white px-3.5 py-2.5 dark:border-white/20 dark:bg-(--premium-steel-grey)">
           <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">{broadcast.body}</p>
           <AttachmentImages attachments={broadcast.attachments} getUrl={getAttachmentUrl} className="mt-1.5" />

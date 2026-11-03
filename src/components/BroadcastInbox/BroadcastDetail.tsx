@@ -148,8 +148,21 @@ export function BroadcastDetail({
           <div className="min-w-0">
             <h2 className="break-words font-heading text-lg font-bold text-gray-900 dark:text-gray-100">{broadcast.title}</h2>
             <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-              {side === 'sent' && (mine ? strings.sentByYou : strings.sentBy(broadcast.senderName ?? strings.sentBySomeoneElse))}
-              {side === 'received' && (broadcast.senderName ?? strings.sentBySomeoneElse)}
+              {side === 'sent' && mine && strings.sentByYou}
+              {side === 'sent' && !mine && (
+                onAuthorClick ? (
+                  <button type="button" onClick={() => onAuthorClick(broadcast.createdBy)} className="hover:underline">
+                    {strings.sentBy(broadcast.senderName ?? strings.sentBySomeoneElse)}
+                  </button>
+                ) : strings.sentBy(broadcast.senderName ?? strings.sentBySomeoneElse)
+              )}
+              {side === 'received' && (
+                onAuthorClick ? (
+                  <button type="button" onClick={() => onAuthorClick(broadcast.createdBy)} className="hover:underline">
+                    {broadcast.senderName ?? strings.sentBySomeoneElse}
+                  </button>
+                ) : (broadcast.senderName ?? strings.sentBySomeoneElse)
+              )}
               {' · '}{formatDateTime(broadcast.createdAt)}
             </p>
           </div>

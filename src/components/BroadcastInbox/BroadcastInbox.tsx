@@ -92,6 +92,7 @@ function BroadcastRow({
 export function BroadcastInbox({
   fetchSent,
   fetchReceived,
+  fetchDivisionSent,
   onDelete,
   currentUserId,
   canSendMessages,
@@ -105,11 +106,14 @@ export function BroadcastInbox({
   pausePolling,
 }: BroadcastInboxProps) {
   const canReadSent = canSendMessages && !!fetchSent;
-  // Sent, Received, or every conversation with something new from both.
-  const [view, setView] = useState<BroadcastSide | 'unread' | 'feedback'>(canReadSent ? 'sent' : 'received');
+  const canReadDivisionSent = !!fetchDivisionSent;
+  // Sent, Received, Other sent, or every conversation with something new from Sent/Received.
+  const [view, setView] = useState<BroadcastSide | 'unread' | 'feedback' | 'divisionSent'>(canReadSent ? 'sent' : 'received');
   const [sent, setSent] = useState<ChatBroadcast[]>([]);
   const [received, setReceived] = useState<ChatBroadcast[]>([]);
+  const [divisionSent, setDivisionSent] = useState<ChatBroadcast[]>([]);
   const [loadingSent, setLoadingSent] = useState(canReadSent);
+  const [loadingDivisionSent, setLoadingDivisionSent] = useState(canReadDivisionSent);
   const pausePollingRef = useRef(pausePolling);
   pausePollingRef.current = pausePolling;
   const [loadingReceived, setLoadingReceived] = useState(true);
@@ -134,6 +138,7 @@ export function BroadcastInbox({
     let live = true;
     let sentSeq = 0;
     let receivedSeq = 0;
+    let divisionSentSeq = 0;
     const loadSent = () => {
       const seq = ++sentSeq;
       return fetchSent!().then((rows) => { if (live && seq === sentSeq) setSent(rows); }).catch(() => {});
@@ -142,6 +147,10 @@ export function BroadcastInbox({
       const seq = ++receivedSeq;
       return fetchReceived().then((rows) => { if (live && seq === receivedSeq) setReceived(rows); }).catch(() => {});
     };
+    const loadDivisionSent = () => {
+      const seq = ++divisionSentSeq;
+      return fetchDivisionSent!().then((rows) => { if (live && seq === divisionSentSeq) setDivisionSent(rows); }).catch(() => {});
+    };
     // Coming back to the tab fires visibilitychange and focus together: one refresh, not two.
     let lastRun = 0;
     function refresh() {
@@ -149,9 +158,11 @@ export function BroadcastInbox({
       if (Date.now() - lastRun < 10_000) return;
       lastRun = Date.now();
       if (canReadSent) loadSent();
+      if (canReadDivisionSent) loadDivisionSent();
       loadReceived();
     }
     if (canReadSent) loadSent().finally(() => { if (live) setLoadingSent(false); });
+    if (canReadDivisionSent) loadDivisionSent().finally(() => { if (live) setLoadingDivisionSent(false); });
     loadReceived().finally(() => { if (live) setLoadingReceived(false); });
     // The timer is the regular pace (hidden tabs are skipped inside refresh), so it is never held back by the gap.
     const interval = setInterval(() => { lastRun = 0; refresh(); }, pollIntervalMs);
@@ -164,7 +175,7 @@ export function BroadcastInbox({
       window.removeEventListener('focus', refresh);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canReadSent, pollIntervalMs]);
+  }, [canReadSent, canReadDivisionSent, pollIntervalMs]);
 
   // With a Feedback tab, feedback lives there and not in Sent or Received.
   const inSentReceived = (b: ChatBroadcast) => !(showFeedback && b.isFeedback);
@@ -181,14 +192,21 @@ export function BroadcastInbox({
     }
     if (view === 'sent') return sent.filter(inSentReceived).map((b) => ({ b, side: 'sent' as const }));
     if (view === 'received') return received.filter(inSentReceived).map((b) => ({ b, side: 'received' as const }));
+    // Tagged as the 'sent' side, not a new side of its own: a division-mate's broadcast reads exactly like a
+    // sent one (recipients, waiting/answered status) - just not written by the caller, same as BroadcastRow's
+    // own mine check already handles for an admin-all viewing their own Sent tab.
+    if (view === 'divisionSent') return divisionSent.filter(inSentReceived).map((b) => ({ b, side: 'sent' as const }));
     const unreadSent = sent.filter((b) => b.unread);
     const seen = new Set(unreadSent.map((b) => b.id));
     return [
       ...unreadSent.map((b) => ({ b, side: 'sent' as const })),
       ...received.filter((b) => b.unread && !seen.has(b.id)).map((b) => ({ b, side: 'received' as const })),
     ];
-  }, [view, sent, received, showFeedback]);
-  const loadingItems = (view !== 'received' && canReadSent && loadingSent) || (view !== 'sent' && loadingReceived);
+  }, [view, sent, received, divisionSent, showFeedback]);
+  const loadingItems =
+    (view !== 'received' && view !== 'divisionSent' && canReadSent && loadingSent)
+    || (view !== 'sent' && view !== 'divisionSent' && loadingReceived)
+    || (view === 'divisionSent' && canReadDivisionSent && loadingDivisionSent);
 
   const filtersActive = !!query.trim() || status !== 'all' || !!from || !!to;
 
@@ -207,7 +225,7 @@ export function BroadcastInbox({
 
   const visible = rows.filter(matchesFilters);
   const unreadCount = new Set([...(canReadSent ? sent : []), ...received].filter((b) => b.unread).map((b) => b.id)).size;
-  const deletingBroadcast = [...sent, ...received].find((b) => b.id === deletingId);
+  const deletingBroadcast = [...sent, ...received, ...divisionSent].find((b) => b.id === deletingId);
 
   function clearFilters() {
     setQuery('');
@@ -223,6 +241,7 @@ export function BroadcastInbox({
       await onDelete(deletingId);
       setSent((prev) => prev.filter((b) => b.id !== deletingId));
       setReceived((prev) => prev.filter((b) => b.id !== deletingId));
+      setDivisionSent((prev) => prev.filter((b) => b.id !== deletingId));
       setDeletingId(null);
     } finally {
       setDeleting(false);
@@ -246,6 +265,7 @@ export function BroadcastInbox({
             { value: 'received' as const, label: `${strings.receivedTabLabel} ${received.length}` },
             { value: 'unread' as const, label: strings.unreadOnlyLabel(unreadCount) },
             ...(showFeedback ? [{ value: 'feedback' as const, label: `${strings.feedbackTabLabel ?? 'Feedback'} ${feedbackCount}` }] : []),
+            ...(canReadDivisionSent ? [{ value: 'divisionSent' as const, label: `${strings.otherSentTabLabel ?? 'Other sent'} ${divisionSent.length}` }] : []),
           ]}
           value={view}
           onChange={setView}
@@ -316,7 +336,7 @@ export function BroadcastInbox({
           <Card padding><p className="text-center text-sm text-gray-500 dark:text-gray-400">{strings.loadingLabel}</p></Card>
         ) : (
           <Card padding className="py-10 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">{view === 'sent' ? strings.noSentYet : view === 'received' ? strings.noReceivedYet : view === 'feedback' ? strings.noFeedbackYet ?? strings.noResultsLabel : strings.noResultsLabel}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{view === 'sent' ? strings.noSentYet : view === 'received' ? strings.noReceivedYet : view === 'feedback' ? strings.noFeedbackYet ?? strings.noResultsLabel : view === 'divisionSent' ? strings.noOtherSentYet ?? strings.noResultsLabel : strings.noResultsLabel}</p>
           </Card>
         )
       ) : !visible.length ? (

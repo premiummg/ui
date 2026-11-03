@@ -301,4 +301,61 @@ describe('BroadcastDetail', () => {
     );
     await waitFor(() => expect(screen.getByText(strings.notFoundLabel)).toBeInTheDocument());
   });
+
+  describe('Other sent (an admin-all account reading the rest of a division)', () => {
+    test('the tab only appears when fetchDivisionSent is given', async () => {
+      render(
+        <BroadcastInbox
+          {...baseProps}
+          fetchSent={async () => []}
+          currentUserId="admin-1"
+          canSendMessages
+        />,
+      );
+      await waitFor(() => expect(screen.getByText(strings.noSentYet)).toBeInTheDocument());
+      expect(screen.queryByRole('button', { name: /Other sent/ })).not.toBeInTheDocument();
+    });
+
+    test('shows what the rest of the division sent, with the real sender name, separately from the caller\'s own Sent tab', async () => {
+      render(
+        <BroadcastInbox
+          {...baseProps}
+          strings={{ ...strings, otherSentTabLabel: 'Other sent' }}
+          fetchSent={async () => [broadcast({ id: 'own', title: 'My own message', createdBy: 'admin-1' })]}
+          fetchDivisionSent={async () => [broadcast({ id: 'theirs', title: 'Someone else\'s message', createdBy: 'admin-2', senderName: 'Another Admin' })]}
+          currentUserId="admin-1"
+          canSendMessages
+        />,
+      );
+      await waitFor(() => expect(screen.getByText('My own message')).toBeInTheDocument());
+      expect(screen.queryByText('Someone else\'s message')).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('button', { name: /^Other sent 1$/ }));
+      expect(screen.getByText('Someone else\'s message')).toBeInTheDocument();
+      expect(screen.getByText(/Sent by Another Admin/)).toBeInTheDocument();
+      expect(screen.queryByText('My own message')).not.toBeInTheDocument();
+    });
+
+    test('can be managed (deleted) like any other sent broadcast, when canManageBroadcast allows it', async () => {
+      const onDelete = vi.fn().mockResolvedValue(undefined);
+      render(
+        <BroadcastInbox
+          {...baseProps}
+          onDelete={onDelete}
+          canManageBroadcast={() => true}
+          strings={{ ...strings, otherSentTabLabel: 'Other sent' }}
+          fetchSent={async () => []}
+          fetchDivisionSent={async () => [broadcast({ id: 'theirs', title: 'Someone else\'s message', createdBy: 'admin-2', senderName: 'Another Admin' })]}
+          currentUserId="admin-1"
+          canSendMessages
+        />,
+      );
+      await userEvent.click(await screen.findByRole('button', { name: /^Other sent 1$/ }));
+      await waitFor(() => expect(screen.getByText('Someone else\'s message')).toBeInTheDocument());
+      await userEvent.click(screen.getByRole('button', { name: 'Delete conversation' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+      await waitFor(() => expect(onDelete).toHaveBeenCalledWith('theirs'));
+      await waitFor(() => expect(screen.queryByText('Someone else\'s message')).not.toBeInTheDocument());
+    });
+  });
 });

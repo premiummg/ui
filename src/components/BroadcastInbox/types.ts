@@ -8,6 +8,9 @@ export interface BroadcastInboxStrings extends ConversationThreadStrings {
   // Only needed when the inbox is given `showFeedback`.
   feedbackTabLabel?: string;
   noFeedbackYet?: string;
+  // Only needed when the inbox is given `fetchDivisionSent`.
+  otherSentTabLabel?: string;
+  noOtherSentYet?: string;
   newMessageLabel: string;
   unreadOnlyLabel: (count: number) => string;
   noSentYet: string;
@@ -62,9 +65,14 @@ export type BroadcastSide = 'sent' | 'received';
 export type BroadcastStatus = 'needsReply' | 'waiting' | 'answered' | 'closed';
 
 export interface BroadcastDataProps {
-  // Omit entirely when canSendMessages is false - the Sent tab never renders.
+  // Omit entirely when canSendMessages is false - the Sent tab never renders. Always the caller's OWN sent
+  // messages, whatever their role - see fetchDivisionSent below for the rest of a division's.
   fetchSent?: () => Promise<ChatBroadcast[]>;
   fetchReceived: () => Promise<ChatBroadcast[]>;
+  // What the rest of a division sent, not the caller's own - its own "Other sent" tab, so it's never mistaken
+  // for messages the caller actually wrote themself. Omit entirely for a role that doesn't manage a division's
+  // messages (the tab never renders); an app wires this to an admin-all-only endpoint.
+  fetchDivisionSent?: () => Promise<ChatBroadcast[]>;
   // One shared conversation per broadcast - every reply and every follow-up
   // goes into it, from either side.
   onSendMessage: (broadcastId: string, body: string, files?: File[]) => Promise<ChatMessage>;
