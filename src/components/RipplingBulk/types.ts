@@ -49,6 +49,8 @@ export interface RipplingBulkFillPreview {
 export interface RipplingBulkFillResult {
   filled: { employee_id: string; employee_name: string; fields: string[] }[];
   skipped: { employee_id: string; code: string }[];
+  // People whose photo was due but was not brought (it failed, or the request had reached its limit of photos): filling again brings them.
+  photos_pending?: string[];
 }
 
 export interface RipplingImportCandidate {

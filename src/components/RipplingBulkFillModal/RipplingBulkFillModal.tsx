@@ -24,6 +24,8 @@ export interface RipplingBulkFillModalLabels {
   resultFilled: (n: number) => string;
   resultSkipped: (n: number) => string;
   skipCodes: Record<string, string>;
+  // Said when some photos were left for another time. Without it nothing is said.
+  photosPending?: (n: number) => string;
   fillError: string;
 }
 
@@ -81,7 +83,7 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
       const res = await onApply(ids);
       setResult(res);
       onFilled();
-      if (res.skipped.length === 0) {
+      if (res.skipped.length === 0 && !res.photos_pending?.length) {
         toast(t.resultFilled(res.filled.length), 'success');
         onClose();
       }
@@ -107,6 +109,9 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
               {t.resultFilled(result.filled.length)}
               {result.skipped.length > 0 && <> · {t.resultSkipped(result.skipped.length)}</>}
             </p>
+            {!!result.photos_pending?.length && t.photosPending && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">{t.photosPending(result.photos_pending.length)}</p>
+            )}
             <BatchFailures
               items={result.skipped.map((s) => ({
                 key: s.employee_id,

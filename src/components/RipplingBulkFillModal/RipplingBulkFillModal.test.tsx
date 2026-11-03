@@ -23,6 +23,7 @@ const labels: RipplingBulkFillModalLabels = {
   resultFilled: (n) => `${n} filled`,
   resultSkipped: (n) => `${n} skipped`,
   skipCodes: { not_linked: 'Not linked to Rippling' },
+  photosPending: (n) => `${n} photos left for later`,
   fillError: 'Could not fill',
 };
 
@@ -72,6 +73,13 @@ describe('RipplingBulkFillModal', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Fill 2 selected' }));
     expect(await screen.findByText('Not linked to Rippling')).toBeInTheDocument();
     expect(screen.getByText('Bruno Diaz')).toBeInTheDocument();
+    expect(props.onClose).not.toHaveBeenCalled();
+  });
+
+  test('photos left for later are said, and the dialog stays open even if nobody was skipped', async () => {
+    const props = renderModal({ onApply: vi.fn().mockResolvedValue({ filled: [{ employee_id: 'e1', employee_name: 'Ana Ruiz', fields: ['phone'] }], skipped: [], photos_pending: ['e1', 'e2'] }) });
+    await userEvent.click(await screen.findByRole('button', { name: 'Fill 2 selected' }));
+    expect(await screen.findByText('2 photos left for later')).toBeInTheDocument();
     expect(props.onClose).not.toHaveBeenCalled();
   });
 
