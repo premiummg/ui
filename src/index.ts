@@ -147,6 +147,8 @@ export type { AuthShellProps, AuthShellLabels, AuthErrorProps } from './componen
 
 export { AppFooter } from './components/AppFooter';
 export type { AppFooterProps } from './components/AppFooter';
+export { FormActions } from './components/FormActions';
+export type { FormActionsProps } from './components/FormActions';
 export { Layout } from './components/Layout';
 export type { LayoutProps } from './components/Layout';
 
