@@ -1,9 +1,12 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BroadcastInbox } from './BroadcastInbox';
+import { BroadcastInbox, forgetInboxView } from './BroadcastInbox';
 import { BroadcastDetail } from './BroadcastDetail';
 import { strings, broadcast, baseProps } from './testFixtures';
+
+// The inbox remembers its tab between mounts; every test starts on the default one.
+beforeEach(forgetInboxView);
 
 describe('BroadcastInbox', () => {
   // The bug this session fixed: the Sent tab is a shared mailbox, so the
@@ -49,7 +52,7 @@ describe('BroadcastInbox', () => {
     );
     await waitFor(() => expect(screen.getByText('Confirm your hours')).toBeInTheDocument());
     expect(screen.queryByText('Feedback', { selector: 'span' })).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: /^Feedback 1$/ }));
+    await userEvent.click(screen.getByRole('button', { name: /^Feedback$/ }));
     expect(screen.getByText('Feedback', { selector: 'span.block' })).toBeInTheDocument();
     expect(screen.queryByText('Confirm your hours')).not.toBeInTheDocument();
   });
@@ -69,8 +72,8 @@ describe('BroadcastInbox', () => {
         canSendMessages
       />,
     );
-    await waitFor(() => expect(screen.getByRole('button', { name: /^Feedback 1$/ })).toBeInTheDocument());
-    await userEvent.click(screen.getByRole('button', { name: /^Feedback 1$/ }));
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Feedback$/ })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: /^Feedback$/ }));
     await userEvent.click(screen.getByRole('button', { name: 'Delete conversation' }));
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
     await waitFor(() => expect(onDelete).toHaveBeenCalledWith('f1'));
@@ -89,10 +92,54 @@ describe('BroadcastInbox', () => {
         canSendMessages
       />,
     );
-    await userEvent.click(await screen.findByRole('button', { name: /^Feedback 1$/ }));
+    await userEvent.click(await screen.findByRole('button', { name: /^Feedback$/ }));
     await waitFor(() => expect(screen.getByText('Quiet note')).toBeInTheDocument());
     // The status filter has an "Answered" option; what must be missing is the label on the row.
     expect(screen.queryAllByText(strings.answeredLabel).filter((el) => el.tagName !== 'OPTION')).toHaveLength(0);
+  });
+
+  test('the Feedback tab counts what is unread, and the number goes away once it is read', async () => {
+    const props = {
+      ...baseProps, showFeedback: true, strings: { ...strings, feedbackTabLabel: 'Feedback' },
+      fetchSent: async () => [], currentUserId: 'admin-1', canSendMessages: true,
+    };
+    const { unmount } = render(<BroadcastInbox {...props} fetchReceived={async () => [
+      broadcast({ id: 'f1', title: 'New one', isFeedback: true, unread: true }),
+      broadcast({ id: 'f2', title: 'Seen one', isFeedback: true, unread: false }),
+    ]} />);
+    expect(await screen.findByRole('button', { name: /^Feedback 1$/ })).toBeInTheDocument();
+    unmount();
+    render(<BroadcastInbox {...props} fetchReceived={async () => [
+      broadcast({ id: 'f1', title: 'New one', isFeedback: true, unread: false }),
+      broadcast({ id: 'f2', title: 'Seen one', isFeedback: true, unread: false }),
+    ]} />);
+    expect(await screen.findByRole('button', { name: /^Feedback$/ })).toBeInTheDocument();
+  });
+
+  test('a feedback conversation that is unread shows the unread mark, a read one does not', async () => {
+    render(<BroadcastInbox {...baseProps} showFeedback strings={{ ...strings, feedbackTabLabel: 'Feedback', unreadMarkLabel: 'Not read yet' }}
+      fetchSent={async () => []} currentUserId="admin-1" canSendMessages
+      fetchReceived={async () => [
+        broadcast({ id: 'f1', title: 'New one', isFeedback: true, unread: true }),
+        broadcast({ id: 'f2', title: 'Seen one', isFeedback: true, unread: false }),
+      ]} />);
+    await userEvent.click(await screen.findByRole('button', { name: /^Feedback 1$/ }));
+    expect(screen.getAllByRole('img', { name: 'Not read yet' })).toHaveLength(1);
+  });
+
+  test('coming back to the inbox lands on the tab it was left on', async () => {
+    const props = {
+      ...baseProps, showFeedback: true, strings: { ...strings, feedbackTabLabel: 'Feedback' },
+      fetchSent: async () => [broadcast()], currentUserId: 'admin-1', canSendMessages: true,
+      fetchReceived: async () => [broadcast({ id: 'f1', title: 'Quiet note', isFeedback: true })],
+    };
+    const { unmount } = render(<BroadcastInbox {...props} />);
+    await userEvent.click(await screen.findByRole('button', { name: /^Feedback$/ }));
+    expect(await screen.findByText('Quiet note')).toBeInTheDocument();
+    unmount();
+    render(<BroadcastInbox {...props} />);
+    expect(await screen.findByText('Quiet note')).toBeInTheDocument();
+    expect(screen.queryByText('Confirm your hours')).not.toBeInTheDocument();
   });
 
   test('without showFeedback there is no Feedback tab', async () => {

@@ -69,6 +69,7 @@ function BroadcastRow({
       <button type="button" onClick={onOpen} className="flex min-w-0 flex-1 items-center gap-3 text-left">
         <span
           className={`h-2 w-2 shrink-0 rounded-full ${unread ? 'bg-(--premium-red)' : 'bg-transparent'}`}
+          {...(unread ? { role: 'img', 'aria-label': strings.unreadMarkLabel ?? 'Unread', title: strings.unreadMarkLabel ?? 'Unread' } : { 'aria-hidden': true })}
         />
         <span className="min-w-0 flex-1">
           <span className={`block truncate text-sm text-gray-900 dark:text-gray-100 ${unread ? 'font-semibold' : 'font-medium'}`}>{broadcast.title}</span>
@@ -89,6 +90,15 @@ function BroadcastRow({
 // The Sent/Received inbox: a compact list with search and filters. Opening a
 // conversation hands off to BroadcastDetail through onOpen. All filtering runs
 // on the lists already loaded, so there are no extra requests per keystroke.
+type InboxView = BroadcastSide | 'unread' | 'feedback' | 'divisionSent';
+// The tab the inbox was last on, kept outside the component because the component is unmounted while a
+// conversation is open.
+let lastInboxView: InboxView | null = null;
+// For tests: start the next inbox on its default tab.
+export function forgetInboxView(): void {
+  lastInboxView = null;
+}
+
 export function BroadcastInbox({
   fetchSent,
   fetchReceived,
@@ -107,8 +117,17 @@ export function BroadcastInbox({
 }: BroadcastInboxProps) {
   const canReadSent = canSendMessages && !!fetchSent;
   const canReadDivisionSent = !!fetchDivisionSent;
-  // Sent, Received, Other sent, or every conversation with something new from Sent/Received.
-  const [view, setView] = useState<BroadcastSide | 'unread' | 'feedback' | 'divisionSent'>(canReadSent ? 'sent' : 'received');
+  // Sent, Received, Other sent, or every conversation with something new from Sent/Received. Opening a conversation
+  // takes the inbox off the screen, so the tab it was on is remembered for when the person comes back to the list.
+  const [view, setViewState] = useState<InboxView>(() => {
+    const back = lastInboxView;
+    const available = back === 'sent' ? canReadSent : back === 'feedback' ? showFeedback : back === 'divisionSent' ? canReadDivisionSent : !!back;
+    return back && available ? back : canReadSent ? 'sent' : 'received';
+  });
+  const setView = (next: InboxView) => {
+    lastInboxView = next;
+    setViewState(next);
+  };
   const [sent, setSent] = useState<ChatBroadcast[]>([]);
   const [received, setReceived] = useState<ChatBroadcast[]>([]);
   const [divisionSent, setDivisionSent] = useState<ChatBroadcast[]>([]);
@@ -179,7 +198,8 @@ export function BroadcastInbox({
 
   // With a Feedback tab, feedback lives there and not in Sent or Received.
   const inSentReceived = (b: ChatBroadcast) => !(showFeedback && b.isFeedback);
-  const feedbackCount = new Set([...received, ...sent].filter((b) => b.isFeedback).map((b) => b.id)).size;
+  // The Feedback tab counts what is still unread, so the number goes down as feedback is opened.
+  const feedbackUnreadCount = new Set([...received, ...sent].filter((b) => b.isFeedback && b.unread).map((b) => b.id)).size;
 
   // Each row carries the side it belongs to: the status and the people shown
   // depend on it, and the unread view mixes both.
@@ -264,7 +284,7 @@ export function BroadcastInbox({
             ...(canReadSent ? [{ value: 'sent' as const, label: `${strings.sentTabLabel} ${sent.length}` }] : []),
             { value: 'received' as const, label: `${strings.receivedTabLabel} ${received.length}` },
             { value: 'unread' as const, label: strings.unreadOnlyLabel(unreadCount) },
-            ...(showFeedback ? [{ value: 'feedback' as const, label: `${strings.feedbackTabLabel ?? 'Feedback'} ${feedbackCount}` }] : []),
+            ...(showFeedback ? [{ value: 'feedback' as const, label: `${strings.feedbackTabLabel ?? 'Feedback'}${feedbackUnreadCount > 0 ? ` ${feedbackUnreadCount}` : ''}` }] : []),
             ...(canReadDivisionSent ? [{ value: 'divisionSent' as const, label: `${strings.otherSentTabLabel ?? 'Other sent'} ${divisionSent.length}` }] : []),
           ]}
           value={view}

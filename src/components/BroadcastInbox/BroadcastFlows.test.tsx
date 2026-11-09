@@ -1,10 +1,13 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BroadcastInbox } from './BroadcastInbox';
+import { BroadcastInbox, forgetInboxView } from './BroadcastInbox';
 import { BroadcastDetail } from './BroadcastDetail';
 import { RecipientChips } from './broadcastParts';
 import { strings, broadcast, baseProps } from './testFixtures';
+
+// The inbox remembers its tab between mounts; every test starts on the default one.
+beforeEach(forgetInboxView);
 
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString();
 

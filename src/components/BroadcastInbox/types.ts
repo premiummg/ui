@@ -7,6 +7,8 @@ export interface BroadcastInboxStrings extends ConversationThreadStrings {
   receivedTabLabel: string;
   // Only needed when the inbox is given `showFeedback`.
   feedbackTabLabel?: string;
+  // Name of the dot beside a conversation with something new in it (read by screen readers and shown on hover).
+  unreadMarkLabel?: string;
   noFeedbackYet?: string;
   // Only needed when the inbox is given `fetchDivisionSent`.
   otherSentTabLabel?: string;
