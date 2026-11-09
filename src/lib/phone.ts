@@ -18,7 +18,13 @@ export function formatPhone(raw?: string | null, defaultCountry: Parameters<type
 // flag at all until the user picks one manually.
 export function toE164(raw?: string | null, defaultCountry: Parameters<typeof parsePhoneNumber>[1] = 'CA'): string {
   if (!raw) return '';
-  if (raw.startsWith('+')) return raw;
+  // A number that already has its country code can still carry spaces, dashes or brackets
+  // ("+1 647-835-9763"), which is not E.164 either: it is parsed too, and only a value that cannot be
+  // parsed is cleaned down to the plus and its digits.
+  if (raw.startsWith('+')) {
+    const parsed = parsePhoneNumber(raw);
+    return parsed ? parsed.number : raw.replace(/[^\d+]/g, '');
+  }
   const parsed = parsePhoneNumber(raw, defaultCountry);
   return parsed ? parsed.number : raw;
 }

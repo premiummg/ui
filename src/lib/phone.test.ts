@@ -6,6 +6,15 @@ describe('toE164', () => {
     expect(toE164('+15068984607')).toBe('+15068984607');
   });
 
+  test('a number that has its country code but also spaces and dashes becomes E.164', () => {
+    expect(toE164('+1 647-835-9763')).toBe('+16478359763');
+    expect(toE164('+1 (506) 898-4607')).toBe('+15068984607');
+  });
+
+  test('a plus number that cannot be parsed is cleaned to the plus and its digits', () => {
+    expect(toE164('+1 2-3')).toBe('+123');
+  });
+
   test('normalizes a national-format Canadian number to E.164', () => {
     expect(toE164('506-898-4607')).toBe('+15068984607');
   });
