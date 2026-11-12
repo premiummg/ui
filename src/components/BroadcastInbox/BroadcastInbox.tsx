@@ -281,11 +281,11 @@ export function BroadcastInbox({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SegmentedControl
           options={[
-            ...(canReadSent ? [{ value: 'sent' as const, label: `${strings.sentTabLabel} ${sent.length}` }] : []),
-            { value: 'received' as const, label: `${strings.receivedTabLabel} ${received.length}` },
+            ...(canReadSent ? [{ value: 'sent' as const, label: `${strings.sentTabLabel} ${sent.filter(inSentReceived).length}` }] : []),
+            { value: 'received' as const, label: `${strings.receivedTabLabel} ${received.filter(inSentReceived).length}` },
             { value: 'unread' as const, label: strings.unreadOnlyLabel(unreadCount) },
             ...(showFeedback ? [{ value: 'feedback' as const, label: `${strings.feedbackTabLabel ?? 'Feedback'}${feedbackUnreadCount > 0 ? ` ${feedbackUnreadCount}` : ''}` }] : []),
-            ...(canReadDivisionSent ? [{ value: 'divisionSent' as const, label: `${strings.otherSentTabLabel ?? 'Other sent'} ${divisionSent.length}` }] : []),
+            ...(canReadDivisionSent ? [{ value: 'divisionSent' as const, label: `${strings.otherSentTabLabel ?? 'Other sent'} ${divisionSent.filter(inSentReceived).length}` }] : []),
           ]}
           value={view}
           onChange={setView}

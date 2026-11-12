@@ -406,3 +406,16 @@ describe('BroadcastDetail', () => {
     });
   });
 });
+
+describe('the number on a tab is what the tab lists', () => {
+  test('feedback has its own tab, so Received does not count it', async () => {
+    render(<BroadcastInbox {...baseProps} showFeedback strings={{ ...strings, feedbackTabLabel: 'Feedback' }}
+      fetchSent={async () => []} currentUserId="admin-1" canSendMessages
+      fetchReceived={async () => [
+        broadcast({ id: 'a', title: 'One' }),
+        broadcast({ id: 'f1', title: 'Fb 1', isFeedback: true }),
+        broadcast({ id: 'f2', title: 'Fb 2', isFeedback: true }),
+      ]} />);
+    expect(await screen.findByRole('button', { name: /^Received 1$/ })).toBeInTheDocument();
+  });
+});
