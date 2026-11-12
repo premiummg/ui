@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { IconType } from 'react-icons';
 
 export interface SegmentedControlOption<T extends string> {
@@ -20,6 +21,11 @@ export interface SegmentedControlProps<T extends string> {
 // the page changes view) and not a radio group (there's no need for
 // keyboard arrow-key semantics beyond plain tab/click).
 export function SegmentedControl<T extends string>({ options, value, onChange, className = '' }: SegmentedControlProps<T>) {
+  // In a row that scrolls (a phone), the chosen option is brought into view instead of staying off to one side.
+  const selectedRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    selectedRef.current?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
+  }, [value]);
   return (
     // max-w-full + overflow-x-auto: a row with more options than a phone is wide scrolls inside its own box instead of
     // pushing the whole page wider than the screen.
@@ -30,6 +36,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange, c
         return (
           <button
             key={opt.value}
+            ref={selected ? selectedRef : undefined}
             type="button"
             onClick={() => onChange(opt.value)}
             aria-pressed={selected}

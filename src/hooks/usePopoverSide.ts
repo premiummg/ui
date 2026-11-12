@@ -1,4 +1,4 @@
-import { RefObject, useLayoutEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 const EDGE_GAP = 8;
 
@@ -19,6 +19,14 @@ export function usePopoverSide(
 ) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [side, setSide] = useState<'left' | 'right'>(preferred);
+  // A rotated phone or a resized window changes what fits: an open panel is measured again.
+  const [resizes, setResizes] = useState(0);
+  useEffect(() => {
+    if (!open) return;
+    const onResize = () => setResizes((n) => n + 1);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [open]);
 
   useLayoutEffect(() => {
     if (!open) {
@@ -38,7 +46,7 @@ export function usePopoverSide(
     };
     const other = preferred === 'right' ? 'left' : 'right';
     setSide(fits[preferred] || !fits[other] ? preferred : other);
-  }, [open, preferred, containerRef]);
+  }, [open, preferred, containerRef, resizes]);
 
   // Flipping to the other edge is not always enough: a trigger in the middle of a phone-wide row has no side with
   // room for the whole panel. Whatever side it ended on, the panel is then slid just far enough to sit inside the
@@ -54,7 +62,7 @@ export function usePopoverSide(
     if (left < EDGE_GAP) shift = EDGE_GAP - left;
     else if (right > viewport - EDGE_GAP) shift = Math.max(viewport - EDGE_GAP - right, EDGE_GAP - left);
     if (shift) panel.style.transform = `translateX(${Math.round(shift)}px)`;
-  }, [open, side]);
+  }, [open, side, resizes]);
 
   return { side, panelRef };
 }
