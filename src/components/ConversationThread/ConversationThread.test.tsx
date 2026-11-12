@@ -162,3 +162,11 @@ describe('ConversationThread', () => {
     await waitFor(() => expect(onMarkRead).toHaveBeenCalled());
   });
 });
+
+describe('ConversationThread marks a thread with no messages as read when it is opened', () => {
+  test('once, on the first load, even though there is nothing in it', async () => {
+    const onMarkRead = vi.fn();
+    render(<ConversationThread fetchFn={async () => []} onSend={vi.fn()} onMarkRead={onMarkRead} currentUserId="w" strings={strings} />);
+    await waitFor(() => expect(onMarkRead).toHaveBeenCalledTimes(1));
+  });
+});

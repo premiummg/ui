@@ -229,6 +229,9 @@ export function ConversationThread({
   // a new message landed isn't dropped - it's retried the next time this tab
   // is actually focused, mirroring exactly how a human would notice it.
   const pendingMarkReadRef = useRef(false);
+  // Whether this thread has been opened and read once: a conversation with no replies yet (a feedback nobody has
+  // answered) never changes its message count, so the first load is what marks it read.
+  const openedRef = useRef(false);
 
   const attemptMarkRead = useCallback(() => {
     if (!onMarkRead) return;
@@ -251,8 +254,9 @@ export function ConversationThread({
       const merged = sentRef.current.length ? [...next, ...sentRef.current] : next;
       setMessages(merged);
       setError(false);
-      if (merged.length !== messageCountRef.current) {
+      if (merged.length !== messageCountRef.current || !openedRef.current) {
         messageCountRef.current = merged.length;
+        openedRef.current = true;
         attemptMarkRead();
       }
     } catch {
@@ -263,8 +267,8 @@ export function ConversationThread({
   }, [fetchFn, attemptMarkRead]);
 
   useEffect(() => {
-    // Opening the thread reads it: load() marks it read as soon as there is something to read, so there is no
-    // separate mark-read here (a re-run of this effect would otherwise send one more request each time).
+    // Opening the thread reads it: the first load() marks it read, and so does any later one that brings new
+    // messages, so there is no separate mark-read here (a re-run of this effect would otherwise send one more request each time).
     load();
     const interval = setInterval(() => {
       if (document.visibilityState !== 'hidden' && !pausePollingRef.current?.()) load();
