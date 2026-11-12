@@ -33,7 +33,7 @@ export function Toaster({ dismissLabel = 'Dismiss' }: { dismissLabel?: string } 
   const { toasts, dismiss } = useToast();
 
   return (
-    <div role="status" aria-live="polite" className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div role="status" aria-live="polite" className="fixed bottom-4 left-4 right-4 sm:left-auto z-50 flex flex-col gap-2 sm:max-w-sm sm:w-full pointer-events-none">
       {toasts.map(t => {
         const { bg, icon } = CONFIG[t.type] ?? CONFIG.info;
         return (

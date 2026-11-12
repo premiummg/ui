@@ -49,6 +49,19 @@ describe('usePopoverSide', () => {
     expect(screen.getByTestId('panel')).toHaveAttribute('data-side', 'right');
   });
 
+  test('a panel still outside the screen after choosing a side is slid in', () => {
+    // The stubbed rectangle is the panel's own: it starts 20px left of the screen.
+    stub({ left: -20, right: 236, width: 256, viewport: 390 });
+    render(<Harness preferred="right" />);
+    expect(screen.getByTestId('panel').style.transform).toBe('translateX(28px)');
+  });
+
+  test('a panel inside the screen is not moved', () => {
+    stub({ left: 100, right: 356, width: 256, viewport: 390 });
+    render(<Harness preferred="right" />);
+    expect(screen.getByTestId('panel').style.transform).toBe('');
+  });
+
   test('when it fits on neither side it keeps the preferred one', () => {
     stub({ left: 100, right: 136, width: 256, viewport: 300 });
     render(<Harness preferred="right" />);

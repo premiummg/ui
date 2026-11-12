@@ -48,6 +48,9 @@ export interface PremiumLogoProps {
   // coeur") follows the visitor's chosen language exactly like every other
   // piece of translated copy in a bilingual consumer. Defaults to 'en'.
   lang?: Lang;
+  // Extra classes for the image, for a place that needs the logo smaller on some screens (the navbar's
+  // `max-sm:h-9`). They come after the size's own classes.
+  className?: string;
 }
 
 // The brand kit ships red/black artwork only - no reversed white version
@@ -57,7 +60,7 @@ export interface PremiumLogoProps {
 // not the useDarkMode hook) so the logo updates even where nothing else on
 // the page re-renders on a theme change - the sign-in shell swaps this in
 // before any app state exists to drive it from.
-export function PremiumLogo({ size = 'md', variant = 'stacked', mode = 'auto', lang = 'en' }: PremiumLogoProps) {
+export function PremiumLogo({ size = 'md', variant = 'stacked', mode = 'auto', lang = 'en', className = '' }: PremiumLogoProps) {
   const [autoIsDark, setAutoIsDark] = useState(
     () => document.documentElement.classList.contains('dark'),
   );
@@ -81,7 +84,7 @@ export function PremiumLogo({ size = 'md', variant = 'stacked', mode = 'auto', l
     <img
       src={isDark ? logo.dark : logo.light}
       alt="Premium Management Group"
-      className={`${SIZES[size]} w-auto object-contain`}
+      className={`${SIZES[size]} w-auto object-contain ${className}`}
     />
   );
 }

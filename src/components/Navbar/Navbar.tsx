@@ -55,17 +55,19 @@ export function Navbar({ tone = 'black', children, onLogoClick, homeHref, lang =
         {spec.texture && (
           <div className="absolute inset-0 pmg-texture text-white pointer-events-none hidden dark:block" />
         )}
+        {/* A phone has no room for the full-height logo next to the bell icons and the avatar: it is a
+            size smaller below sm, so the bar never gets wider than the screen. */}
         <div className="relative shrink-0">
           {homeHref ? (
             <a href={homeHref} onClick={handleLogoClick} aria-label="Go to dashboard" className="block">
-              <PremiumLogo size="sm" variant="horizontal" lang={lang} />
+              <PremiumLogo size="sm" variant="horizontal" lang={lang} className="max-sm:h-8" />
             </a>
           ) : onLogoClick ? (
             <button type="button" onClick={onLogoClick} aria-label="Go to dashboard" className="block">
-              <PremiumLogo size="sm" variant="horizontal" lang={lang} />
+              <PremiumLogo size="sm" variant="horizontal" lang={lang} className="max-sm:h-8" />
             </button>
           ) : (
-            <PremiumLogo size="sm" variant="horizontal" lang={lang} />
+            <PremiumLogo size="sm" variant="horizontal" lang={lang} className="max-sm:h-8" />
           )}
         </div>
         <div className="relative flex items-center gap-1 sm:gap-1.5 min-w-0">

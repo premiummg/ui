@@ -17,7 +17,7 @@ export function Layout({ navbar, footer, children }: LayoutProps) {
     // the brand's neutral darks from clashing with a blue-tinted page.
     <div className="flex min-h-screen flex-col bg-[#F2F2F2] dark:bg-(--premium-black)">
       {navbar}
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex-1 px-3 py-4 sm:p-6">{children}</main>
       {footer}
     </div>
   );

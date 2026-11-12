@@ -21,7 +21,9 @@ export interface SegmentedControlProps<T extends string> {
 // keyboard arrow-key semantics beyond plain tab/click).
 export function SegmentedControl<T extends string>({ options, value, onChange, className = '' }: SegmentedControlProps<T>) {
   return (
-    <div className={`inline-flex rounded-lg border border-gray-200 dark:border-white/20 p-0.5 ${className}`}>
+    // max-w-full + overflow-x-auto: a row with more options than a phone is wide scrolls inside its own box instead of
+    // pushing the whole page wider than the screen.
+    <div className={`inline-flex max-w-full overflow-x-auto rounded-lg border border-gray-200 dark:border-white/20 p-0.5 ${className}`}>
       {options.map(opt => {
         const Icon = opt.icon;
         const selected = value === opt.value;
@@ -31,7 +33,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange, c
             type="button"
             onClick={() => onChange(opt.value)}
             aria-pressed={selected}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading font-bold transition ${
+            className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-md text-xs font-heading font-bold transition ${
               selected ? 'text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
             }`}
             style={selected ? { backgroundColor: 'var(--premium-red)' } : {}}

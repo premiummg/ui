@@ -41,7 +41,7 @@ export interface PageHeaderProps {
 export function PageHeader({ backLabel, onBack, title, eyebrow, count, actions, children, color, barsColor, countColor, className = '' }: PageHeaderProps) {
   return (
     <div
-      className={`relative pmg-field rounded-t-2xl px-6 py-5 ${className}`}
+      className={`relative pmg-field rounded-t-2xl px-4 py-5 sm:px-6 ${className}`}
       style={color ? { backgroundColor: color } : undefined}
     >
       <div
@@ -69,10 +69,10 @@ export function PageHeader({ backLabel, onBack, title, eyebrow, count, actions, 
             <div>
               {eyebrow != null && <p className="pmg-eyebrow text-white/70 mb-1.5">{eyebrow}</p>}
               <div className="flex items-baseline gap-2.5">
-                <h1 className="font-heading font-black text-2xl text-white leading-none">{title}</h1>
+                <h1 className="font-heading font-black text-xl sm:text-2xl text-white leading-none">{title}</h1>
                 {count != null && (
                   <span
-                    className={`pmg-figure text-lg ${countColor ? '' : 'text-white/70'}`}
+                    className={`pmg-figure text-base sm:text-lg ${countColor ? '' : 'text-white/70'}`}
                     style={countColor ? { color: countColor } : undefined}
                   >
                     {count}
@@ -87,7 +87,7 @@ export function PageHeader({ backLabel, onBack, title, eyebrow, count, actions, 
                 to, and multiple actions (or a wide one, e.g. a date picker)
                 can overflow the band on a narrow screen instead of wrapping
                 onto their own line. */}
-            {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+            {actions && <div className="flex flex-wrap items-center gap-2 ml-auto">{actions}</div>}
           </div>
         )}
       </div>

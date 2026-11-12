@@ -40,5 +40,21 @@ export function usePopoverSide(
     setSide(fits[preferred] || !fits[other] ? preferred : other);
   }, [open, preferred, containerRef]);
 
+  // Flipping to the other edge is not always enough: a trigger in the middle of a phone-wide row has no side with
+  // room for the whole panel. Whatever side it ended on, the panel is then slid just far enough to sit inside the
+  // screen, so no part of a menu is ever out of reach.
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!open || !panel) return;
+    panel.style.transform = '';
+    const { left, right, width } = panel.getBoundingClientRect();
+    if (width === 0) return;
+    const viewport = document.documentElement.clientWidth || window.innerWidth;
+    let shift = 0;
+    if (left < EDGE_GAP) shift = EDGE_GAP - left;
+    else if (right > viewport - EDGE_GAP) shift = Math.max(viewport - EDGE_GAP - right, EDGE_GAP - left);
+    if (shift) panel.style.transform = `translateX(${Math.round(shift)}px)`;
+  }, [open, side]);
+
   return { side, panelRef };
 }
