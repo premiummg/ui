@@ -36,7 +36,7 @@ describe('BroadcastInbox filters', () => {
     expect(screen.getByText('Received with news')).toBeInTheDocument();
     expect(screen.queryByText('Sent quiet')).not.toBeInTheDocument();
     // Picking it leaves the other two unselected.
-    expect(screen.getByRole('button', { name: /^Sent \d/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /^Sent/ })).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('date range keeps only conversations created inside it', async () => {

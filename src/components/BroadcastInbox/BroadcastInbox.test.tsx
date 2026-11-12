@@ -377,7 +377,7 @@ describe('BroadcastDetail', () => {
       await waitFor(() => expect(screen.getByText('My own message')).toBeInTheDocument());
       expect(screen.queryByText('Someone else\'s message')).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole('button', { name: /^Other sent 1$/ }));
+      await userEvent.click(screen.getByRole('button', { name: /^Other sent/ }));
       expect(screen.getByText('Someone else\'s message')).toBeInTheDocument();
       expect(screen.getByText(/Sent by Another Admin/)).toBeInTheDocument();
       expect(screen.queryByText('My own message')).not.toBeInTheDocument();
@@ -397,7 +397,7 @@ describe('BroadcastDetail', () => {
           canSendMessages
         />,
       );
-      await userEvent.click(await screen.findByRole('button', { name: /^Other sent 1$/ }));
+      await userEvent.click(await screen.findByRole('button', { name: /^Other sent/ }));
       await waitFor(() => expect(screen.getByText('Someone else\'s message')).toBeInTheDocument());
       await userEvent.click(screen.getByRole('button', { name: 'Delete conversation' }));
       await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
@@ -407,7 +407,7 @@ describe('BroadcastDetail', () => {
   });
 });
 
-describe('the number on a tab is what the tab lists', () => {
+describe('the number on a tab', () => {
   test('feedback has its own tab, so Received does not count it', async () => {
     render(<BroadcastInbox {...baseProps} showFeedback strings={{ ...strings, feedbackTabLabel: 'Feedback' }}
       fetchSent={async () => []} currentUserId="admin-1" canSendMessages
@@ -416,6 +416,46 @@ describe('the number on a tab is what the tab lists', () => {
         broadcast({ id: 'f1', title: 'Fb 1', isFeedback: true }),
         broadcast({ id: 'f2', title: 'Fb 2', isFeedback: true }),
       ]} />);
-    expect(await screen.findByRole('button', { name: /^Received 1$/ })).toBeInTheDocument();
+    // Opened, Received says how many it lists, and the feedback is not among them.
+    await userEvent.click(await screen.findByRole('button', { name: /^Received/ }));
+    expect(screen.getByRole('button', { name: /^Received 1$/ })).toBeInTheDocument();
+  });
+
+  const props = (over: Record<string, unknown> = {}) => ({
+    ...baseProps, strings: { ...strings, otherSentTabLabel: 'Other sent' }, currentUserId: 'admin-1', canSendMessages: true, ...over,
+  });
+  const many = (n: number, over: Partial<Parameters<typeof broadcast>[0]> = {}) =>
+    Array.from({ length: n }, (_, i) => broadcast({ id: `m${i}`, title: `Msg ${i}`, ...over }));
+
+  test('closed, Sent has no number, Received and Other sent say what is unread; opened, each says its total', async () => {
+    render(<BroadcastInbox {...props()}
+      fetchSent={async () => many(4)}
+      fetchReceived={async () => [...many(3, { createdBy: 'admin-2' }).map((b, i) => ({ ...b, id: `r${i}`, unread: i === 0 }))]}
+      fetchDivisionSent={async () => many(5, { createdBy: 'admin-2' }).map((b, i) => ({ ...b, id: `d${i}`, unread: i < 2 }))} />);
+    expect(await screen.findByRole('button', { name: /^Sent 4$/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Received 1$/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Other sent 2$/ })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /^Received/ }));
+    expect(screen.getByRole('button', { name: /^Received 3$/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Sent$/ })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /^Other sent/ }));
+    expect(screen.getByRole('button', { name: /^Other sent 5$/ })).toBeInTheDocument();
+  });
+
+  test('nothing unread leaves Received and Other sent without a number', async () => {
+    render(<BroadcastInbox {...props()} fetchSent={async () => many(2)} fetchReceived={async () => many(2, { createdBy: 'admin-2' })}
+      fetchDivisionSent={async () => many(2, { createdBy: 'admin-2' })} />);
+    expect(await screen.findByRole('button', { name: /^Received$/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Other sent$/ })).toBeInTheDocument();
+  });
+
+  test('a number past 99 is shown as 99+ while closed, and in full once the tab is open', async () => {
+    render(<BroadcastInbox {...props()} fetchSent={async () => []}
+      fetchReceived={async () => many(120, { createdBy: 'admin-2', unread: true })} />);
+    expect(await screen.findByRole('button', { name: /^Received 99\+$/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Unread \(99\+\)/ })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /^Received/ }));
+    expect(screen.getByRole('button', { name: /^Received 120$/ })).toBeInTheDocument();
   });
 });

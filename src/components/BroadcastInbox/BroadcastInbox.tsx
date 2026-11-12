@@ -99,6 +99,9 @@ export function forgetInboxView(): void {
   lastInboxView = null;
 }
 
+const BADGE_CAP = 99;
+const capBadge = (n: number) => (n > BADGE_CAP ? `${BADGE_CAP}+` : String(n));
+
 export function BroadcastInbox({
   fetchSent,
   fetchReceived,
@@ -245,6 +248,18 @@ export function BroadcastInbox({
 
   const visible = rows.filter(matchesFilters);
   const unreadCount = new Set([...(canReadSent ? sent : []), ...received].filter((b) => b.unread).map((b) => b.id)).size;
+  const feedbackTotal = new Set([...received, ...sent].filter((b) => b.isFeedback).map((b) => b.id)).size;
+  // What each tab says about itself. The tab being looked at says how many conversations it lists, in full. The
+  // others only say what is new in them (nothing when nothing is), capped at 99+, so the row is a prompt to go
+  // and read and not a second inventory. A tab that has no "new" of its own (Sent) shows no number until opened.
+  const tabLabel = (label: string, active: boolean, total: number, unread?: number) => {
+    if (active) return `${label} ${total}`;
+    return unread ? `${label} ${capBadge(unread)}` : label;
+  };
+  // Unread is app-worded ("Unread (3)", "Non lus (3)"): past the cap it is worded with the cap and gets the +.
+  const unreadTabLabel = unreadCount > BADGE_CAP
+    ? (() => { const l = strings.unreadOnlyLabel(BADGE_CAP); const at = l.lastIndexOf(String(BADGE_CAP)); return at < 0 ? l : `${l.slice(0, at + 2)}+${l.slice(at + 2)}`; })()
+    : strings.unreadOnlyLabel(unreadCount);
   const deletingBroadcast = [...sent, ...received, ...divisionSent].find((b) => b.id === deletingId);
 
   function clearFilters() {
@@ -281,11 +296,11 @@ export function BroadcastInbox({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SegmentedControl
           options={[
-            ...(canReadSent ? [{ value: 'sent' as const, label: `${strings.sentTabLabel} ${sent.filter(inSentReceived).length}` }] : []),
-            { value: 'received' as const, label: `${strings.receivedTabLabel} ${received.filter(inSentReceived).length}` },
-            { value: 'unread' as const, label: strings.unreadOnlyLabel(unreadCount) },
-            ...(showFeedback ? [{ value: 'feedback' as const, label: `${strings.feedbackTabLabel ?? 'Feedback'}${feedbackUnreadCount > 0 ? ` ${feedbackUnreadCount}` : ''}` }] : []),
-            ...(canReadDivisionSent ? [{ value: 'divisionSent' as const, label: `${strings.otherSentTabLabel ?? 'Other sent'} ${divisionSent.filter(inSentReceived).length}` }] : []),
+            ...(canReadSent ? [{ value: 'sent' as const, label: tabLabel(strings.sentTabLabel, view === 'sent', sent.filter(inSentReceived).length) }] : []),
+            { value: 'received' as const, label: tabLabel(strings.receivedTabLabel, view === 'received', received.filter(inSentReceived).length, received.filter((b) => inSentReceived(b) && b.unread).length) },
+            { value: 'unread' as const, label: unreadTabLabel },
+            ...(showFeedback ? [{ value: 'feedback' as const, label: tabLabel(strings.feedbackTabLabel ?? 'Feedback', view === 'feedback', feedbackTotal, feedbackUnreadCount) }] : []),
+            ...(canReadDivisionSent ? [{ value: 'divisionSent' as const, label: tabLabel(strings.otherSentTabLabel ?? 'Other sent', view === 'divisionSent', divisionSent.filter(inSentReceived).length, divisionSent.filter((b) => inSentReceived(b) && b.unread).length) }] : []),
           ]}
           value={view}
           onChange={setView}
