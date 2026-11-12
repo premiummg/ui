@@ -46,7 +46,8 @@ export interface ConversationThreadProps {
   // repeatedly (every real backend treats this as "set last_read_at = now",
   // not a one-shot transition), so this never needs an explicit "is this
   // already read" input from the caller.
-  onMarkRead?: () => void | Promise<void>;
+  // `lastMessageId`: the last message on screen when it is called (see BroadcastDataProps.onMarkRead).
+  onMarkRead?: (lastMessageId?: string) => void | Promise<void>;
   currentUserId: string | undefined;
   strings: ConversationThreadStrings;
   // Matches both apps' own current choice.
@@ -232,6 +233,8 @@ export function ConversationThread({
   // Whether this thread has been opened and read once: a conversation with no replies yet (a feedback nobody has
   // answered) never changes its message count, so the first load is what marks it read.
   const openedRef = useRef(false);
+  // The last message the screen has shown, which is what a look at the conversation covers.
+  const lastShownRef = useRef<string | undefined>(undefined);
 
   const attemptMarkRead = useCallback(() => {
     if (!onMarkRead) return;
@@ -240,7 +243,7 @@ export function ConversationThread({
       return;
     }
     pendingMarkReadRef.current = false;
-    Promise.resolve(onMarkRead()).catch(() => {});
+    Promise.resolve(onMarkRead(lastShownRef.current)).catch(() => {});
   }, [onMarkRead]);
 
   const load = useCallback(async () => {
@@ -253,6 +256,7 @@ export function ConversationThread({
       sentRef.current = sentRef.current.filter((s) => !next.some((m) => m.id === s.id));
       const merged = sentRef.current.length ? [...next, ...sentRef.current] : next;
       setMessages(merged);
+      lastShownRef.current = merged.length ? merged[merged.length - 1].id : undefined;
       setError(false);
       if (merged.length !== messageCountRef.current || !openedRef.current) {
         messageCountRef.current = merged.length;

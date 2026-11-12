@@ -64,4 +64,7 @@ export interface ChatBroadcast {
   isFeedback?: boolean;
   // Images sent with the root message.
   attachments?: ChatAttachment[];
+  // Where this broadcast stands in the list it came from. Handed back to ask for the ones after it (see
+  // BroadcastDataProps.fetchSent); the app only carries it.
+  cursor?: string;
 }

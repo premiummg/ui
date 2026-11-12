@@ -9,7 +9,7 @@ import { FilterLabel } from '../FilterLabel';
 import { IconButton } from '../IconButton';
 import { SegmentedControl } from '../SegmentedControl';
 import { TextButton } from '../TextButton';
-import type { BroadcastInboxProps, BroadcastInboxStrings, BroadcastSide, BroadcastStatus } from './types';
+import type { BroadcastInboxProps, BroadcastInboxStrings, BroadcastPage, BroadcastSide, BroadcastStatus } from './types';
 import { StatusPill, broadcastStatus, peopleOf } from './broadcastParts';
 
 export type { BroadcastInboxProps, BroadcastInboxStrings, BroadcastDetailProps } from './types';
@@ -92,14 +92,30 @@ function BroadcastRow({
 // on the lists already loaded, so there are no extra requests per keystroke.
 type InboxView = BroadcastSide | 'unread' | 'feedback' | 'divisionSent';
 // The tab the inbox was last on, kept outside the component because the component is unmounted while a
-// conversation is open.
-let lastInboxView: InboxView | null = null;
+// conversation is open. It belongs to the person: somebody else signing in on the same screen starts on the default.
+let lastInbox: { user: string | undefined; view: InboxView } | null = null;
 // For tests: start the next inbox on its default tab.
 export function forgetInboxView(): void {
-  lastInboxView = null;
+  lastInbox = null;
+}
+
+// A fetcher answers a plain array (a list with nothing more) or a page with its total.
+const asPage = (r: ChatBroadcast[] | BroadcastPage): BroadcastPage => (Array.isArray(r) ? { items: r } : r);
+
+// Whether a page has older conversations after it: what the app says, or else what the total says of the ones loaded.
+const morePages = (page: BroadcastPage, loaded: number): boolean => page.more ?? (page.total !== undefined && loaded < page.total);
+
+// The newest page of a list replaces the start of what is on screen; the older ones that were loaded after it stay.
+function withFirstPage(prev: ChatBroadcast[], first: ChatBroadcast[]): ChatBroadcast[] {
+  if (!first.length) return [];
+  const oldest = new Date(first[first.length - 1].createdAt).getTime();
+  const firstIds = new Set(first.map((b) => b.id));
+  return [...first, ...prev.filter((b) => !firstIds.has(b.id) && new Date(b.createdAt).getTime() <= oldest)];
 }
 
 const BADGE_CAP = 99;
+const defaultListCount = (n: number, total?: number) =>
+  total !== undefined && total > n ? `${n} of ${total} conversations` : `${n} ${n === 1 ? 'conversation' : 'conversations'}`;
 const capBadge = (n: number) => (n > BADGE_CAP ? `${BADGE_CAP}+` : String(n));
 
 export function BroadcastInbox({
@@ -123,17 +139,35 @@ export function BroadcastInbox({
   // Sent, Received, Other sent, or every conversation with something new from Sent/Received. Opening a conversation
   // takes the inbox off the screen, so the tab it was on is remembered for when the person comes back to the list.
   const [view, setViewState] = useState<InboxView>(() => {
-    const back = lastInboxView;
+    const back = lastInbox && lastInbox.user === currentUserId ? lastInbox.view : null;
     const available = back === 'sent' ? canReadSent : back === 'feedback' ? showFeedback : back === 'divisionSent' ? canReadDivisionSent : !!back;
     return back && available ? back : canReadSent ? 'sent' : 'received';
   });
   const setView = (next: InboxView) => {
-    lastInboxView = next;
+    lastInbox = { user: currentUserId, view: next };
     setViewState(next);
   };
+  // The role or the features can arrive after the first render: a tab that is not there (any more) is not stayed on.
+  useEffect(() => {
+    const available = view === 'sent' ? canReadSent : view === 'feedback' ? showFeedback : view === 'divisionSent' ? canReadDivisionSent : true;
+    if (!available) setViewState(canReadSent ? 'sent' : 'received');
+  }, [view, canReadSent, showFeedback, canReadDivisionSent]);
+  // The latest fetchers, so a new function (another person, a closure over a filter) is used by the next poll
+  // without tearing the timer down.
+  const fetchers = useRef({ fetchSent, fetchReceived, fetchDivisionSent });
+  fetchers.current = { fetchSent, fetchReceived, fetchDivisionSent };
   const [sent, setSent] = useState<ChatBroadcast[]>([]);
   const [received, setReceived] = useState<ChatBroadcast[]>([]);
   const [divisionSent, setDivisionSent] = useState<ChatBroadcast[]>([]);
+  // How many there are in all in each list, when the app says (the page loaded is not always all of it).
+  const [sentTotal, setSentTotal] = useState<number | undefined>(undefined);
+  const [receivedTotal, setReceivedTotal] = useState<number | undefined>(undefined);
+  const [divisionSentTotal, setDivisionSentTotal] = useState<number | undefined>(undefined);
+  // Whether each list has older conversations to load, and whether one was loaded already: from then on the check of
+  // the newest page no longer says whether there are more, only the last page asked for does.
+  const [more, setMore] = useState<Record<'sent' | 'received' | 'divisionSent', boolean>>({ sent: false, received: false, divisionSent: false });
+  const olderLoaded = useRef<Record<'sent' | 'received' | 'divisionSent', boolean>>({ sent: false, received: false, divisionSent: false });
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loadingSent, setLoadingSent] = useState(canReadSent);
   const [loadingDivisionSent, setLoadingDivisionSent] = useState(canReadDivisionSent);
   const pausePollingRef = useRef(pausePolling);
@@ -163,15 +197,33 @@ export function BroadcastInbox({
     let divisionSentSeq = 0;
     const loadSent = () => {
       const seq = ++sentSeq;
-      return fetchSent!().then((rows) => { if (live && seq === sentSeq) setSent(rows); }).catch(() => {});
+      return fetchers.current.fetchSent!().then((r) => {
+        if (!live || seq !== sentSeq) return;
+        const page = asPage(r);
+        setSent((prev) => withFirstPage(prev, page.items));
+        setSentTotal(page.total);
+        if (!olderLoaded.current.sent) setMore((m) => ({ ...m, sent: morePages(page, page.items.length) }));
+      }).catch(() => {});
     };
     const loadReceived = () => {
       const seq = ++receivedSeq;
-      return fetchReceived().then((rows) => { if (live && seq === receivedSeq) setReceived(rows); }).catch(() => {});
+      return fetchers.current.fetchReceived().then((r) => {
+        if (!live || seq !== receivedSeq) return;
+        const page = asPage(r);
+        setReceived((prev) => withFirstPage(prev, page.items));
+        setReceivedTotal(page.total);
+        if (!olderLoaded.current.received) setMore((m) => ({ ...m, received: morePages(page, page.items.length) }));
+      }).catch(() => {});
     };
     const loadDivisionSent = () => {
       const seq = ++divisionSentSeq;
-      return fetchDivisionSent!().then((rows) => { if (live && seq === divisionSentSeq) setDivisionSent(rows); }).catch(() => {});
+      return fetchers.current.fetchDivisionSent!().then((r) => {
+        if (!live || seq !== divisionSentSeq) return;
+        const page = asPage(r);
+        setDivisionSent((prev) => withFirstPage(prev, page.items));
+        setDivisionSentTotal(page.total);
+        if (!olderLoaded.current.divisionSent) setMore((m) => ({ ...m, divisionSent: morePages(page, page.items.length) }));
+      }).catch(() => {});
     };
     // Coming back to the tab fires visibilitychange and focus together: one refresh, not two.
     let lastRun = 0;
@@ -197,7 +249,36 @@ export function BroadcastInbox({
       window.removeEventListener('focus', refresh);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canReadSent, canReadDivisionSent, pollIntervalMs]);
+  }, [canReadSent, canReadDivisionSent, pollIntervalMs, currentUserId]);
+
+  // The older ones of a list: what comes after the last conversation on screen, which its cursor says.
+  type ListName = 'sent' | 'received' | 'divisionSent';
+  const listsOfView: ListName[] =
+    view === 'sent' ? ['sent'] : view === 'received' ? ['received'] : view === 'divisionSent' ? ['divisionSent'] : canReadSent ? ['sent', 'received'] : ['received'];
+  const lastCursor = (items: ChatBroadcast[]) => items[items.length - 1]?.cursor;
+  const moreOf = (list: ListName) =>
+    more[list] && !!lastCursor(list === 'sent' ? sent : list === 'received' ? received : divisionSent);
+  const moreAvailable = listsOfView.some(moreOf);
+  async function loadMore() {
+    setLoadingMore(true);
+    try {
+      await Promise.all(listsOfView.filter(moreOf).map(async (list) => {
+        const items = list === 'sent' ? sent : list === 'received' ? received : divisionSent;
+        const fetcher = list === 'sent' ? fetchers.current.fetchSent : list === 'received' ? fetchers.current.fetchReceived : fetchers.current.fetchDivisionSent;
+        const page = asPage(await fetcher!(lastCursor(items)));
+        olderLoaded.current[list] = true;
+        setMore((m) => ({ ...m, [list]: morePages(page, items.length + page.items.length) }));
+        const append = (prev: ChatBroadcast[]) => {
+          const have = new Set(prev.map((b) => b.id));
+          return [...prev, ...page.items.filter((b) => !have.has(b.id))];
+        };
+        if (list === 'sent') { setSent(append); if (page.total !== undefined) setSentTotal(page.total); }
+        else if (list === 'received') { setReceived(append); if (page.total !== undefined) setReceivedTotal(page.total); }
+        else { setDivisionSent(append); if (page.total !== undefined) setDivisionSentTotal(page.total); }
+      }));
+    } catch { /* the button stays, and a later try asks again */ }
+    finally { setLoadingMore(false); }
+  }
 
   // With a Feedback tab, feedback lives there and not in Sent or Received.
   const inSentReceived = (b: ChatBroadcast) => !(showFeedback && b.isFeedback);
@@ -247,6 +328,10 @@ export function BroadcastInbox({
   }
 
   const visible = rows.filter(matchesFilters);
+  // The total of the open list, said only when it is the list as it is: a search or a status narrows it, and a
+  // Feedback tab takes feedback out of Sent and Received, so then it would not be the number on screen.
+  const listTotal = filtersActive || (showFeedback && view !== 'divisionSent') ? undefined
+    : view === 'sent' ? sentTotal : view === 'received' ? receivedTotal : view === 'divisionSent' ? divisionSentTotal : undefined;
   const unreadCount = new Set([...(canReadSent ? sent : []), ...received].filter((b) => b.unread).map((b) => b.id)).size;
   // What a tab says about itself is only what is NEW in it (nothing when nothing is), capped at 99+: the row is a
   // prompt to go and read, not an inventory. Sent has no "new" of its own, so it never carries a number. How many
@@ -377,7 +462,7 @@ export function BroadcastInbox({
       ) : (
         <>
         <p className="px-1 text-xs text-gray-500 dark:text-gray-400">
-          {(strings.listCountLabel ?? ((n: number) => `${n} ${n === 1 ? 'conversation' : 'conversations'}`))(rows.length)}
+          {(strings.listCountLabel ?? defaultListCount)(visible.length, listTotal)}
         </p>
         <Card padding={false} className="divide-y divide-gray-100 overflow-hidden dark:divide-white/10">
           {visible.map(({ b, side }) => (
@@ -394,6 +479,13 @@ export function BroadcastInbox({
             />
           ))}
         </Card>
+        {moreAvailable && (
+          <div className="flex justify-center pt-1">
+            <Button size="sm" variant="secondary" onClick={loadMore} disabled={loadingMore}>
+              {strings.loadMoreLabel ?? 'Load more'}
+            </Button>
+          </div>
+        )}
         </>
       )}
 

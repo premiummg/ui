@@ -15,8 +15,11 @@ export interface BroadcastInboxStrings extends ConversationThreadStrings {
   noOtherSentYet?: string;
   newMessageLabel: string;
   unreadOnlyLabel: (count: number) => string;
-  // Over the list, how many conversations the open tab holds: "50 conversations".
-  listCountLabel?: (count: number) => string;
+  // Over the list, how many conversations it shows and, when the list has more than were loaded, how many there
+  // are in all: "50 of 164 conversations".
+  listCountLabel?: (count: number, total?: number) => string;
+  // The button that brings the next older ones.
+  loadMoreLabel?: string;
   noSentYet: string;
   noReceivedYet: string;
   nothingUnread: string;
@@ -66,23 +69,39 @@ export interface BroadcastInboxStrings extends ConversationThreadStrings {
 
 export type BroadcastSide = 'sent' | 'received';
 
+// A page of a list: the conversations, and how many there are in all when the app knows (a list that has more
+// than a page). A fetcher may return the plain array instead, which is a list with nothing more to load.
+export interface BroadcastPage {
+  items: ChatBroadcast[];
+  total?: number;
+  // Whether there are older ones after this page. When the app does not say, it is read from `total`.
+  more?: boolean;
+}
+
 export type BroadcastStatus = 'needsReply' | 'waiting' | 'answered' | 'closed';
 
 export interface BroadcastDataProps {
   // Omit entirely when canSendMessages is false - the Sent tab never renders. Always the caller's OWN sent
   // messages, whatever their role - see fetchDivisionSent below for the rest of a division's.
-  fetchSent?: () => Promise<ChatBroadcast[]>;
-  fetchReceived: () => Promise<ChatBroadcast[]>;
+  // Each takes the `cursor` of the last conversation it was given to return the ones after it (the next older page).
+  fetchSent?: (before?: string) => Promise<ChatBroadcast[] | BroadcastPage>;
+  fetchReceived: (before?: string) => Promise<ChatBroadcast[] | BroadcastPage>;
   // What the rest of a division sent, not the caller's own - its own "Other sent" tab, so it's never mistaken
   // for messages the caller actually wrote themself. Omit entirely for a role that doesn't manage a division's
   // messages (the tab never renders); an app wires this to an admin-all-only endpoint.
-  fetchDivisionSent?: () => Promise<ChatBroadcast[]>;
+  fetchDivisionSent?: (before?: string) => Promise<ChatBroadcast[] | BroadcastPage>;
+  // One conversation by its id, from the side the caller is on, or null when there is none for them. When given, the
+  // screen of a conversation reads it from here and not by looking for it in the lists, which have a size: an older
+  // conversation is found, and one pushed out of the newest page by newer ones is not lost.
+  fetchOne?: (broadcastId: string) => Promise<{ broadcast: ChatBroadcast; side: BroadcastSide } | null>;
   // One shared conversation per broadcast - every reply and every follow-up
   // goes into it, from either side.
   onSendMessage: (broadcastId: string, body: string, files?: File[]) => Promise<ChatMessage>;
   // Turns on images in the conversation (see ConversationThread).
   getAttachmentUrl?: (attachmentId: string) => Promise<string>;
-  onMarkRead: (broadcastId: string) => Promise<void>;
+  // `lastMessageId` is the last message the screen showed: the look is of that much, so a message that arrived
+  // while the request was on its way is still new.
+  onMarkRead: (broadcastId: string, lastMessageId?: string) => Promise<void>;
   onClose: (broadcastId: string) => Promise<void>;
   onDelete: (broadcastId: string) => Promise<void>;
   currentUserId: string | undefined;

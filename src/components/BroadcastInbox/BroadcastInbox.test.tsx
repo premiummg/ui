@@ -142,6 +142,34 @@ describe('BroadcastInbox', () => {
     expect(screen.queryByText('Confirm your hours')).not.toBeInTheDocument();
   });
 
+  test('the remembered tab belongs to the person: somebody else on the same screen starts on the default', async () => {
+    const props = {
+      ...baseProps, showFeedback: true, strings: { ...strings, feedbackTabLabel: 'Feedback' },
+      fetchSent: async () => [broadcast()], canSendMessages: true,
+      fetchReceived: async () => [broadcast({ id: 'f1', title: 'Quiet note', isFeedback: true })],
+    };
+    const first = render(<BroadcastInbox {...props} currentUserId="admin-1" />);
+    await userEvent.click(await screen.findByRole('button', { name: /^Feedback$/ }));
+    expect(await screen.findByText('Quiet note')).toBeInTheDocument();
+    first.unmount();
+    render(<BroadcastInbox {...props} currentUserId="admin-2" />);
+    expect(await screen.findByText('Confirm your hours')).toBeInTheDocument();
+    expect(screen.queryByText('Quiet note')).not.toBeInTheDocument();
+  });
+
+  test('a tab that stops existing is not stayed on', async () => {
+    const props = {
+      ...baseProps, strings: { ...strings, feedbackTabLabel: 'Feedback' },
+      fetchSent: async () => [broadcast()], currentUserId: 'admin-1', canSendMessages: true,
+      fetchReceived: async () => [broadcast({ id: 'f1', title: 'Quiet note', isFeedback: true })],
+    };
+    const { rerender } = render(<BroadcastInbox {...props} showFeedback />);
+    await userEvent.click(await screen.findByRole('button', { name: /^Feedback$/ }));
+    expect(await screen.findByText('Quiet note')).toBeInTheDocument();
+    rerender(<BroadcastInbox {...props} showFeedback={false} />);
+    expect(await screen.findByText('Confirm your hours')).toBeInTheDocument();
+  });
+
   test('without showFeedback there is no Feedback tab', async () => {
     render(<BroadcastInbox {...baseProps} fetchSent={async () => [broadcast()]} currentUserId="admin-1" canSendMessages />);
     await waitFor(() => expect(screen.getByText('Confirm your hours')).toBeInTheDocument());
@@ -444,6 +472,15 @@ describe('the number on a tab', () => {
     await userEvent.click(screen.getByRole('button', { name: /^Other sent/ }));
     expect(screen.getByRole('button', { name: /^Other sent 2$/ })).toBeInTheDocument();
     expect(screen.getByText('5 conversations')).toBeInTheDocument();
+  });
+
+  test('the count over the list follows the search', async () => {
+    render(<BroadcastInbox {...props()} fetchSent={async () => [
+      broadcast({ id: 'a', title: 'Safety briefing' }), broadcast({ id: 'b', title: 'Safety gear' }), broadcast({ id: 'c', title: 'Payroll' }),
+    ]} fetchReceived={async () => []} />);
+    expect(await screen.findByText('3 conversations')).toBeInTheDocument();
+    await userEvent.type(screen.getByLabelText(strings.searchLabel), 'safety');
+    expect(screen.getByText('2 conversations')).toBeInTheDocument();
   });
 
   test('nothing unread leaves Received and Other sent without a number', async () => {

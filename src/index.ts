@@ -137,7 +137,7 @@ export type {
 } from './components/ConversationThread';
 
 export { BroadcastInbox, BroadcastDetail, MessagesScreen } from './components/BroadcastInbox';
-export type { BroadcastInboxProps, BroadcastInboxStrings, BroadcastDetailProps, MessagesScreenProps } from './components/BroadcastInbox';
+export type { BroadcastInboxProps, BroadcastInboxStrings, BroadcastDetailProps, BroadcastPage, BroadcastSide, MessagesScreenProps } from './components/BroadcastInbox';
 
 export { WeekNav } from './components/WeekNav';
 export type { WeekNavProps } from './components/WeekNav';

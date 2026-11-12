@@ -6,7 +6,7 @@ import { Card } from '../Card';
 import { IconButton } from '../IconButton';
 import { TextButton } from '../TextButton';
 import { ConfirmDialog } from '../ConfirmDialog';
-import type { BroadcastDetailProps, BroadcastSide } from './types';
+import type { BroadcastDetailProps, BroadcastPage, BroadcastSide } from './types';
 import { ContextLink, RecipientChips, RootMessageBubble, StatusPill, formatDateTime } from './broadcastParts';
 
 // One conversation on its own screen: the root message, every reply from every
@@ -17,6 +17,7 @@ export function BroadcastDetail({
   broadcastId,
   fetchSent,
   fetchReceived,
+  fetchOne,
   onSendMessage,
   onMarkRead,
   onClose,
@@ -41,6 +42,8 @@ export function BroadcastDetail({
   const [loaded, setLoaded] = useState(false);
   const pausePollingRef = useRef(pausePolling);
   pausePollingRef.current = pausePolling;
+  const fetchOneRef = useRef(fetchOne);
+  fetchOneRef.current = fetchOne;
   const [closing, setClosing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -55,16 +58,23 @@ export function BroadcastDetail({
       if (document.visibilityState === 'hidden' || (loadedOnce && pausePollingRef.current?.())) return;
       const seq = ++latest;
       let failed = false;
-      const read = (fetchList: () => Promise<ChatBroadcast[]>) => fetchList().catch(() => { failed = true; return null; });
-      const sentList = canReadSent ? await read(fetchSent!) : null;
-      const receivedList = await read(fetchReceived);
-      if (cancelled || seq !== latest) return;
-      const sentHit = sentList?.find((b) => b.id === broadcastId);
-      const receivedHit = receivedList?.find((b) => b.id === broadcastId);
-      if (sentHit) setFound({ broadcast: sentHit, side: 'sent' });
-      else if (receivedHit) setFound({ broadcast: receivedHit, side: 'received' });
-      // A failed check says nothing about the conversation: keep what is on screen (and what is being typed).
-      else if (!failed) setFound(null);
+      if (fetchOneRef.current) {
+        // By its id: an older conversation is found, and one pushed out of the newest page is not lost.
+        const hit = await fetchOneRef.current(broadcastId).catch(() => { failed = true; return null; });
+        if (cancelled || seq !== latest) return;
+        if (hit) setFound(hit);
+        // A failed check says nothing about the conversation: keep what is on screen (and what is being typed).
+        else if (!failed) setFound(null);
+      } else {
+        const read = (fetchList: (before?: string) => Promise<ChatBroadcast[] | BroadcastPage>) => fetchList().then((r) => (Array.isArray(r) ? r : r.items)).catch(() => { failed = true; return null; });
+        const [sentList, receivedList] = await Promise.all([canReadSent ? read(fetchSent!) : Promise.resolve(null), read(fetchReceived)]);
+        if (cancelled || seq !== latest) return;
+        const sentHit = sentList?.find((b) => b.id === broadcastId);
+        const receivedHit = receivedList?.find((b) => b.id === broadcastId);
+        if (sentHit) setFound({ broadcast: sentHit, side: 'sent' });
+        else if (receivedHit) setFound({ broadcast: receivedHit, side: 'received' });
+        else if (!failed) setFound(null);
+      }
       setLoaded(true);
       loadedOnce = true;
     }
@@ -192,7 +202,7 @@ export function BroadcastDetail({
             fetchFn={fetchMessages}
             onSend={(body, files) => (files ? onSendMessage(broadcast.id, body, files) : onSendMessage(broadcast.id, body))}
             getAttachmentUrl={getAttachmentUrl}
-            onMarkRead={() => onMarkRead(broadcast.id)}
+            onMarkRead={(lastMessageId) => onMarkRead(broadcast.id, lastMessageId)}
             currentUserId={currentUserId}
             strings={strings}
             pollIntervalMs={pollIntervalMs}
