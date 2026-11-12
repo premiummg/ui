@@ -248,14 +248,10 @@ export function BroadcastInbox({
 
   const visible = rows.filter(matchesFilters);
   const unreadCount = new Set([...(canReadSent ? sent : []), ...received].filter((b) => b.unread).map((b) => b.id)).size;
-  const feedbackTotal = new Set([...received, ...sent].filter((b) => b.isFeedback).map((b) => b.id)).size;
-  // What each tab says about itself. The tab being looked at says how many conversations it lists, in full. The
-  // others only say what is new in them (nothing when nothing is), capped at 99+, so the row is a prompt to go
-  // and read and not a second inventory. A tab that has no "new" of its own (Sent) shows no number until opened.
-  const tabLabel = (label: string, active: boolean, total: number, unread?: number) => {
-    if (active) return `${label} ${total}`;
-    return unread ? `${label} ${capBadge(unread)}` : label;
-  };
+  // What a tab says about itself is only what is NEW in it (nothing when nothing is), capped at 99+: the row is a
+  // prompt to go and read, not an inventory. Sent has no "new" of its own, so it never carries a number. How many
+  // conversations a tab holds is said inside it, over its list.
+  const tabLabel = (label: string, unread?: number) => (unread ? `${label} ${capBadge(unread)}` : label);
   // Unread is app-worded ("Unread (3)", "Non lus (3)"): past the cap it is worded with the cap and gets the +.
   const unreadTabLabel = unreadCount > BADGE_CAP
     ? (() => { const l = strings.unreadOnlyLabel(BADGE_CAP); const at = l.lastIndexOf(String(BADGE_CAP)); return at < 0 ? l : `${l.slice(0, at + 2)}+${l.slice(at + 2)}`; })()
@@ -296,11 +292,11 @@ export function BroadcastInbox({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SegmentedControl
           options={[
-            ...(canReadSent ? [{ value: 'sent' as const, label: tabLabel(strings.sentTabLabel, view === 'sent', sent.filter(inSentReceived).length) }] : []),
-            { value: 'received' as const, label: tabLabel(strings.receivedTabLabel, view === 'received', received.filter(inSentReceived).length, received.filter((b) => inSentReceived(b) && b.unread).length) },
+            ...(canReadSent ? [{ value: 'sent' as const, label: strings.sentTabLabel }] : []),
+            { value: 'received' as const, label: tabLabel(strings.receivedTabLabel, received.filter((b) => inSentReceived(b) && b.unread).length) },
             { value: 'unread' as const, label: unreadTabLabel },
-            ...(showFeedback ? [{ value: 'feedback' as const, label: tabLabel(strings.feedbackTabLabel ?? 'Feedback', view === 'feedback', feedbackTotal, feedbackUnreadCount) }] : []),
-            ...(canReadDivisionSent ? [{ value: 'divisionSent' as const, label: tabLabel(strings.otherSentTabLabel ?? 'Other sent', view === 'divisionSent', divisionSent.filter(inSentReceived).length, divisionSent.filter((b) => inSentReceived(b) && b.unread).length) }] : []),
+            ...(showFeedback ? [{ value: 'feedback' as const, label: tabLabel(strings.feedbackTabLabel ?? 'Feedback', feedbackUnreadCount) }] : []),
+            ...(canReadDivisionSent ? [{ value: 'divisionSent' as const, label: tabLabel(strings.otherSentTabLabel ?? 'Other sent', divisionSent.filter((b) => inSentReceived(b) && b.unread).length) }] : []),
           ]}
           value={view}
           onChange={setView}
@@ -379,6 +375,10 @@ export function BroadcastInbox({
           <p className="text-sm text-gray-500 dark:text-gray-400">{strings.noResultsLabel}</p>
         </Card>
       ) : (
+        <>
+        <p className="px-1 text-xs text-gray-500 dark:text-gray-400">
+          {(strings.listCountLabel ?? ((n: number) => `${n} ${n === 1 ? 'conversation' : 'conversations'}`))(rows.length)}
+        </p>
         <Card padding={false} className="divide-y divide-gray-100 overflow-hidden dark:divide-white/10">
           {visible.map(({ b, side }) => (
             <BroadcastRow
@@ -394,6 +394,7 @@ export function BroadcastInbox({
             />
           ))}
         </Card>
+        </>
       )}
 
       <ConfirmDialog

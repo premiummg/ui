@@ -15,6 +15,8 @@ export interface BroadcastInboxStrings extends ConversationThreadStrings {
   noOtherSentYet?: string;
   newMessageLabel: string;
   unreadOnlyLabel: (count: number) => string;
+  // Over the list, how many conversations the open tab holds: "50 conversations".
+  listCountLabel?: (count: number) => string;
   noSentYet: string;
   noReceivedYet: string;
   nothingUnread: string;

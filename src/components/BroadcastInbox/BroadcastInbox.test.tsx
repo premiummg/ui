@@ -416,9 +416,9 @@ describe('the number on a tab', () => {
         broadcast({ id: 'f1', title: 'Fb 1', isFeedback: true }),
         broadcast({ id: 'f2', title: 'Fb 2', isFeedback: true }),
       ]} />);
-    // Opened, Received says how many it lists, and the feedback is not among them.
+    // Received lists one conversation, and the feedback is not among them.
     await userEvent.click(await screen.findByRole('button', { name: /^Received/ }));
-    expect(screen.getByRole('button', { name: /^Received 1$/ })).toBeInTheDocument();
+    expect(screen.getByText('1 conversation')).toBeInTheDocument();
   });
 
   const props = (over: Record<string, unknown> = {}) => ({
@@ -427,20 +427,23 @@ describe('the number on a tab', () => {
   const many = (n: number, over: Partial<Parameters<typeof broadcast>[0]> = {}) =>
     Array.from({ length: n }, (_, i) => broadcast({ id: `m${i}`, title: `Msg ${i}`, ...over }));
 
-  test('closed, Sent has no number, Received and Other sent say what is unread; opened, each says its total', async () => {
+  test('Sent never carries a number; Received and Other sent carry only what is unread; the total is said inside', async () => {
     render(<BroadcastInbox {...props()}
       fetchSent={async () => many(4)}
       fetchReceived={async () => [...many(3, { createdBy: 'admin-2' }).map((b, i) => ({ ...b, id: `r${i}`, unread: i === 0 }))]}
       fetchDivisionSent={async () => many(5, { createdBy: 'admin-2' }).map((b, i) => ({ ...b, id: `d${i}`, unread: i < 2 }))} />);
-    expect(await screen.findByRole('button', { name: /^Sent 4$/ })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /^Sent$/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Received 1$/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Other sent 2$/ })).toBeInTheDocument();
+    expect(screen.getByText('4 conversations')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: /^Received/ }));
-    expect(screen.getByRole('button', { name: /^Received 3$/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^Sent$/ })).toBeInTheDocument();
+    // Opened, the tab still says only what is unread; the total is over the list.
+    expect(screen.getByRole('button', { name: /^Received 1$/ })).toBeInTheDocument();
+    expect(screen.getByText('3 conversations')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /^Other sent/ }));
-    expect(screen.getByRole('button', { name: /^Other sent 5$/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Other sent 2$/ })).toBeInTheDocument();
+    expect(screen.getByText('5 conversations')).toBeInTheDocument();
   });
 
   test('nothing unread leaves Received and Other sent without a number', async () => {
@@ -450,12 +453,12 @@ describe('the number on a tab', () => {
     expect(screen.getByRole('button', { name: /^Other sent$/ })).toBeInTheDocument();
   });
 
-  test('a number past 99 is shown as 99+ while closed, and in full once the tab is open', async () => {
+  test('a number past 99 is shown as 99+, and the full total is over the list', async () => {
     render(<BroadcastInbox {...props()} fetchSent={async () => []}
       fetchReceived={async () => many(120, { createdBy: 'admin-2', unread: true })} />);
     expect(await screen.findByRole('button', { name: /^Received 99\+$/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Unread \(99\+\)/ })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /^Received/ }));
-    expect(screen.getByRole('button', { name: /^Received 120$/ })).toBeInTheDocument();
+    expect(screen.getByText('120 conversations')).toBeInTheDocument();
   });
 });
