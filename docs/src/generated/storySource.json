@@ -35,6 +35,7 @@
     "Secondary": "<Button variant=\"secondary\">Cancel</Button>",
     "Danger": "<Button variant=\"danger\">Delete</Button>",
     "OnColor": "<div className=\"pmg-field p-6 rounded-xl\">\n  <Button variant=\"onColor\" style={{ color: 'var(--premium-red-dark)' }}>Add employee</Button>\n</div>",
+    "OnColorOutline": "<div className=\"pmg-field p-6 rounded-xl flex gap-2\">\n  <Button variant=\"onColorOutline\">Cancel</Button>\n  <Button variant=\"onColor\" style={{ color: 'var(--premium-red-dark)' }}>Save</Button>\n</div>",
     "Small": "<Button size=\"sm\">Save changes</Button>",
     "ExtraSmall": "<Button size=\"xs\">Reorder</Button>",
     "Large": "<Button size=\"lg\">Get an estimate</Button>",
@@ -45,6 +46,9 @@
   "Card": {
     "Default": "<Card padding>Card content goes here.</Card>",
     "NoPadding": "<Card padding={false}>{<div className=\"p-2\">Custom padding</div>}</Card>"
+  },
+  "Checkbox": {
+    "Default": "const [checked, setChecked] = useState(true);\nreturn <Checkbox checked={checked} onChange={setChecked} label=\"Open in a new tab\" />;"
   },
   "ColorField": {
     "Red": "<ColorField>\n  <CtaContent />\n</ColorField>",
@@ -65,6 +69,10 @@
   "CountBadge": {
     "Default": "<CountBadge count={128} />",
     "Overflow": "<CountBadge count=\"99+\" />"
+  },
+  "CredentialBadges": {
+    "OnDark": "<CredentialBadges items={ITEMS} size=\"lg\" />",
+    "OnLight": "<CredentialBadges items={ITEMS} bordered />"
   },
   "DarkModeToggle": {
     "Default": "function Demo() {\n  const [isDark, setIsDark] = useState(false);\n  return <DarkModeToggle isDark={isDark} onToggle={() => setIsDark(d => !d)} />;\n}\nreturn <Demo />;"
@@ -96,6 +104,10 @@
     "Centered": "<div style={{ maxWidth: 280 }}>\n  <FeatureCard icon={<FiMapPin size={22} style={{ color: 'var(--premium-red)' }} />} title=\"Local expertise\" align=\"center\">\n    Based nearby, active across the whole region. Your job is a drive, not a mobilization.\n  </FeatureCard>\n</div>",
     "Grid": "const items = [\n  { icon: FiMapPin, title: 'Local expertise', body: 'Based nearby, active across the whole region. Your job is a drive, not a mobilization.' },\n  { icon: FiAward, title: 'Licensed and insured', body: 'Fully licensed, bonded, and insured on every job we take on.' },\n  { icon: FiCheckCircle, title: 'Free estimates', body: 'A free site visit and evaluation before we commit to a number.' },\n  { icon: FiTag, title: 'Transparent pricing', body: 'Quoted from the plans, in writing, before any work begins.' },\n];\nreturn (\n  <div className=\"grid sm:grid-cols-2 lg:grid-cols-4 gap-5\" style={{ background: '#F2F2F2', padding: 24 }}>\n    {items.map(({ icon: Icon, title, body }) => (\n      <FeatureCard key={title} icon={<Icon size={22} style={{ color: 'var(--premium-red)' }} />} title={title}>\n        {body}\n      </FeatureCard>\n    ))}\n  </div>\n);"
   },
+  "FeedbackModal": {
+    "Default": "<FeedbackModal labels={labels} onClose={() => {}} onSend={async () => {}} />",
+    "FailingSend": "<FeedbackModal labels={labels} onClose={() => {}} onSend={async () => {\n      throw new Error('There is nobody to send feedback to yet');\n    }} />"
+  },
   "FieldError": {
     "Default": "<FieldError message=\"This field is required.\" />",
     "Empty": "<FieldError message={undefined} />"
@@ -126,6 +138,9 @@
     "FrenchAlternatives": "<div className=\"flex items-center gap-4\">\n  <FlagAcadian className=\"w-8 h-6 rounded-sm shadow-sm\" />\n  <FlagQuebec className=\"w-8 h-6 rounded-sm shadow-sm\" />\n</div>",
     "Star": "<AcadianStar className=\"w-16 h-16\" />"
   },
+  "FormActions": {
+    "SaveAndCancel": "<FormActions>\n  <Button variant=\"secondary\">Cancel</Button>\n  <Button type=\"submit\"><FiCheck size={15} /> Save changes</Button>\n</FormActions>"
+  },
   "FormLabel": {
     "Default": "<FormLabel text=\"Employee name\" />",
     "Required": "<FormLabel text=\"Employee name\" required />",
@@ -136,7 +151,19 @@
     "PosterOnly": "<Hero imageSrc={heroPoster} />",
     "WithBrandWedge": "<Hero imageSrc={heroPoster} videoSrc={heroVideo} wedge />",
     "TextOnly": "<Hero />",
-    "AcadianOverlay": "<Hero imageSrc={heroPoster} videoSrc={heroVideo} overlay=\"acadian\" />"
+    "AcadianOverlay": "<Hero imageSrc={heroPoster} videoSrc={heroVideo} overlay=\"acadian\" />",
+    "InnerPage": "<Hero imageSrc={heroPoster} size=\"compact\" breadcrumb={<span>Home / Services / Firestopping</span>} primaryAction={{ label: 'Get an estimate', href: '#contact' }} secondaryAction={undefined}>{<p className=\"pmg-eyebrow text-white/70\">Certified and accredited</p>}</Hero>"
+  },
+  "IconButton": {
+    "Neutral": "<IconButton 'aria-label'=\"Edit\">{<FiEdit2 size={14} />}</IconButton>",
+    "Danger": "<IconButton 'aria-label'=\"Delete\" tone=\"danger\">{<FiTrash2 size={14} />}</IconButton>",
+    "OnColor": "<div className=\"pmg-field p-6 rounded-xl\">\n  <IconButton aria-label=\"Refresh\" tone=\"onColor\" size=\"md\"><FiRefreshCw size={14} /></IconButton>\n</div>",
+    "Disabled": "<IconButton 'aria-label'=\"Edit\" disabled>{<FiEdit2 size={14} />}</IconButton>"
+  },
+  "ImageAttachments": {
+    "Form": "<Picker />",
+    "CompactForAComposer": "<Picker compact />",
+    "ShownWithAMessage": "<AttachmentImages attachments={[{ id: 'a1', name: 'site.png', mimeType: 'image/png' }]} getUrl={async () => placeholder} />"
   },
   "LanguageToggle": {
     "Default": "function Demo() {\n  const [lang, setLang] = useState<Lang>('en');\n  return <LanguageToggle names={{ en: 'English', fr: 'Acadian French' }} lang={lang} onChange={setLang} />;\n}\nreturn <Demo />;",
@@ -149,7 +176,8 @@
   "MediaCard": {
     "Static": "<div style={{ maxWidth: 260 }}>\n  <MediaCard imageSrc={PLACEHOLDER} imageAlt=\"Adult\" eyebrow=\"Ages 14+\" title=\"Adult\">\n    All levels welcomed. Strength, discipline, and real self-defense, on your own schedule.\n  </MediaCard>\n</div>",
     "Clickable": "<div style={{ maxWidth: 260 }}>\n  <MediaCard imageSrc={PLACEHOLDER} imageAlt=\"Adult\" eyebrow=\"Ages 14+\" title=\"Adult\" onClick={() => alert('go to contact')}>\n    All levels welcomed. Strength, discipline, and real self-defense, on your own schedule.\n  </MediaCard>\n</div>",
-    "Grid": "const items = [\n  { name: 'Beginner', ages: 'Ages 6-13', body: 'New to judo. Falling safely, balance, and the first throws.' },\n  { name: 'Intermediate', ages: 'Ages 8-13', body: 'A few years of experience, sharpening technique.' },\n  { name: 'Elite', ages: 'Ages 13+', body: 'The competitive program.' },\n  { name: 'Adult', ages: 'Ages 14+', body: 'All levels welcomed, on your own schedule.' },\n];\nreturn (\n  <div className=\"grid sm:grid-cols-2 lg:grid-cols-4 gap-5\" style={{ background: '#fff', padding: 24 }}>\n    {items.map(p => (\n      <MediaCard key={p.name} imageSrc={PLACEHOLDER} imageAlt={p.name} eyebrow={p.ages} title={p.name} onClick={() => {}}>\n        {p.body}\n      </MediaCard>\n    ))}\n  </div>\n);"
+    "Grid": "const items = [\n  { name: 'Beginner', ages: 'Ages 6-13', body: 'New to judo. Falling safely, balance, and the first throws.' },\n  { name: 'Intermediate', ages: 'Ages 8-13', body: 'A few years of experience, sharpening technique.' },\n  { name: 'Elite', ages: 'Ages 13+', body: 'The competitive program.' },\n  { name: 'Adult', ages: 'Ages 14+', body: 'All levels welcomed, on your own schedule.' },\n];\nreturn (\n  <div className=\"grid sm:grid-cols-2 lg:grid-cols-4 gap-5\" style={{ background: '#fff', padding: 24 }}>\n    {items.map(p => (\n      <MediaCard key={p.name} imageSrc={PLACEHOLDER} imageAlt={p.name} eyebrow={p.ages} title={p.name} onClick={() => {}}>\n        {p.body}\n      </MediaCard>\n    ))}\n  </div>\n);",
+    "ServiceTile": "<div style={{ maxWidth: 360 }}>\n  <MediaCard\n    imageSrc={PLACEHOLDER}\n    imageAlt=\"Firestopped penetrations\"\n    title=\"Firestopping\"\n    aspect=\"wide\"\n    tag=\"02\"\n    href=\"#firestopping\"\n    footer={<span className=\"font-heading font-bold text-sm text-(--premium-red-dark)\">Learn more</span>}\n  >\n    UL-certified systems at every penetration through a rated assembly.\n  </MediaCard>\n</div>"
   },
   "Modal": {
     "ConfirmDelete": "<Modal onClose={() => {}} title=\"Delete this employee?\" description=\"This cannot be undone.\">\n  <div className=\"flex gap-2\">\n    <button className=\"flex-1 py-2.5 rounded-xl text-white text-sm font-semibold\" style={{ backgroundColor: 'var(--premium-red)' }}>\n      Delete\n    </button>\n    <button className=\"flex-1 py-2.5 rounded-xl border border-gray-200 dark:border-white/20 text-sm font-medium text-gray-600 dark:text-gray-300\">\n      Cancel\n    </button>\n  </div>\n</Modal>",
@@ -170,6 +198,7 @@
   },
   "NavTile": {
     "Default": "<NavTile onClick={() => {}} icon={FiUsers} label=\"Employees\" description=\"Manage team members\" />",
+    "AsLink": "<NavTile onClick={() => {}} icon={FiUsers} label=\"Employees\" description=\"Manage team members\" href=\"/employees\" />",
     "Grid": "<div className=\"grid grid-cols-2 gap-3 w-full max-w-lg\">\n  <NavTile icon={FiUsers} label=\"Employees\" description=\"Manage team members\" onClick={() => {}} />\n  <NavTile icon={FiBriefcase} label=\"Projects\" description=\"View and manage projects\" onClick={() => {}} />\n  <NavTile icon={FiShoppingCart} label=\"Purchase Orders\" description=\"Manage purchase orders\" onClick={() => {}} />\n  <NavTile icon={FiClock} label=\"Create Timesheet\" description=\"Log hours for you or a team member\" onClick={() => {}} />\n</div>"
   },
   "NewsTicker": {
@@ -217,9 +246,15 @@
     "Empty": "function Demo() {\n  const [value, setValue] = useState<string | undefined>();\n  return (\n    <PhoneInput\n      defaultCountry=\"CA\"\n      value={value}\n      onChange={setValue}\n      className=\"phone-input-field\"\n      countrySelectComponent={PhoneCountrySelect}\n      countryCallingCodeEditable={false}\n    />\n  );\n}\nreturn <Demo />;",
     "Disabled": "<PhoneInput\n  defaultCountry=\"CA\"\n  value=\"+15065551234\"\n  onChange={() => {}}\n  disabled\n  className=\"phone-input-field\"\n  countrySelectComponent={PhoneCountrySelect}\n/>"
   },
+  "PhotoTile": {
+    "Mosaic": "<div className=\"grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))] auto-rows-[240px] bg-(--premium-black) p-6\">\n  <PhotoTile imageSrc={PLACEHOLDER} imageAlt=\"Facade\" eyebrow=\"Commercial Caulking\" title=\"[ Project name, Location ]\" size=\"feature\" />\n  <PhotoTile imageSrc={PLACEHOLDER} imageAlt=\"Fireproofing\" eyebrow=\"Fireproofing\" title=\"[ Project name, Location ]\" />\n  <PhotoTile imageSrc={PLACEHOLDER} imageAlt=\"Firestop\" eyebrow=\"Firestopping\" title=\"[ Project name, Location ]\" />\n  <PhotoTile imageSrc={PLACEHOLDER} imageAlt=\"Lift\" eyebrow=\"Industrial Caulking\" title=\"[ Project name, Location ]\" />\n  <PhotoTile imageSrc={PLACEHOLDER} imageAlt=\"Spray\" eyebrow=\"Fireproofing\" title=\"[ Project name, Location ]\" />\n</div>"
+  },
   "PortraitFigure": {
     "Red": "<PortraitFigure imageSrc={PLACEHOLDER} name=\"Denis Collin\" role=\"Founder\" />",
     "CustomColor": "<PortraitFigure imageSrc={PLACEHOLDER} name=\"Denis Collin\" role=\"Founder\" color=\"#1A2C6E\" />"
+  },
+  "PostCard": {
+    "Row": "<div className=\"grid gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] bg-[#F2F2F2] p-6\">\n  <PostCard imageSrc={PLACEHOLDER} imageAlt=\"Fireproofing\" category=\"Project updates\" title=\"Fireproofing structural steel ahead of close-in\" excerpt=\"What a spray-applied fireproofing shift looks like.\" date=\"2026-11-10\" dateLabel=\"November 10, 2026\" readTime=\"5 min read\" href=\"#\" />\n  <PostCard imageSrc={PLACEHOLDER} imageAlt=\"Lift\" category=\"Site safety\" title=\"Working at height\" excerpt=\"The pre-use routine behind every day of envelope work.\" date=\"2026-10-27\" dateLabel=\"October 27, 2026\" readTime=\"4 min read\" href=\"#\" />\n  <PostCard category=\"Drywall\" title=\"Sequencing drywall around the trades already on site\" excerpt=\"No photo yet: the placeholder keeps the row even.\" date=\"2026-09-01\" dateLabel=\"September 1, 2026\" readTime=\"4 min read\" href=\"#\" />\n</div>"
   },
   "PremiumLogo": {
     "Stacked": "<PremiumLogo variant=\"stacked\" size=\"lg\" />",
@@ -246,6 +281,26 @@
     "WithContent": "function Demo() {\n  const [value, setValue] = useState(\n    '<div>Formatted text, a <b>bold</b> word, an <i>italic</i> one, and a bullet list:</div><ul><li>Paste a screenshot with Ctrl+V</li><li>Insert a YouTube video from the toolbar</li></ul>',\n  );\n  return <RichTextEditor value={value} onChange={setValue} />;\n}\nreturn <Demo />;",
     "EditorAndPreview": "function Demo() {\n  const [value, setValue] = useState(\n    '<div>Edit on the left, the <b>sanitized read-only render</b> updates live on the right.</div>',\n  );\n  return (\n    <div className=\"grid grid-cols-1 md:grid-cols-2 gap-4\">\n      <RichTextEditor value={value} onChange={setValue} />\n      <div className=\"rounded-lg border border-gray-200 dark:border-white/10 p-3\">\n        <RichTextContent html={value} />\n      </div>\n    </div>\n  );\n}\nreturn <Demo />;"
   },
+  "RipplingBulkFillModal": {
+    "Default": "<RipplingBulkFillModal loadPreview={async () => PREVIEW} onApply={async (ids) => ({ filled: ids.map((id) => ({ employee_id: id, employee_name: id, fields: ['phone'] })), skipped: [] })} fieldLabel={(f: string) => f} onFilled={() => {}} onClose={() => {}} labels={{\n      heading: 'Fill missing info from Rippling', body: 'The same as for one employee, for everyone linked at once.', loading: 'Checking Rippling...',\n      loadError: 'Could not load', retry: 'Try again', failedNote: (n: number) => `${n} could not be read from Rippling`,\n      truncatedNote: (shown: number, total: number) => `Showing ${shown} of ${total}`, nothingMissing: 'Nothing to fill.',\n      selectAll: (n: number) => `Select all (${n})`, fieldsCount: (n: number) => `${n} field${n === 1 ? '' : 's'}`,\n      fill: (n: number) => `Fill ${n} selected`, filling: 'Filling...', close: 'Close', done: 'Done',\n      resultFilled: (n: number) => `${n} filled`, resultSkipped: (n: number) => `${n} skipped`, skipCodes: {}, fillError: 'Could not fill.',\n    }} />"
+  },
+  "RipplingBulkLinkModal": {
+    "Default": "<RipplingBulkLinkModal loadSuggestions={async () => ({\n      suggestions: [\n        { employee_id: 'e1', employee_name: 'Ana Ruiz', employee_email: 'ana@premiummg.ca', previous_rippling_id: null, worker_id: 'w1', worker_name: 'Ana Ruiz', worker_email: 'ana.r@gmail.com', worker_title: 'Taper', worker_status: 'ACTIVE', confidence: 'high', reasons: ['name', 'phone'] },\n        { employee_id: 'e2', employee_name: 'Bruno Diaz', employee_email: 'bruno@premiummg.ca', previous_rippling_id: 'old-id', worker_id: 'w2', worker_name: 'B. Diaz', worker_email: 'bd@gmail.com', worker_title: null, worker_status: 'HIRED', confidence: 'possible', reasons: ['similar'] },\n      ],\n      unmatched: [{ employee_id: 'e3', employee_name: 'Cora Vega', employee_email: 'cora@premiummg.ca' }],\n      unlinked_workers: 4,\n      free_worker_ids: ['w1', 'w2', 'w9'],\n    })} onLinkBulk={async (links) => ({ linked: links, skipped: [] })} linkOne={{ loadCandidates: async () => [], onLink: async () => {}, labels: single }} onLinked={() => {}} onClose={() => {}} labels={{\n      heading: 'Match with Rippling', body: 'Review the suggested Rippling worker for each employee and link them all at once.', loading: 'Finding matches...',\n      loadError: 'Could not load the matches', retry: 'Try again',\n      summary: (a: number, b: number, c: number) => `${a} suggested, ${b} with no match, ${c} Rippling workers not linked yet`,\n      nothingToMatch: 'Every active employee is already linked.', selectAll: (n: number) => `Select all (${n})`,\n      colEmployee: 'Employee', colWorker: 'Rippling worker', colMatch: 'Match', high: 'High', possible: 'Possible',\n      reasons: { name: 'Same name', phone: 'Same phone', similar: 'Similar name' }, workerStatus: { ACTIVE: 'Active', HIRED: 'Hired' },\n      skipCodes: { worker_taken: 'That worker is linked to someone else' }, replacesId: (id: string) => `Replaces the current ID (${id})`,\n      noMatchHeading: (n: number) => `No match found (${n})`, noMatchHint: 'Search Rippling yourself for any of them.',\n      findInRippling: 'Find in Rippling', change: 'Change', changeTitle: 'Pick a different Rippling worker',\n      link: (n: number) => `Link ${n} selected`, linking: 'Linking...', close: 'Close', done: 'Done',\n      resultLinked: (n: number) => `${n} linked`, resultSkipped: (n: number) => `${n} could not be linked`, linkError: 'Could not link the selected employees.',\n    }} />"
+  },
+  "RipplingFillModal": {
+    "Default": "<RipplingFillModal loadFields={async () => ({ phone: '506-555-0100', birthday: '1990-01-02' })} onFill={async () => {}} onClose={() => {}} fieldLabel={(f: string) => f} labels={{\n      heading: 'Fill missing info from Rippling',\n      body: \"Compares this record against Rippling's and shows only the fields it's missing.\",\n      loading: 'Checking Rippling...',\n      loadError: \"Couldn't load this employee's Rippling data\",\n      retry: 'Try again',\n      nothingMissing: 'Nothing to fill.',\n      fill: 'Fill',\n      filling: 'Filling...',\n      close: 'Close',\n      filledToast: (n: number) => `Filled ${n} field${n === 1 ? '' : 's'} from Rippling.`,\n      fillError: \"Couldn't fill these fields. Try again.\",\n    }} />",
+    "NothingMissing": "<RipplingFillModal loadFields={async () => ({})} onFill={async () => {}} onClose={() => {}} fieldLabel={(f: string) => f} labels={{\n      heading: 'Fill missing info from Rippling',\n      body: \"Compares this record against Rippling's and shows only the fields it's missing.\",\n      loading: 'Checking Rippling...',\n      loadError: \"Couldn't load this employee's Rippling data\",\n      retry: 'Try again',\n      nothingMissing: 'Nothing to fill.',\n      fill: 'Fill',\n      filling: 'Filling...',\n      close: 'Close',\n      filledToast: (n: number) => `Filled ${n} field${n === 1 ? '' : 's'} from Rippling.`,\n      fillError: \"Couldn't fill these fields. Try again.\",\n    }} />"
+  },
+  "RipplingImportModal": {
+    "Default": "<RipplingImportModal loadCandidates={async () => ({\n      candidates: [\n        { worker_id: 'w1', name: 'Ana Ruiz', email: 'ana@gmail.com', title: 'Taper', status: 'ACTIVE', start_date: '2026-01-05' },\n        { worker_id: 'w2', name: 'Bruno Diaz', email: 'bruno@gmail.com', title: null, status: 'HIRED', start_date: null },\n      ],\n      total_eligible: 2, truncated: 0, skipped_no_email: 0, skipped_known_email: 0, skipped_identity_account: 0, skipped_terminated: 0, skipped_likely_match: 0,\n    })} onApply={async () => []} roles={['admin', 'manager', 'worker']} roleLabel={(r: string) => r} divisions={[{ id: 'd1', name: 'Caulking' }]} managerOptionalRoles={['admin']} renderManagerField={() => <input className=\"input-field w-full\" placeholder=\"Pick a manager\" />} formatDate={(iso: string) => iso} onImported={() => {}} onClose={() => {}} labels={{\n      heading: 'Import from Rippling', body: 'Rippling workers who have no account yet.', loading: 'Loading...', loadError: 'Could not load', retry: 'Try again',\n      skippedNote: () => '', truncatedNote: (a: number, b: number) => `Showing ${a} of ${b}`, nothingToImport: 'Nothing to import.',\n      role: 'Role', division: 'Division', chooseDivision: 'Choose a division', manager: 'Manager', selectAll: (n: number) => `Select all (${n})`,\n      colWorker: 'Rippling worker', colRole: 'Role in Rippling', colStart: 'Start', statusLabels: { HIRED: 'Hired, not started' }, inactiveHint: 'Not active',\n      create: (n: number) => `Create ${n} account${n === 1 ? '' : 's'}`, creating: 'Creating...', close: 'Close', done: 'Done',\n      resultCreated: (n: number) => `${n} created`, resultFailed: (n: number) => `${n} not created`, notEligible: 'Not eligible any more',\n      createError: 'Could not create the accounts.', tempPasswordsHeading: 'Temporary passwords, shown once', copyPasswords: 'Copy all', copiedPasswords: 'Copied',\n    }} />"
+  },
+  "RipplingLinkModal": {
+    "Default": "<RipplingLinkModal employeeName=\"Ana\" loadCandidates={async () => [\n      { worker_id: 'w1', name: 'Ana Ruiz', email: 'ana@premiummg.ca', title: 'Taper', status: 'ACTIVE' },\n      { worker_id: 'w2', name: 'Anabel Cruz', email: 'anabel@premiummg.ca' },\n    ]} onLink={async () => {}} onClose={() => {}} labels={{\n      heading: 'Find in Rippling',\n      body: (n: string) => `Search Rippling's worker list to link ${n} to the right account.`,\n      searchPlaceholder: 'Search name or email...',\n      loading: 'Loading...',\n      loadError: 'Could not load Rippling workers',\n      retry: 'Try again',\n      noMatches: 'No Rippling workers match this search.',\n      moreResults: (n: number) => `+${n} more, narrow your search to see them`,\n      link: 'Link',\n      linking: 'Linking...',\n      close: 'Close',\n      linkedToast: (n: string) => `Linked to ${n} in Rippling.`,\n      linkError: 'Could not link this employee to Rippling.',\n    }} />",
+    "LoadFails": "<RipplingLinkModal employeeName=\"Ana\" loadCandidates={async () => { throw new Error('down'); }} onLink={async () => {}} onClose={() => {}} labels={{\n      heading: 'Find in Rippling',\n      body: (n: string) => `Search Rippling's worker list to link ${n} to the right account.`,\n      searchPlaceholder: 'Search name or email...',\n      loading: 'Loading...',\n      loadError: 'Could not load Rippling workers',\n      retry: 'Try again',\n      noMatches: 'No Rippling workers match this search.',\n      moreResults: (n: number) => `+${n} more, narrow your search to see them`,\n      link: 'Link',\n      linking: 'Linking...',\n      close: 'Close',\n      linkedToast: (n: string) => `Linked to ${n} in Rippling.`,\n      linkError: 'Could not link this employee to Rippling.',\n    }} />"
+  },
+  "RowLink": {
+    "PrimaryCellClickable": "<table className=\"w-full text-sm\">\n  <tbody>\n    <tr className=\"hover:bg-gray-50\">\n      <td className=\"px-4 py-3 relative\">\n        <RowLink href=\"/employees/e1\" label=\"Open Alex Rivera\" onNavigate={() => {}} />\n        Alex Rivera\n      </td>\n      <td className=\"px-4 py-3\">Foreman</td>\n      <td className=\"px-4 py-3 text-right\">\n        <button type=\"button\" className=\"px-2 py-1 text-xs rounded border\" onClick={() => alert('Message clicked')}>\n          Message\n        </button>\n      </td>\n    </tr>\n  </tbody>\n</table>"
+  },
   "ScrollableTable": {
     "Default": "<ScrollableTable maxHeight=\"200px\">{(\n      <table>\n        <tbody>\n          {Array.from({ length: 20 }, (_, i) => (\n            <tr key={i}><td className=\"px-4 py-2 whitespace-nowrap\">Row {i + 1} - a fairly wide cell of content</td></tr>\n          ))}\n        </tbody>\n      </table>\n    )}</ScrollableTable>"
   },
@@ -268,14 +323,19 @@
     "Primary": "<SiteButton variant=\"primary\">Get an estimate</SiteButton>",
     "Ghost": "<SiteButton variant=\"ghost\">Get an estimate</SiteButton>",
     "OnRed": "<SiteButton variant=\"onRed\">Get an estimate</SiteButton>",
-    "OnDark": "<SiteButton variant=\"onDark\">Get an estimate</SiteButton>"
+    "OnDark": "<SiteButton variant=\"onDark\">Get an estimate</SiteButton>",
+    "AsLink": "<SiteButton>Get an estimate</SiteButton>"
   },
   "SiteFooter": {
-    "FourColumns": "<SiteFooter\n  copyright={`© ${new Date().getFullYear()} Premium MG. All rights reserved.`}\n  legalLinks={\n    <>\n      <button className=\"hover:text-white/80 transition\">Terms</button>\n      <button className=\"hover:text-white/80 transition\">Privacy</button>\n    </>\n  }\n>\n  <FooterColumn>\n    <p className=\"font-heading font-black text-white text-lg mb-5\">PREMIUM</p>\n    <p className=\"text-sm leading-relaxed\">123 Main St, Moncton, NB</p>\n    <p className=\"pmg-eyebrow text-white/40 mt-6 mb-2\">Service area</p>\n    <p className=\"text-sm leading-relaxed\">Atlantic Canada / the Maritimes</p>\n  </FooterColumn>\n\n  <FooterColumn label=\"Services\">\n    <ul className=\"space-y-2.5 text-sm\">\n      <li><button className=\"hover:text-white transition\">Framing</button></li>\n      <li><button className=\"hover:text-white transition\">Drywall</button></li>\n      <li><button className=\"hover:text-white transition\">Painting</button></li>\n    </ul>\n  </FooterColumn>\n\n  <FooterColumn label=\"Contact\">\n    <ul className=\"space-y-2.5 text-sm\">\n      <li><a href=\"tel:+18665315402\" className=\"inline-flex items-center gap-2 hover:text-white transition\"><FiPhone size={14} /> +1 866 531 5402</a></li>\n      <li><a href=\"mailto:info@premiummg.ca\" className=\"inline-flex items-center gap-2 hover:text-white transition\"><FiMail size={14} /> info@premiummg.ca</a></li>\n    </ul>\n  </FooterColumn>\n\n  <FooterColumn label=\"Newsletter\">\n    <p className=\"text-sm leading-relaxed mb-4\">Get project tips and company news.</p>\n    <div className=\"flex gap-2\">\n      <input placeholder=\"Email address\" className=\"min-w-0 flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/15 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-white/40 transition\" />\n      <button className=\"shrink-0 px-3.5 py-2 rounded-lg bg-(--premium-red) hover:bg-(--premium-red-dark) text-white text-sm font-heading font-bold transition\">Sign up</button>\n    </div>\n  </FooterColumn>\n</SiteFooter>"
+    "FourColumns": "<SiteFooter\n  copyright={`© ${new Date().getFullYear()} Premium MG. All rights reserved.`}\n  legalLinks={\n    <>\n      <button className=\"hover:text-white/80 transition\">Terms</button>\n      <button className=\"hover:text-white/80 transition\">Privacy</button>\n    </>\n  }\n>\n  <FooterColumn>\n    <p className=\"font-heading font-black text-white text-lg mb-5\">PREMIUM</p>\n    <p className=\"text-sm leading-relaxed\">123 Main St, Moncton, NB</p>\n    <p className=\"pmg-eyebrow text-white/40 mt-6 mb-2\">Service area</p>\n    <p className=\"text-sm leading-relaxed\">Atlantic Canada / the Maritimes</p>\n  </FooterColumn>\n\n  <FooterColumn label=\"Services\">\n    <ul className=\"space-y-2.5 text-sm\">\n      <li><button className=\"hover:text-white transition\">Framing</button></li>\n      <li><button className=\"hover:text-white transition\">Drywall</button></li>\n      <li><button className=\"hover:text-white transition\">Painting</button></li>\n    </ul>\n  </FooterColumn>\n\n  <FooterColumn label=\"Contact\">\n    <ul className=\"space-y-2.5 text-sm\">\n      <li><a href=\"tel:+18665315402\" className=\"inline-flex items-center gap-2 hover:text-white transition\"><FiPhone size={14} /> +1 866 531 5402</a></li>\n      <li><a href=\"mailto:info@premiummg.ca\" className=\"inline-flex items-center gap-2 hover:text-white transition\"><FiMail size={14} /> info@premiummg.ca</a></li>\n    </ul>\n  </FooterColumn>\n\n  <FooterColumn label=\"Newsletter\">\n    <p className=\"text-sm leading-relaxed mb-4\">Get project tips and company news.</p>\n    <div className=\"flex gap-2\">\n      <input placeholder=\"Email address\" className=\"min-w-0 flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/15 text-sm text-white placeholder:text-white/35 focus:outline-none focus:border-white/40 transition\" />\n      <button className=\"shrink-0 px-3.5 py-2 rounded-lg bg-(--premium-red) hover:bg-(--premium-red-dark) text-white text-sm font-heading font-bold transition\">Sign up</button>\n    </div>\n  </FooterColumn>\n</SiteFooter>",
+    "FiveColumnsWithTop": "<SiteFooter\n  columns={5}\n  top={<p className=\"pmg-eyebrow text-(--premium-orange)\">Certified and accredited</p>}\n  copyright={`© ${new Date().getFullYear()} Premium MG. All rights reserved.`}\n>\n  {['Company', 'Services', 'About', 'Contact', 'Newsletter'].map(label => (\n    <FooterColumn key={label} label={label}>\n      <p className=\"text-sm\">{label} content</p>\n    </FooterColumn>\n  ))}\n</SiteFooter>"
   },
   "SortableColumnHeader": {
     "Active": "<SortableColumnHeader col=\"name\" label=\"Name\" sortBy=\"name\" sortDir=\"asc\" onSort={() => {}} />",
     "Inactive": "<SortableColumnHeader col=\"name\" label=\"Name\" sortBy=\"date\" sortDir=\"asc\" onSort={() => {}} />"
+  },
+  "StatBand": {
+    "Default": "<StatBand label=\"Premium in numbers\" items={[\n      { value: '75+', label: 'Years of combined expertise' },\n      { value: '[00]', label: 'Years in business', highlight: true, note: 'To confirm' },\n      { value: '[000]+', label: 'Projects completed', highlight: true, note: 'To confirm' },\n      { value: '4', label: 'Certifications and memberships' },\n    ]} />"
   },
   "StatBlock": {
     "Row": "<div className=\"grid sm:grid-cols-3 gap-5\" style={{ maxWidth: 480, background: '#F2F2F2', padding: 24 }}>\n  <StatBlock value=\"56%\" label=\"Openness to new ideas\" />\n  <StatBlock value=\"43%\" label=\"Confidence under pressure\" />\n  <StatBlock value=\"61%\" label=\"Discipline and focus\" />\n</div>",
@@ -307,6 +367,10 @@
     "LoadingSmall": "<TablePlaceholderRow colSpan={4} loading size=\"sm\" />",
     "LoadingLarge": "<TablePlaceholderRow colSpan={4} loading size=\"lg\" />"
   },
+  "TextButton": {
+    "Muted": "<TextButton>Clear all filters</TextButton>",
+    "Accent": "<TextButton tone=\"accent\">View all</TextButton>"
+  },
   "TimePicker": {
     "Default": "function Demo() {\n  const [value, setValue] = useState('09:00');\n  return <TimePicker value={value} onChange={setValue} className=\"max-w-xs\" />;\n}\nreturn <Demo />;",
     "Empty": "function Demo() {\n  const [value, setValue] = useState('');\n  return <TimePicker value={value} onChange={setValue} className=\"max-w-xs\" />;\n}\nreturn <Demo />;",
@@ -315,6 +379,11 @@
   },
   "Toaster": {
     "Default": "function Demo() {\n  const { toast } = useToast();\n  return (\n    <div className=\"flex gap-2\">\n      <button className={`${BUTTON_CLASSES.success} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Purchase order approved.', 'success')}>Success</button>\n      <button className={`${BUTTON_CLASSES.error} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Something needs your attention.', 'error')}>Error</button>\n      <button className={`${BUTTON_CLASSES.warning} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('This timesheet is over budget.', 'warning')}>Warning</button>\n      <button className={`${BUTTON_CLASSES.info} rounded-lg px-3 py-2 text-sm font-semibold text-white transition`} onClick={() => toast('Backdated timesheets are disabled.', 'info')}>Info</button>\n      <Toaster />\n    </div>\n  );\n}\nreturn <Demo />;"
+  },
+  "ToggleChip": {
+    "Off": "<ToggleChip icon={FiCoffee} label=\"Lunch\" active={false} onClick={() => {}} />",
+    "On": "<ToggleChip icon={FiCoffee} label=\"Lunch\" active onClick={() => {}} />",
+    "ReadOnly": "<ToggleChip icon={FiCoffee} label=\"Lunch\" active onClick={undefined} />"
   },
   "UnitField": {
     "Default": "function Demo() {\n  const [value, setValue] = useState('pcs');\n  return <UnitField value={value} onChange={setValue} className=\"input-field\" />;\n}\nreturn <Demo />;",

@@ -109,7 +109,7 @@
     },
     {
       "name": "onConfirm",
-      "type": "() => Promise<void>",
+      "type": "(adminPassword: string) => Promise<void>",
       "required": true,
       "defaultValue": null,
       "description": null
@@ -175,6 +175,15 @@
       "description": null
     }
   ],
+  "AppFooter": [
+    {
+      "name": "copyright",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
   "AttachmentTile": [
     {
       "name": "name",
@@ -207,6 +216,27 @@
     {
       "name": "onDownload",
       "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "downloadLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Download",
+      "description": null
+    },
+    {
+      "name": "noPreviewLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "No preview available for this file type.",
+      "description": null
+    },
+    {
+      "name": "actions",
+      "type": "ReactNode",
       "required": false,
       "defaultValue": null,
       "description": null
@@ -279,6 +309,20 @@
       "description": null
     },
     {
+      "name": "src",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "shape",
+      "type": "\"circle\" | \"tile\"",
+      "required": false,
+      "defaultValue": "circle",
+      "description": null
+    },
+    {
       "name": "color",
       "type": "string",
       "required": false,
@@ -316,29 +360,64 @@
       "description": null
     },
     {
+      "name": "showFeedback",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "dateLocale",
+      "type": "Locale",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
       "name": "fetchSent",
-      "type": "() => Promise<ChatBroadcast[]>",
+      "type": "(before?: string) => Promise<ChatBroadcast[] | BroadcastPage>",
       "required": false,
       "defaultValue": null,
       "description": null
     },
     {
       "name": "fetchReceived",
-      "type": "() => Promise<ChatBroadcast[]>",
+      "type": "(before?: string) => Promise<ChatBroadcast[] | BroadcastPage>",
       "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fetchDivisionSent",
+      "type": "(before?: string) => Promise<ChatBroadcast[] | BroadcastPage>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fetchOne",
+      "type": "(broadcastId: string) => Promise<{ broadcast: ChatBroadcast; side: BroadcastSide; }>",
+      "required": false,
       "defaultValue": null,
       "description": null
     },
     {
       "name": "onSendMessage",
-      "type": "(broadcastId: string, body: string) => Promise<ChatMessage>",
+      "type": "(broadcastId: string, body: string, files?: File[]) => Promise<ChatMessage>",
       "required": true,
       "defaultValue": null,
       "description": null
     },
     {
+      "name": "getAttachmentUrl",
+      "type": "(attachmentId: string) => Promise<string>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
       "name": "onMarkRead",
-      "type": "(broadcastId: string) => Promise<void>",
+      "type": "(broadcastId: string, lastMessageId?: string) => Promise<void>",
       "required": true,
       "defaultValue": null,
       "description": null
@@ -398,6 +477,13 @@
       "required": false,
       "defaultValue": 15000,
       "description": null
+    },
+    {
+      "name": "pausePolling",
+      "type": "() => boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
     }
   ],
   "Button": [
@@ -443,6 +529,50 @@
       "type": "CSSProperties",
       "required": false,
       "defaultValue": null,
+      "description": null
+    }
+  ],
+  "Checkbox": [
+    {
+      "name": "checked",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(checked: boolean, event: ChangeEvent<HTMLInputElement, Element>) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "hint",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "align",
+      "type": "\"center\" | \"start\"",
+      "required": false,
+      "defaultValue": "center",
       "description": null
     }
   ],
@@ -514,7 +644,7 @@
     },
     {
       "name": "message",
-      "type": "string",
+      "type": "ReactNode",
       "required": true,
       "defaultValue": null,
       "description": null
@@ -558,14 +688,21 @@
     },
     {
       "name": "onSend",
-      "type": "(body: string) => Promise<ChatMessage>",
+      "type": "(body: string, files?: File[]) => Promise<ChatMessage>",
       "required": true,
       "defaultValue": null,
       "description": null
     },
     {
+      "name": "getAttachmentUrl",
+      "type": "(attachmentId: string) => Promise<string>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
       "name": "onMarkRead",
-      "type": "() => void | Promise<void>",
+      "type": "(lastMessageId?: string) => void | Promise<void>",
       "required": false,
       "defaultValue": null,
       "description": null
@@ -589,6 +726,13 @@
       "type": "number",
       "required": false,
       "defaultValue": 15000,
+      "description": null
+    },
+    {
+      "name": "pausePolling",
+      "type": "() => boolean",
+      "required": false,
+      "defaultValue": null,
       "description": null
     },
     {
@@ -619,6 +763,36 @@
       "type": "string | number",
       "required": true,
       "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "CredentialBadges": [
+    {
+      "name": "items",
+      "type": "CredentialBadge[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "CredentialBadgesSize",
+      "required": false,
+      "defaultValue": "md",
+      "description": null
+    },
+    {
+      "name": "bordered",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
       "description": null
     },
     {
@@ -968,6 +1142,20 @@
       "required": false,
       "defaultValue": "red",
       "description": null
+    },
+    {
+      "name": "as",
+      "type": "\"p\" | \"span\" | \"div\" | \"th\"",
+      "required": false,
+      "defaultValue": "p",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
     }
   ],
   "FeatureCard": [
@@ -987,7 +1175,7 @@
     },
     {
       "name": "align",
-      "type": "\"left\" | \"center\"",
+      "type": "\"center\" | \"left\"",
       "required": false,
       "defaultValue": "left",
       "description": null
@@ -1000,12 +1188,56 @@
       "description": null
     }
   ],
+  "FeedbackModal": [
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onSend",
+      "type": "(fields: FeedbackFields) => Promise<void>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "FeedbackModalLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "anonymousOnly",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    }
+  ],
   "FieldError": [
     {
       "name": "message",
       "type": "string",
       "required": false,
       "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "scope",
+      "type": "\"form\" | \"field\"",
+      "required": false,
+      "defaultValue": "field",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "mt-1 text-xs text-red-500",
       "description": null
     }
   ],
@@ -1111,6 +1343,13 @@
       "name": "text",
       "type": "ReactNode",
       "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "htmlFor",
+      "type": "string",
+      "required": false,
       "defaultValue": null,
       "description": null
     }
@@ -1239,6 +1478,15 @@
       "description": null
     }
   ],
+  "FormActions": [
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
   "FormLabel": [
     {
       "name": "text",
@@ -1355,10 +1603,144 @@
       "description": null
     },
     {
+      "name": "breadcrumb",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "HeroSize",
+      "required": false,
+      "defaultValue": "default",
+      "description": null
+    },
+    {
       "name": "className",
       "type": "string",
       "required": false,
       "defaultValue": "",
+      "description": null
+    }
+  ],
+  "IconButton": [
+    {
+      "name": "aria-label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "tone",
+      "type": "IconButtonTone",
+      "required": false,
+      "defaultValue": "neutral",
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "IconButtonSize",
+      "required": false,
+      "defaultValue": "sm",
+      "description": null
+    }
+  ],
+  "ImageAttachmentPicker": [
+    {
+      "name": "files",
+      "type": "File[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onChange",
+      "type": "(files: File[]) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "strings",
+      "type": "ImageAttachmentPickerStrings",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "maxFiles",
+      "type": "number",
+      "required": false,
+      "defaultValue": 5,
+      "description": null
+    },
+    {
+      "name": "maxBytes",
+      "type": "number",
+      "required": false,
+      "defaultValue": "10 * 1024 * 1024",
+      "description": null
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "compact",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "AttachmentImages": [
+    {
+      "name": "attachments",
+      "type": "ChatAttachment[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "getUrl",
+      "type": "(id: string) => Promise<string>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "Input": [
+    {
+      "name": "ref",
+      "type": "Ref<HTMLInputElement>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "invalid",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -1395,6 +1777,13 @@
   "Layout": [
     {
       "name": "navbar",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "footer",
       "type": "ReactNode",
       "required": false,
       "defaultValue": null,
@@ -1456,6 +1845,34 @@
     {
       "name": "onClick",
       "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "aspect",
+      "type": "MediaCardAspect",
+      "required": false,
+      "defaultValue": "square",
+      "description": null
+    },
+    {
+      "name": "tag",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "footer",
+      "type": "ReactNode",
       "required": false,
       "defaultValue": null,
       "description": null
@@ -1529,7 +1946,7 @@
     },
     {
       "name": "onDisable",
-      "type": "() => Promise<void>",
+      "type": "(code: string) => Promise<void>",
       "required": true,
       "defaultValue": null,
       "description": null
@@ -1569,6 +1986,20 @@
       "type": "string",
       "required": false,
       "defaultValue": "z-50",
+      "description": null
+    },
+    {
+      "name": "dismissable",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": true,
+      "description": null
+    },
+    {
+      "name": "ariaLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -1676,9 +2107,16 @@
       "description": null
     },
     {
+      "name": "href",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
       "name": "onClick",
       "type": "() => void",
-      "required": true,
+      "required": false,
       "defaultValue": null,
       "description": null
     }
@@ -1854,6 +2292,13 @@
       "description": null
     },
     {
+      "name": "eyebrow",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
       "name": "count",
       "type": "ReactNode",
       "required": false,
@@ -1972,6 +2417,13 @@
       "type": "string",
       "required": false,
       "defaultValue": "per page",
+      "description": null
+    },
+    {
+      "name": "allLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "All",
       "description": null
     }
   ],
@@ -2105,6 +2557,64 @@
       "description": null
     }
   ],
+  "PhotoTile": [
+    {
+      "name": "imageSrc",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "imageAlt",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "eyebrow",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"feature\"",
+      "required": false,
+      "defaultValue": "default",
+      "description": null
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
   "PortraitFigure": [
     {
       "name": "imageSrc",
@@ -2142,6 +2652,92 @@
       "description": null
     }
   ],
+  "PostCard": [
+    {
+      "name": "imageSrc",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "imageAlt",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    },
+    {
+      "name": "category",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "excerpt",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "date",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "dateLabel",
+      "type": "ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "readTime",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onNavigate",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "titleAs",
+      "type": "\"h2\" | \"h3\"",
+      "required": false,
+      "defaultValue": "h3",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
   "PremiumLogo": [
     {
       "name": "size",
@@ -2169,6 +2765,115 @@
       "type": "Lang",
       "required": false,
       "defaultValue": "en",
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "PremiumMark": [
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "defaultValue": 24,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "ProfilePhoto": [
+    {
+      "name": "fullSrc",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "viewLabel",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "closeLabel",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onRemove",
+      "type": "() => Promise<unknown>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "removeLabels",
+      "type": "ProfilePhotoRemoveLabels",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "size",
+      "type": "number",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "src",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fullName",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "shape",
+      "type": "\"circle\" | \"tile\"",
+      "required": false,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -2239,6 +2944,36 @@
       "description": null
     }
   ],
+  "RecipientPickerModal": [
+    {
+      "name": "people",
+      "type": "RecipientPerson[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onContinue",
+      "type": "(selected: RecipientPerson[]) => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "RecipientPickerLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
   "Reveal": [
     {
       "name": "delay",
@@ -2299,12 +3034,360 @@
       "description": null
     }
   ],
+  "RipplingBulkFillModal": [
+    {
+      "name": "loadPreview",
+      "type": "() => Promise<RipplingBulkFillPreview>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onApply",
+      "type": "(employeeIds: string[]) => Promise<RipplingBulkFillResult>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fieldLabel",
+      "type": "(field: string) => string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onFilled",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "errorMessage",
+      "type": "(err: unknown) => string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "RipplingBulkFillModalLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "RipplingBulkLinkModal": [
+    {
+      "name": "loadSuggestions",
+      "type": "() => Promise<RipplingBulkSuggestions>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onLinkBulk",
+      "type": "(links: { employee_id: string; worker_id: string; }[]) => Promise<RipplingBulkLinkResult>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "linkOne",
+      "type": "{ loadCandidates: () => Promise<RipplingCandidate[]>; onLink: (employeeId: string, candidate: RipplingCandidate) => Promise<unknown>; labels: RipplingLinkModalLabels; errorMessage?: (err: unknown) => string; }",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onLinked",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "errorMessage",
+      "type": "(err: unknown) => string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "RipplingBulkLinkModalLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "RipplingFillModal": [
+    {
+      "name": "loadFields",
+      "type": "() => Promise<RipplingFillFields>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "loadPreview",
+      "type": "() => Promise<{ fields: RipplingFillFields; photo?: RipplingPhotoOffer; }>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onFill",
+      "type": "(fields: RipplingFillFields) => Promise<unknown>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onUsePhoto",
+      "type": "() => Promise<unknown>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onFilled",
+      "type": "(fields: RipplingFillFields) => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "fieldLabel",
+      "type": "(field: string) => string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "errorMessage",
+      "type": "(err: unknown) => string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "RipplingFillModalLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "RipplingImportModal": [
+    {
+      "name": "loadCandidates",
+      "type": "() => Promise<RipplingImportCandidates>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onApply",
+      "type": "(payload: RipplingImportApplyPayload) => Promise<RipplingImportOutcome[]>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "roles",
+      "type": "string[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "roleLabel",
+      "type": "(role: string) => string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "divisions",
+      "type": "{ id: string; name: string; }[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "managerOptionalRoles",
+      "type": "string[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "renderManagerField",
+      "type": "(props: { value: string; onChange: (id: string) => void; }) => ReactNode",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "formatDate",
+      "type": "(iso: string) => string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onImported",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "errorMessage",
+      "type": "(err: unknown) => string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "RipplingImportModalLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "RipplingLinkModal": [
+    {
+      "name": "employeeName",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "loadCandidates",
+      "type": "() => Promise<RipplingCandidate[]>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onLink",
+      "type": "(candidate: RipplingCandidate) => Promise<unknown>",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClose",
+      "type": "() => void",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onLinked",
+      "type": "(candidate: RipplingCandidate) => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onlyWorkerIds",
+      "type": "Set<string>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "errorMessage",
+      "type": "(err: unknown) => string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "labels",
+      "type": "RipplingLinkModalLabels",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "zIndex",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "RowLink": [
+    {
+      "name": "href",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": "The real URL this cell points at - middle-click, Ctrl/Cmd/Shift-click\nand \"Open in new tab\" all work on it natively, same as any other link.\nA plain `<tr onClick={...}>` can never support those: a `<tr>` has no\nhref for the browser to act on."
+    },
+    {
+      "name": "onNavigate",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": "Called on a plain left-click instead of letting the browser navigate\n(e.g. `() => navigate(href)`, for client-side routing with no reload).\nOmit to let every click - including a plain left one - fall through to\nthe browser, a full navigation to `href`."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": "Accessible name for the link, read by a screen reader - the cell's own\nvisible text isn't otherwise tied to this link."
+    }
+  ],
   "ScrollableTable": [
     {
       "name": "maxHeight",
       "type": "string",
       "required": false,
-      "defaultValue": "calc(100vh - 320px)",
+      "defaultValue": "max(240px, calc(100dvh - 320px))",
+      "description": null
+    },
+    {
+      "name": "dragToScroll",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": false,
       "description": null
     }
   ],
@@ -2449,6 +3532,22 @@
       "description": null
     }
   ],
+  "Select": [
+    {
+      "name": "ref",
+      "type": "Ref<HTMLSelectElement>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "invalid",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
   "SendMessageModal": [
     {
       "name": "recipientIds",
@@ -2491,14 +3590,49 @@
       "required": true,
       "defaultValue": null,
       "description": null
+    },
+    {
+      "name": "images",
+      "type": "ImageAttachmentPickerStrings & { label: string; }",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "allowResponseRequest",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": true,
+      "description": null
     }
   ],
   "SiteButton": [
     {
+      "name": "href",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onNavigate",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
       "name": "variant",
       "type": "SiteButtonVariant",
       "required": false,
-      "defaultValue": "primary",
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
       "description": null
     }
   ],
@@ -2512,6 +3646,20 @@
     },
     {
       "name": "legalLinks",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "columns",
+      "type": "SiteFooterColumns",
+      "required": false,
+      "defaultValue": 4,
+      "description": null
+    },
+    {
+      "name": "top",
       "type": "ReactNode",
       "required": false,
       "defaultValue": null,
@@ -2567,6 +3715,29 @@
       "name": "onSort",
       "type": "(col: string) => void",
       "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "required": false,
+      "defaultValue": "",
+      "description": null
+    }
+  ],
+  "StatBand": [
+    {
+      "name": "items",
+      "type": "StatBandItem[]",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": false,
       "defaultValue": null,
       "description": null
     },
@@ -2694,6 +3865,13 @@
       "required": false,
       "defaultValue": null,
       "description": null
+    },
+    {
+      "name": "icon",
+      "type": "ReactNode",
+      "required": false,
+      "defaultValue": null,
+      "description": null
     }
   ],
   "StatusDot": [
@@ -2784,6 +3962,31 @@
       "description": null
     }
   ],
+  "Textarea": [
+    {
+      "name": "ref",
+      "type": "Ref<HTMLTextAreaElement>",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "invalid",
+      "type": "boolean",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    }
+  ],
+  "TextButton": [
+    {
+      "name": "tone",
+      "type": "TextButtonTone",
+      "required": false,
+      "defaultValue": "muted",
+      "description": null
+    }
+  ],
   "TimePicker": [
     {
       "name": "value",
@@ -2839,6 +4042,52 @@
       "type": "string",
       "required": false,
       "defaultValue": "Done",
+      "description": null
+    }
+  ],
+  "Toaster": [
+    {
+      "name": "dismissLabel",
+      "type": "string",
+      "required": false,
+      "defaultValue": "Dismiss",
+      "description": null
+    }
+  ],
+  "ToggleChip": [
+    {
+      "name": "icon",
+      "type": "IconType",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "active",
+      "type": "boolean",
+      "required": true,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "onClick",
+      "type": "() => void",
+      "required": false,
+      "defaultValue": null,
+      "description": null
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "required": false,
+      "defaultValue": null,
       "description": null
     }
   ],

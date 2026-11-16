@@ -35,6 +35,7 @@
     "Secondary",
     "Danger",
     "OnColor",
+    "OnColorOutline",
     "Small",
     "ExtraSmall",
     "Large",
@@ -45,6 +46,9 @@
   "Card": [
     "Default",
     "NoPadding"
+  ],
+  "Checkbox": [
+    "Default"
   ],
   "ColorField": [
     "Red",
@@ -65,6 +69,10 @@
   "CountBadge": [
     "Default",
     "Overflow"
+  ],
+  "CredentialBadges": [
+    "OnDark",
+    "OnLight"
   ],
   "DarkModeToggle": [
     "Default"
@@ -96,6 +104,10 @@
     "Centered",
     "Grid"
   ],
+  "FeedbackModal": [
+    "Default",
+    "FailingSend"
+  ],
   "FieldError": [
     "Default",
     "Empty"
@@ -126,6 +138,9 @@
     "FrenchAlternatives",
     "Star"
   ],
+  "FormActions": [
+    "SaveAndCancel"
+  ],
   "FormLabel": [
     "Default",
     "Required",
@@ -136,7 +151,19 @@
     "PosterOnly",
     "WithBrandWedge",
     "TextOnly",
-    "AcadianOverlay"
+    "AcadianOverlay",
+    "InnerPage"
+  ],
+  "IconButton": [
+    "Neutral",
+    "Danger",
+    "OnColor",
+    "Disabled"
+  ],
+  "ImageAttachments": [
+    "Form",
+    "CompactForAComposer",
+    "ShownWithAMessage"
   ],
   "LanguageToggle": [
     "Default",
@@ -149,7 +176,8 @@
   "MediaCard": [
     "Static",
     "Clickable",
-    "Grid"
+    "Grid",
+    "ServiceTile"
   ],
   "Modal": [
     "ConfirmDelete",
@@ -170,6 +198,7 @@
   ],
   "NavTile": [
     "Default",
+    "AsLink",
     "Grid"
   ],
   "NewsTicker": [
@@ -217,9 +246,15 @@
     "Empty",
     "Disabled"
   ],
+  "PhotoTile": [
+    "Mosaic"
+  ],
   "PortraitFigure": [
     "Red",
     "CustomColor"
+  ],
+  "PostCard": [
+    "Row"
   ],
   "PremiumLogo": [
     "Stacked",
@@ -246,6 +281,26 @@
     "WithContent",
     "EditorAndPreview"
   ],
+  "RipplingBulkFillModal": [
+    "Default"
+  ],
+  "RipplingBulkLinkModal": [
+    "Default"
+  ],
+  "RipplingFillModal": [
+    "Default",
+    "NothingMissing"
+  ],
+  "RipplingImportModal": [
+    "Default"
+  ],
+  "RipplingLinkModal": [
+    "Default",
+    "LoadFails"
+  ],
+  "RowLink": [
+    "PrimaryCellClickable"
+  ],
   "ScrollableTable": [
     "Default"
   ],
@@ -268,14 +323,19 @@
     "Primary",
     "Ghost",
     "OnRed",
-    "OnDark"
+    "OnDark",
+    "AsLink"
   ],
   "SiteFooter": [
-    "FourColumns"
+    "FourColumns",
+    "FiveColumnsWithTop"
   ],
   "SortableColumnHeader": [
     "Active",
     "Inactive"
+  ],
+  "StatBand": [
+    "Default"
   ],
   "StatBlock": [
     "Row",
@@ -307,6 +367,10 @@
     "LoadingSmall",
     "LoadingLarge"
   ],
+  "TextButton": [
+    "Muted",
+    "Accent"
+  ],
   "TimePicker": [
     "Default",
     "Empty",
@@ -315,6 +379,11 @@
   ],
   "Toaster": [
     "Default"
+  ],
+  "ToggleChip": [
+    "Off",
+    "On",
+    "ReadOnly"
   ],
   "UnitField": [
     "Default",
