@@ -1,2 +1,2 @@
-export { SiteButton } from './SiteButton';
-export type { SiteButtonProps, SiteButtonVariant } from './SiteButton';
+export { SiteButton, siteButtonClasses } from './SiteButton';
+export type { SiteButtonProps, SiteButtonVariant, SiteButtonAsButton, SiteButtonAsLink } from './SiteButton';

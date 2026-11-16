@@ -1,2 +1,2 @@
 export { Hero } from './Hero';
-export type { HeroProps, HeroAction, HeroOverlay } from './Hero';
+export type { HeroProps, HeroAction, HeroOverlay, HeroSize } from './Hero';

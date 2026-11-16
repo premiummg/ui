@@ -8,25 +8,24 @@ describe('PremiumLogo', () => {
   });
 
   test('renders an image with the brand alt text', () => {
-    render(<PremiumLogo />);
+    render(<PremiumLogo mode="light" />);
     expect(screen.getByAltText('Premium Management Group')).toBeInTheDocument();
   });
 
-  test('swaps to the dark asset when html.dark is present at mount', () => {
-    document.documentElement.classList.add('dark');
+  test('auto renders both assets and lets html.dark pick through CSS', () => {
     render(<PremiumLogo variant="horizontal" />);
-    const img = screen.getByAltText('Premium Management Group') as HTMLImageElement;
-    expect(img.src).toContain('horizontal-dark');
+    const [light, dark] = screen.getAllByAltText('Premium Management Group') as HTMLImageElement[];
+    expect(light.src).toContain('horizontal-light');
+    expect(light).toHaveClass('dark:hidden');
+    expect(dark.src).toContain('horizontal-dark');
+    expect(dark).toHaveClass('hidden', 'dark:inline');
   });
 
-  test('swaps live when html.dark is toggled after mount', async () => {
-    render(<PremiumLogo variant="stacked" />);
-    const img = screen.getByAltText('Premium Management Group') as HTMLImageElement;
-    expect(img.src).toContain('stacked-light');
-
-    document.documentElement.classList.add('dark');
-    await new Promise(r => setTimeout(r, 0));
-    expect(img.src).toContain('stacked-dark');
+  test('auto renders without touching document during render (prerender-safe)', async () => {
+    const { renderToString } = await import('react-dom/server');
+    const html = renderToString(<PremiumLogo variant="stacked" />);
+    expect(html).toContain('stacked-light');
+    expect(html).toContain('stacked-dark');
   });
 
   test('mode="dark" pins the dark asset regardless of html.dark', () => {

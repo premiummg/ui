@@ -58,3 +58,15 @@ export const TextOnly: Story = {
 export const AcadianOverlay: Story = {
   args: { ...SHARED_ARGS, imageSrc: heroPoster, videoSrc: heroVideo, overlay: 'acadian' },
 };
+
+export const InnerPage: Story = {
+  args: {
+    ...SHARED_ARGS,
+    imageSrc: heroPoster,
+    size: 'compact',
+    breadcrumb: <span>Home / Services / Firestopping</span>,
+    primaryAction: { label: 'Get an estimate', href: '#contact' },
+    secondaryAction: undefined,
+    children: <p className="pmg-eyebrow text-white/70">Certified and accredited</p>,
+  },
+};

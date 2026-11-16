@@ -39,7 +39,7 @@ export function Pagination({
   const to = Math.min(page * limit, total);
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 dark:border-white/10">
+    <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-gray-100 dark:border-white/10">
       {/* Every number a user reads as data is Montserrat with tabular numerals
           (pg. 14) - .pmg-figure applies that. */}
       <p className="text-xs text-gray-400 flex items-center">
@@ -69,21 +69,21 @@ export function Pagination({
       </p>
       {totalPages > 1 && (
         <div className="flex items-center gap-1">
-          <button
+          <button type="button"
             onClick={() => onPageChange(page - 1)}
             disabled={page === 1}
             aria-label={prevLabel}
             title={prevLabel}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent hover:bg-gray-100 dark:hover:bg-white/5 transition"
+            className="w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 rounded-lg flex items-center justify-center text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent hover:bg-gray-100 dark:hover:bg-white/5 transition"
           >
             <FiChevronLeft size={14} />
           </button>
-          <button
+          <button type="button"
             onClick={() => onPageChange(page + 1)}
             disabled={page === totalPages}
             aria-label={nextLabel}
             title={nextLabel}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent hover:bg-gray-100 dark:hover:bg-white/5 transition"
+            className="w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 rounded-lg flex items-center justify-center text-gray-400 disabled:opacity-40 disabled:hover:bg-transparent hover:bg-gray-100 dark:hover:bg-white/5 transition"
           >
             <FiChevronRight size={14} />
           </button>

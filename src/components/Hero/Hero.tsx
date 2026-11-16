@@ -5,10 +5,17 @@ import { SiteButton } from '../SiteButton';
 import { AcadianStar } from '../Flags';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
+// Give `href` for an action that goes somewhere (it renders a real link, so
+// it can be opened in a new tab and followed by a crawler), `onClick` for one
+// that does something on the page. With both, `onClick` is called for a plain
+// click instead of a page load - the hook for a client-side router.
 export interface HeroAction {
   label: ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
+  href?: string;
 }
+
+export type HeroSize = 'default' | 'compact';
 
 export type HeroOverlay = 'scrim' | 'acadian';
 
@@ -42,7 +49,29 @@ export interface HeroProps {
   // company, a client site) doesn't inherit it by accident. Turn it on only
   // for a genuinely Premium-branded page.
   wedge?: boolean;
+  // A breadcrumb or back link above the eyebrow, for a hero that opens an
+  // inner page (a service, an article) rather than the home page.
+  breadcrumb?: ReactNode;
+  // Anything after the caption: a row of certification badges, a phone
+  // number block. Sits inside the same text column, on the same scrim.
+  children?: ReactNode;
+  // 'compact' trims the vertical padding for an inner page's hero, where the
+  // page's own content should start sooner than on the home page.
+  size?: HeroSize;
   className?: string;
+}
+
+const PADDING: Record<HeroSize, string> = {
+  default: 'py-24 md:py-32',
+  compact: 'py-16 md:py-20',
+};
+
+function ActionButton({ action, variant }: { action: HeroAction; variant: 'primary' | 'onDark' }) {
+  const label = variant === 'primary' ? <>{action.label} <FiArrowRight size={16} /></> : action.label;
+  if (action.href !== undefined) {
+    return <SiteButton variant={variant} href={action.href} onNavigate={action.onClick}>{label}</SiteButton>;
+  }
+  return <SiteButton variant={variant} onClick={action.onClick}>{label}</SiteButton>;
 }
 
 // A full-bleed landing-page hero: optional image/video background with a
@@ -53,7 +82,8 @@ export interface HeroProps {
 // the wrong tradeoff for the single most important paint on the page.
 export function Hero({
   eyebrow, eyebrowTone = 'amber', title, sub, imageSrc, videoSrc,
-  primaryAction, secondaryAction, caption, overlay = 'scrim', wedge = false, className = '',
+  primaryAction, secondaryAction, caption, overlay = 'scrim', wedge = false,
+  breadcrumb, children, size = 'default', className = '',
 }: HeroProps) {
   const reducedMotion = usePrefersReducedMotion();
   const showVideo = videoSrc && !reducedMotion;
@@ -116,8 +146,9 @@ export function Hero({
         </div>
       )}
 
-      <div className="relative max-w-6xl mx-auto px-6 py-24 md:py-32">
+      <div className={`relative max-w-6xl mx-auto px-6 ${PADDING[size]}`}>
         <div className="max-w-2xl">
+          {breadcrumb && <div className="text-sm text-white/80 mb-6">{breadcrumb}</div>}
           <Eyebrow tone={eyebrowTone} text={eyebrow} />
           <h1 className="font-heading font-black text-4xl md:text-[54px] leading-[1.05] text-white mt-4">
             {title}
@@ -125,19 +156,12 @@ export function Hero({
           {sub && <p className="text-lg text-white/80 mt-6 max-w-xl leading-relaxed">{sub}</p>}
           {(primaryAction || secondaryAction) && (
             <div className="flex flex-wrap items-center gap-3 mt-9">
-              {primaryAction && (
-                <SiteButton onClick={primaryAction.onClick}>
-                  {primaryAction.label} <FiArrowRight size={16} />
-                </SiteButton>
-              )}
-              {secondaryAction && (
-                <SiteButton variant="onDark" onClick={secondaryAction.onClick}>
-                  {secondaryAction.label}
-                </SiteButton>
-              )}
+              {primaryAction && <ActionButton action={primaryAction} variant="primary" />}
+              {secondaryAction && <ActionButton action={secondaryAction} variant="onDark" />}
             </div>
           )}
           {caption && <div className="inline-flex items-center gap-2 text-xs text-white/50 mt-8">{caption}</div>}
+          {children && <div className="mt-10">{children}</div>}
         </div>
       </div>
     </header>

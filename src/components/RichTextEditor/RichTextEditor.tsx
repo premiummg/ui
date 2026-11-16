@@ -236,6 +236,9 @@ export function RichTextEditor({
             <button
               type="button"
               onMouseDown={(e) => { e.preventDefault(); setExpanded(true); }}
+              // Enter or Space on the focused button arrives as a click with no pointer (detail 0); a mouse click
+              // already ran on mouseDown and must not run twice.
+              onClick={(e) => { if (e.detail === 0) setExpanded(true); }}
               title="Open full editor"
               className="ml-auto flex select-none items-center gap-1.5 rounded px-2 py-1 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-gray-100"
             >

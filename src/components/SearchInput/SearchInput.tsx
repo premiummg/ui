@@ -40,7 +40,7 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
         className="input-field w-full pl-8 pr-8"
       />
       {inputValue && (
-        <button
+        <button type="button"
           onClick={() => { setInputValue(''); onChange(''); }}
           className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition"
         >

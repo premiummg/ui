@@ -54,7 +54,7 @@ export function FilterRow({
         />
       ))}
       {selected.length > 0 && (
-        <button onClick={onClear} className="text-xs text-gray-400 underline hover:text-gray-600 dark:hover:text-gray-200">
+        <button type="button" onClick={onClear} className="text-xs text-gray-400 underline hover:text-gray-600 dark:hover:text-gray-200">
           {clearLabel}
         </button>
       )}

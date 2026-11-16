@@ -105,4 +105,34 @@ describe('Hero', () => {
     expect(scrim.container.querySelector('.pmg-texture')).toBeInTheDocument();
     expect(acadian.container.querySelector('.pmg-texture')).not.toBeInTheDocument();
   });
+
+  test('an action with href renders a real link, and a plain click goes through onClick', async () => {
+    mockMatchMedia(false);
+    const onPrimary = vi.fn();
+    render(<Hero eyebrow="e" title="t" primaryAction={{ label: 'Get an estimate', href: '/contact', onClick: onPrimary }} />);
+    const link = screen.getByRole('link', { name: /Get an estimate/ });
+    expect(link).toHaveAttribute('href', '/contact');
+    await userEvent.click(link);
+    expect(onPrimary).toHaveBeenCalledTimes(1);
+  });
+
+  test('renders the breadcrumb and children slots only when given', () => {
+    mockMatchMedia(false);
+    const { rerender } = render(<Hero eyebrow="e" title="t" />);
+    expect(screen.queryByText('Home / Services')).not.toBeInTheDocument();
+    rerender(
+      <Hero eyebrow="e" title="t" breadcrumb={<span>Home / Services</span>}>
+        <p>UL Certified</p>
+      </Hero>,
+    );
+    expect(screen.getByText('Home / Services')).toBeInTheDocument();
+    expect(screen.getByText('UL Certified')).toBeInTheDocument();
+  });
+
+  test('size="compact" trims the vertical padding', () => {
+    mockMatchMedia(false);
+    const { container } = render(<Hero eyebrow="e" title="t" size="compact" />);
+    expect(container.innerHTML).toContain('py-16');
+    expect(container.innerHTML).not.toContain('py-24');
+  });
 });

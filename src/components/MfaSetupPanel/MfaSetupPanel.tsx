@@ -145,7 +145,7 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
                 <p className="text-xs text-gray-400">{t.notSetUpHint}</p>
               </div>
             </div>
-            <button onClick={startSetup} disabled={loading} className="btn-primary px-4 shrink-0 disabled:opacity-60">
+            <button type="button" onClick={startSetup} disabled={loading} className="btn-primary px-4 shrink-0 disabled:opacity-60">
               {loading ? t.loading : t.enable}
             </button>
           </div>
@@ -167,7 +167,7 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
                   <p className="text-xs text-gray-400">{t.requiredEverySignIn}</p>
                 </div>
               </div>
-              <button
+              <button type="button"
                 onClick={() => setConfirmDisable(true)}
                 className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-200 dark:border-white/20 text-gray-600 dark:text-gray-300 hover:border-gray-400 hover:text-gray-900 dark:hover:text-white transition shrink-0"
               >
@@ -192,7 +192,7 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
                 />
               </div>
               <div className="flex gap-2">
-                <button
+                <button type="button"
                   onClick={handleDisable}
                   disabled={loading || disableCode.length !== 6}
                   className="text-sm font-semibold px-4 py-2 rounded-lg text-white disabled:opacity-60"
@@ -200,7 +200,7 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
                 >
                   {loading ? t.disabling : t.yesDisable}
                 </button>
-                <button
+                <button type="button"
                   onClick={() => { setConfirmDisable(false); setDisableCode(''); setError(''); }}
                   className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 dark:border-white/20 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition"
                 >
@@ -245,7 +245,7 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
               />
             </div>
             {error && <p className="text-sm" style={{ color: 'var(--premium-red)' }}>{error}</p>}
-            <button onClick={confirmCode} disabled={code.length !== 6 || loading} className="btn-primary px-4 py-2 text-sm disabled:opacity-60">
+            <button type="button" onClick={confirmCode} disabled={code.length !== 6 || loading} className="btn-primary px-4 py-2 text-sm disabled:opacity-60">
               {loading ? t.verifying : t.activate}
             </button>
           </div>
@@ -257,7 +257,7 @@ export function MfaSetupPanel({ labels: t, enabled, mandatory, onStartSetup, onC
           <p className="inline-flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-400">
             <FiCheckCircle size={16} /> {t.activatedNotice}
           </p>
-          <button
+          <button type="button"
             onClick={() => setStep('idle')}
             className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 dark:border-white/20 text-gray-600 dark:text-gray-300 hover:border-gray-400 hover:text-gray-900 dark:hover:text-white transition"
           >

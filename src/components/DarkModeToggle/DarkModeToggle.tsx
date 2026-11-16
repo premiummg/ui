@@ -15,13 +15,16 @@ export interface DarkModeToggleProps {
 // drops into a navbar, a page shell, or a Storybook story without pulling in
 // document/localStorage access - same reasoning as every other component
 // here taking its state as props instead of owning it.
+// aria-pressed tells a screen reader whether dark mode is on, and the icon is
+// grey-600 (not 400) so it clears the 3:1 that an icon-only control needs.
 export function DarkModeToggle({ isDark, onToggle, size = 16, className = '', ariaLabel = 'Toggle dark mode' }: DarkModeToggleProps) {
   return (
     <button
       type="button"
       onClick={onToggle}
       aria-label={ariaLabel}
-      className={`p-2 rounded-lg text-gray-400 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition ${className}`}
+      aria-pressed={isDark}
+      className={`p-2 rounded-lg text-gray-600 dark:text-white/80 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition ${className}`}
     >
       {isDark ? <FiSun size={size} /> : <FiMoon size={size} />}
     </button>

@@ -100,7 +100,11 @@ function usePanelPosition(triggerRef: RefObject<HTMLElement | null>, open: boole
     if (!open) { setPos(null); return; }
     function recompute() {
       if (!triggerRef.current) return;
-      setPos(computePanelPosition(triggerRef.current.getBoundingClientRect()));
+      const next = computePanelPosition(triggerRef.current.getBoundingClientRect());
+      // The scroll listener is on the window in the capture phase, so the scrolling of the wheels INSIDE the panel reaches it
+      // too (dozens of events a second). The position has not moved then: handing back the same object lets React skip the
+      // render instead of redrawing both wheels and their repeated rows on every tick.
+      setPos((prev) => (prev && prev.top === next.top && prev.left === next.left ? prev : next));
     }
     recompute();
     window.addEventListener('scroll', recompute, true);

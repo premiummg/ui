@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
+import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SearchPicker, PickerGroup } from './SearchPicker';
@@ -52,5 +53,14 @@ describe('SearchPicker', () => {
     expect(screen.getByText('PRJ-100')).toBeInTheDocument();
     await userEvent.click(screen.getByLabelText('Clear selection'));
     expect(onChange).toHaveBeenCalledWith(null);
+  });
+  test('clearing the chosen item puts the focus in the search box, so the open list is reachable by keyboard', async () => {
+    function Harness() {
+      const [value, setValue] = useState<{ id: string; label: string } | null>({ id: '1', label: 'Maple Street' });
+      return <SearchPicker groups={[{ items: [{ id: '1', label: 'Maple Street' }] }]} placeholder="Find a project" value={value} onChange={setValue} />;
+    }
+    render(<Harness />);
+    await userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
+    expect(screen.getByPlaceholderText('Find a project')).toHaveFocus();
   });
 });

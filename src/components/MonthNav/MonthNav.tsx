@@ -181,9 +181,9 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
     ? `${pgStart} – ${pgStart + YEARS_PER_PAGE - 1}`
     : String(viewYear);
 
-  const btnCls = 'w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition disabled:opacity-30 disabled:cursor-not-allowed';
+  const btnCls = 'w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition disabled:opacity-30 disabled:cursor-not-allowed';
   const triggerBtnCls = variant === 'hero'
-    ? 'w-7 h-7 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition disabled:opacity-30 disabled:cursor-not-allowed'
+    ? 'w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition disabled:opacity-30 disabled:cursor-not-allowed'
     : btnCls;
   const triggerLabelCls = variant === 'hero'
     ? 'font-heading font-bold text-sm text-white min-w-[130px] text-center px-2 py-1 rounded-lg hover:bg-white/15 transition select-none'
@@ -198,13 +198,13 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
 
       {/* Outer row: prev — label — next */}
       <div className={`flex items-center gap-1 ${variant === 'hero' ? 'bg-white/15 rounded-lg p-0.5' : ''}`}>
-        <button onClick={goPrev} disabled={!canGoPrev || fetching} className={triggerBtnCls}>
+        <button type="button" onClick={goPrev} disabled={!canGoPrev || fetching} className={triggerBtnCls}>
           <FiChevronLeft size={14} />
         </button>
-        <button onClick={openPicker} className={triggerLabelCls}>
+        <button type="button" onClick={openPicker} className={triggerLabelCls}>
           {fetching ? '…' : formatLong(displayYM, locale)}
         </button>
-        <button onClick={goNext} disabled={!canGoNext || fetching} className={triggerBtnCls}>
+        <button type="button" onClick={goNext} disabled={!canGoNext || fetching} className={triggerBtnCls}>
           <FiChevronRight size={14} />
         </button>
       </div>
@@ -215,16 +215,16 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
 
           {/* Picker header — shared by both views */}
           <div className="flex items-center justify-between px-4 pt-3 pb-2">
-            <button onClick={handlePickerPrev} disabled={pickerPrevDisabled} className={btnCls}>
+            <button type="button" onClick={handlePickerPrev} disabled={pickerPrevDisabled} className={btnCls}>
               <FiChevronLeft size={14} />
             </button>
-            <button
+            <button type="button"
               onClick={() => setView(v => v === 'months' ? 'years' : 'months')}
               className="text-sm font-semibold text-gray-800 dark:text-gray-100 hover:text-(--premium-red) dark:hover:text-red-400 px-2 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition select-none"
             >
               {headerLabel}
             </button>
-            <button onClick={handlePickerNext} disabled={pickerNextDisabled} className={btnCls}>
+            <button type="button" onClick={handlePickerNext} disabled={pickerNextDisabled} className={btnCls}>
               <FiChevronRight size={14} />
             </button>
           </div>
@@ -237,7 +237,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
                 const sel    = isMonthSelected(viewYear, idx);
                 const todayM = isCurrentMonth(viewYear, idx);
                 return (
-                  <button
+                  <button type="button"
                     key={label}
                     onClick={() => selectMonth(viewYear, idx)}
                     disabled={!avail}
@@ -268,7 +268,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
                 const sel   = isYearSelected(year);
                 const today = year === curYear;
                 return (
-                  <button
+                  <button type="button"
                     key={year}
                     onClick={() => selectYear(year)}
                     disabled={!avail}
@@ -293,7 +293,7 @@ export function MonthNav({ value, months, fetching = false, onChange, variant = 
 
           {/* Footer */}
           <div className="flex items-center justify-end px-4 py-2.5 border-t border-gray-100 dark:border-white/10">
-            <button
+            <button type="button"
               onClick={() => { onChange(null); close(); }}
               disabled={value === null}
               className="text-xs font-semibold transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"

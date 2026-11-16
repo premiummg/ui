@@ -63,3 +63,19 @@ export const FourColumns: Story = {
     </SiteFooter>
   ),
 };
+
+export const FiveColumnsWithTop: Story = {
+  render: () => (
+    <SiteFooter
+      columns={5}
+      top={<p className="pmg-eyebrow text-(--premium-orange)">Certified and accredited</p>}
+      copyright={`© ${new Date().getFullYear()} Premium MG. All rights reserved.`}
+    >
+      {['Company', 'Services', 'About', 'Contact', 'Newsletter'].map(label => (
+        <FooterColumn key={label} label={label}>
+          <p className="text-sm">{label} content</p>
+        </FooterColumn>
+      ))}
+    </SiteFooter>
+  ),
+};

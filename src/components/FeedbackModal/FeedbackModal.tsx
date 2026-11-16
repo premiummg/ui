@@ -80,7 +80,7 @@ export function FeedbackModal({ onClose, onSend, labels: t, anonymousOnly = fals
   }
 
   return (
-    <Modal onClose={onClose} title={t.heading} maxWidth="max-w-lg">
+    <Modal onClose={onClose} title={t.heading} maxWidth="max-w-lg" dismissable={!sending}>
       <form onSubmit={submit} className="space-y-4">
         <p className="text-sm text-gray-500 dark:text-gray-400">{t.intro}</p>
         <div>
@@ -123,7 +123,7 @@ export function FeedbackModal({ onClose, onSend, labels: t, anonymousOnly = fals
           {anonymous && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t.anonymousNote}</p>}
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onClose}>{t.cancel}</Button>
+          <Button variant="secondary" onClick={onClose} disabled={sending}>{t.cancel}</Button>
           <Button type="submit" disabled={sending || !message.trim()}>{sending ? t.sending : t.send}</Button>
         </div>
       </form>

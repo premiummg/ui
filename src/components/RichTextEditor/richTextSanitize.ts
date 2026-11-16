@@ -97,6 +97,10 @@ function cleanAttributes(node: Element) {
     return;
   }
 
+  // A link that opens in a new tab must not hand that page a reference back to this one (window.opener). Browsers
+  // imply it for target=_blank today; it is set here so the stored HTML does not depend on that.
+  if (node.hasAttribute('target')) node.setAttribute('rel', 'noopener noreferrer');
+
   // A data-youtube value is about to be interpolated into an embed URL, so it
   // has to be exactly a video id and nothing else.
   if (node.hasAttribute('data-youtube') && !YOUTUBE_ID_RE.test(node.getAttribute('data-youtube') || '')) {

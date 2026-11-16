@@ -1,6 +1,13 @@
 import { FiAlertCircle } from 'react-icons/fi';
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Avatar } from '../Avatar';
+
+// A work date is a calendar day, not an instant: `new Date('2026-11-13')` is midnight UTC, which a person west of
+// UTC sees as the evening of the 12th. Built from its own year, month and day it stays on the day it names.
+function localDay(workDate: string): Date {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(workDate);
+  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(workDate);
+}
 
 export interface AnnouncementSubmissionSummaryRow {
   project_number: string | number;
@@ -101,6 +108,8 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
   const [reply, setReply] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
+  const id = useId();
+  const gateRef = useRef<HTMLDivElement>(null);
 
   const current = queue[0];
   if (!current) return null;
@@ -129,7 +138,26 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
     // Scroll on the BACKDROP, not the card: centring a taller-than-viewport
     // dialog clips its top, and this is the one dialog with no way out - a
     // long message on a phone could put the button somewhere unreachable.
-    <div className="fixed inset-0 z-200 overflow-y-auto bg-black/60 backdrop-blur-sm">
+    <div
+      ref={gateRef}
+      // A blocking dialog: said so to assistive technology, and Tab stays inside it. Without this a keyboard user
+      // could tab out into the page behind and ignore a message that is meant to be answered first.
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={`${id}-from ${id}-sender`}
+      onKeyDown={(e) => {
+        if (e.key !== 'Tab' || !gateRef.current) return;
+        const items = Array.from(gateRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+        if (items.length === 0) { e.preventDefault(); return; }
+        const first = items[0];
+        const last = items[items.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+        else if (!gateRef.current.contains(active)) { e.preventDefault(); first.focus(); }
+      }}
+      className="fixed inset-0 z-200 overflow-y-auto bg-black/60 backdrop-blur-sm"
+    >
       <div className="min-h-full flex items-center justify-center p-4">
         <div className="w-full max-w-lg rounded-2xl overflow-hidden bg-white dark:bg-(--premium-dark-grey) shadow-2xl border border-gray-100 dark:border-white/10">
 
@@ -141,8 +169,8 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
             <div className="relative flex items-center gap-3.5">
               <Avatar fullName={sender} size={44} color="rgba(255,255,255,0.15)" />
               <div className="min-w-0">
-                <p className="pmg-eyebrow text-white/70 mb-1">{t.messageFrom}</p>
-                <p className="font-heading font-black text-lg text-white leading-none truncate">{sender}</p>
+                <p id={`${id}-from`} className="pmg-eyebrow text-white/70 mb-1">{t.messageFrom}</p>
+                <p id={`${id}-sender`} className="font-heading font-black text-lg text-white leading-none truncate">{sender}</p>
               </div>
 
               {/* Queue position, out of the byline and into its own control.
@@ -191,7 +219,7 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
               <div className="mb-4 rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden">
                 <div className="flex items-center justify-between px-3.5 py-2 bg-gray-50 dark:bg-white/5">
                   <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    {new Date(current.submission_summary.work_date).toLocaleDateString(t.dateLocale, { weekday: 'short', month: 'short', day: 'numeric' })}
+                    {localDay(current.submission_summary.work_date).toLocaleDateString(t.dateLocale, { weekday: 'short', month: 'short', day: 'numeric' })}
                   </p>
                   <span className="text-[11px] font-medium capitalize text-gray-400">{current.submission_summary.status}</span>
                 </div>
@@ -216,10 +244,11 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
 
             {current.requires_reply && (
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label htmlFor={`${id}-reply`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   {t.replyLabel}<span className="text-red-500 ml-0.5">*</span>
                 </label>
                 <textarea
+                  id={`${id}-reply`}
                   value={reply}
                   onChange={e => setReply(e.target.value)}
                   rows={3}
@@ -236,7 +265,7 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
 
             {error && <p className="mb-3 text-sm" style={{ color: 'var(--premium-red)' }}>{error}</p>}
 
-            <button
+            <button type="button"
               onClick={submit}
               disabled={sending}
               className="btn-primary w-full py-2.5 text-sm disabled:opacity-60"

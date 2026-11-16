@@ -207,7 +207,7 @@ export function DatePicker({
               type="button"
               onClick={handlePrev}
               disabled={prevDisabled}
-              className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              className="w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
             >
               <FiChevronLeft size={14} />
             </button>
@@ -222,7 +222,7 @@ export function DatePicker({
               type="button"
               onClick={handleNext}
               disabled={nextDisabled}
-              className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
+              className="w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
             >
               <FiChevronRight size={14} />
             </button>
@@ -255,7 +255,7 @@ export function DatePicker({
                       onClick={() => !isFuture && selectDay(day)}
                       title={unavail ? unavailableTitle : undefined}
                       className={`
-                        w-8 h-8 mx-auto flex items-center justify-center rounded-lg text-xs font-medium transition-all duration-100
+                        w-8 h-8 pointer-coarse:h-10 mx-auto flex items-center justify-center rounded-lg text-xs font-medium transition-all duration-100
                         ${unavail
                           ? 'text-gray-400 dark:text-gray-500 line-through decoration-gray-300 dark:decoration-gray-600 cursor-not-allowed'
                           : isFuture

@@ -37,9 +37,9 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
   // The compact size real toolbars actually use for an inline action sitting
   // beside other chips (a table row, a filter bar) - not a guess, the exact
   // padding/text-size pair repeated across those spots in the app.
-  xs: 'px-3 py-1.5 text-xs',
-  sm: 'px-3 py-2 text-sm',
-  md: 'px-4 py-2.5 text-sm',
+  xs: 'px-3 py-1.5 text-xs pointer-coarse:min-h-11',
+  sm: 'px-3 py-2 text-sm pointer-coarse:min-h-11',
+  md: 'px-4 py-2.5 text-sm pointer-coarse:min-h-11',
   // `px-6 py-3 text-sm` is `SiteButton`'s own size - the real hero-CTA size
   // this brand actually ships, not a guess, just given here too for app
   // chrome that wants that same weight without switching components.

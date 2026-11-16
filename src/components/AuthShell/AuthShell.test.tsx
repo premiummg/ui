@@ -45,7 +45,8 @@ describe('AuthShell', () => {
         content
       </AuthShell>,
     );
-    let img = screen.getByAltText('Premium Management Group') as HTMLImageElement;
+    // The logo is in auto mode: the first copy is the light artwork, the second the dark one.
+    let img = screen.getAllByAltText('Premium Management Group')[0] as HTMLImageElement;
     expect(img.src).toContain('stacked-light');
     expect(img.src).not.toContain('stacked-light-fr');
 
@@ -54,7 +55,7 @@ describe('AuthShell', () => {
         content
       </AuthShell>,
     );
-    img = screen.getByAltText('Premium Management Group') as HTMLImageElement;
+    img = screen.getAllByAltText('Premium Management Group')[0] as HTMLImageElement;
     expect(img.src).toContain('stacked-light-fr');
   });
 

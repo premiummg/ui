@@ -20,4 +20,11 @@ describe('DarkModeToggle', () => {
     render(<DarkModeToggle isDark={false} onToggle={() => {}} ariaLabel="Basculer le mode sombre" />);
     expect(screen.getByLabelText('Basculer le mode sombre')).toBeInTheDocument();
   });
+
+  test('reports its state through aria-pressed', () => {
+    const { rerender } = render(<DarkModeToggle isDark={false} onToggle={() => {}} />);
+    expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+    rerender(<DarkModeToggle isDark onToggle={() => {}} />);
+    expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+  });
 });

@@ -47,6 +47,29 @@ describe('AnnouncementGate', () => {
     expect(screen.getByText('Did you really work these hours?')).toBeInTheDocument();
   });
 
+  test('is a blocking dialog named by who it is from, and the reply field has its own label', () => {
+    render(<AnnouncementGate queue={[item({ requires_reply: true })]} onRespond={vi.fn()} labels={labels} />);
+    const dialog = screen.getByRole('dialog', { name: 'Message from Jordan Reid' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(screen.getByLabelText(/Your reply/)).toBeInTheDocument();
+  });
+
+  test('Tab wraps around inside the dialog instead of reaching the page behind', async () => {
+    render(
+      <div>
+        <button>page behind</button>
+        <AnnouncementGate queue={[item({ requires_reply: true })]} onRespond={vi.fn()} labels={labels} />
+      </div>,
+    );
+    const reply = screen.getByLabelText(/Your reply/);
+    const send = screen.getByRole('button', { name: 'Send reply' });
+    send.focus();
+    await userEvent.tab();
+    expect(reply).toHaveFocus();
+    await userEvent.tab({ shift: true });
+    expect(send).toHaveFocus();
+  });
+
   test('says it is a group message and names the recipients when there are several', () => {
     render(
       <AnnouncementGate

@@ -239,7 +239,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
     // years view header isn't clickable further - matches MonthNav
   };
 
-  const btnCls = 'w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition disabled:opacity-30 disabled:cursor-not-allowed';
+  const btnCls = 'w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition disabled:opacity-30 disabled:cursor-not-allowed';
   const gridBtnCls = (avail: boolean, sel: boolean, today: boolean) => `
     py-2 rounded-lg text-xs font-medium transition
     ${!avail
@@ -252,7 +252,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
   `;
 
   const triggerBtnCls = variant === 'hero'
-    ? 'w-7 h-7 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition disabled:opacity-30 disabled:cursor-not-allowed'
+    ? 'w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 flex items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/15 transition disabled:opacity-30 disabled:cursor-not-allowed'
     : btnCls;
   const triggerLabelCls = variant === 'hero'
     ? 'font-heading font-bold text-sm text-white min-w-[130px] text-center px-2 py-1 rounded-lg hover:bg-white/15 transition select-none'
@@ -272,13 +272,13 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
 
       {/* Outer row: prev — label — next */}
       <div className={`flex items-center gap-1 ${variant === 'hero' ? 'bg-white/15 rounded-lg p-0.5' : ''}`}>
-        <button onClick={goPrev} disabled={!canGoPrev || fetching} className={triggerBtnCls}>
+        <button type="button" onClick={goPrev} disabled={!canGoPrev || fetching} className={triggerBtnCls}>
           <FiChevronLeft size={14} />
         </button>
-        <button onClick={openPicker} className={triggerLabelCls}>
+        <button type="button" onClick={openPicker} className={triggerLabelCls}>
           {fetching ? '…' : formatWeekRange(displayMonday, locale)}
         </button>
-        <button onClick={goNext} disabled={!canGoNext || fetching} className={triggerBtnCls}>
+        <button type="button" onClick={goNext} disabled={!canGoNext || fetching} className={triggerBtnCls}>
           <FiChevronRight size={14} />
         </button>
       </div>
@@ -289,17 +289,17 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
 
           {/* Picker header - shared by all three views, click cycles weeks -> months -> years */}
           <div className="flex items-center justify-between px-4 pt-3 pb-2">
-            <button onClick={handlePickerPrev} disabled={pickerPrevDisabled} className={btnCls}>
+            <button type="button" onClick={handlePickerPrev} disabled={pickerPrevDisabled} className={btnCls}>
               <FiChevronLeft size={14} />
             </button>
-            <button
+            <button type="button"
               onClick={handleHeaderClick}
               disabled={view === 'years'}
               className="text-sm font-semibold text-gray-800 dark:text-gray-100 hover:text-(--premium-red) dark:hover:text-red-400 px-2 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition select-none disabled:hover:text-gray-800 dark:disabled:hover:text-gray-100 disabled:cursor-default"
             >
               {headerLabel}
             </button>
-            <button onClick={handlePickerNext} disabled={pickerNextDisabled} className={btnCls}>
+            <button type="button" onClick={handlePickerNext} disabled={pickerNextDisabled} className={btnCls}>
               <FiChevronRight size={14} />
             </button>
           </div>
@@ -321,7 +321,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
                   const sel = isWeekSelected(monday);
                   const todayWeek = isCurrentWeek(monday);
                   return (
-                    <button
+                    <button type="button"
                       key={ri}
                       onClick={() => selectWeek(monday)}
                       disabled={!avail}
@@ -376,7 +376,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
                 const sel = isMonthSelected(year, idx);
                 const today = isCurrentMonth(year, idx);
                 return (
-                  <button
+                  <button type="button"
                     key={label}
                     onClick={() => selectMonth(year, idx)}
                     disabled={!avail}
@@ -398,7 +398,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
                 const sel = isYearSelected(year);
                 const today = year === curYear;
                 return (
-                  <button
+                  <button type="button"
                     key={year}
                     onClick={() => selectYear(year)}
                     disabled={!avail}
@@ -413,7 +413,7 @@ export function WeekNav({ value, weeks, fetching = false, onChange, align = 'rig
           )}
 
           <div className="flex items-center justify-end px-4 py-2.5 border-t border-gray-100 dark:border-white/10">
-            <button
+            <button type="button"
               onClick={() => { onChange(null); close(); }}
               disabled={value === null}
               className="text-xs font-semibold transition hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed"

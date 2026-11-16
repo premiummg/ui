@@ -30,6 +30,21 @@ const isTopModal = (panel: HTMLElement | null): boolean => {
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+// While any modal is open the page behind it must not scroll with the finger or the wheel (on a phone, dragging in or
+// beside the dialog moved the page underneath). Counted, so a modal opened over another one releases the page only
+// when the last of them closes.
+let scrollLocks = 0;
+let overflowBeforeLock = '';
+function lockBodyScroll(): () => void {
+  if (scrollLocks++ === 0) {
+    overflowBeforeLock = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+  }
+  return () => {
+    if (--scrollLocks === 0) document.body.style.overflow = overflowBeforeLock;
+  };
+}
+
 export function Modal({ onClose, title, description, children, maxWidth = 'max-w-md', zIndex = 'z-50', dismissable = true, ariaLabel }: ModalProps) {
   const id = useId();
   const titleId = `${id}-title`;
@@ -41,6 +56,8 @@ export function Modal({ onClose, title, description, children, maxWidth = 'max-w
   onCloseRef.current = onClose;
   const dismissableRef = useRef(dismissable);
   dismissableRef.current = dismissable;
+
+  useEffect(() => lockBodyScroll(), []);
 
   useEffect(() => {
     const previouslyFocused = document.activeElement as HTMLElement | null;

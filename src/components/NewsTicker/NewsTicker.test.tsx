@@ -21,6 +21,12 @@ describe('NewsTicker', () => {
     expect(screen.getAllByText('Q3 all-hands moved').length).toBeGreaterThan(1);
   });
 
+  test('only the first run of the list is reachable by a screen reader or the keyboard', () => {
+    render(<NewsTicker items={items} onItemClick={() => {}} />);
+    // The repeated runs make the loop seamless: they are hidden, so each headline is announced and tabbed once.
+    expect(screen.getAllByRole('button')).toHaveLength(items.length);
+  });
+
   test('a custom label replaces the default', () => {
     render(<NewsTicker items={items} label="Announcements" />);
     expect(screen.getByText('Announcements')).toBeInTheDocument();

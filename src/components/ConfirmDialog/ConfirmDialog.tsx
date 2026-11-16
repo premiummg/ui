@@ -66,7 +66,7 @@ export function ConfirmDialog({
   if (!open) return null;
   const { tile, icon } = TONE_STYLES[tone];
   return (
-    <Modal onClose={onClose} maxWidth="max-w-sm">
+    <Modal onClose={onClose} maxWidth="max-w-sm" ariaLabel={typeof title === 'string' ? title : undefined} dismissable={!confirmDisabled}>
       {Icon && (
         <div className={`w-12 h-12 rounded-lg grid place-items-center mb-4 mx-auto ${tile}`}>
           <Icon size={22} className={icon} />

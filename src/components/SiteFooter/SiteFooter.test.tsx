@@ -26,6 +26,20 @@ describe('SiteFooter', () => {
     );
     expect(screen.getByText('Terms')).toBeInTheDocument();
   });
+
+  test('defaults to four columns and takes a different count', () => {
+    const { container, rerender } = render(<SiteFooter copyright="c"><div /></SiteFooter>);
+    expect(container.innerHTML).toContain('lg:grid-cols-4');
+    rerender(<SiteFooter copyright="c" columns={5}><div /></SiteFooter>);
+    expect(container.innerHTML).toContain('lg:grid-cols-5');
+  });
+
+  test('renders the top band only when given', () => {
+    const { rerender } = render(<SiteFooter copyright="c"><div /></SiteFooter>);
+    expect(screen.queryByText('Certified and accredited')).not.toBeInTheDocument();
+    rerender(<SiteFooter copyright="c" top={<p>Certified and accredited</p>}><div /></SiteFooter>);
+    expect(screen.getByText('Certified and accredited')).toBeInTheDocument();
+  });
 });
 
 describe('FooterColumn', () => {

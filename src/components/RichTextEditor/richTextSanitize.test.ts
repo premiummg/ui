@@ -93,4 +93,9 @@ describe('sanitizeRichText images', () => {
     expect(renderRichTextHtml('<img src="/\\tracker.test/p.gif">')).not.toContain('img');
     expect(renderRichTextHtml('<img src="\\\\tracker.test/p.gif">')).not.toContain('img');
   });
+  test('a link that opens in a new tab never keeps a reference back to the page', () => {
+    const html = renderRichTextHtml('<a href="https://example.test" target="_blank">x</a>');
+    expect(html).toContain('target="_blank"');
+    expect(html).toMatch(/rel="noopener noreferrer"/);
+  });
 });

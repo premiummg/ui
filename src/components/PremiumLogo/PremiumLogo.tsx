@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import type { Lang } from '../LanguageToggle';
 import stackedLightEn from '../../logos/stacked-light.png';
 import stackedDarkEn from '../../logos/stacked-dark.png';
@@ -54,37 +53,37 @@ export interface PremiumLogoProps {
 }
 
 // The brand kit ships red/black artwork only - no reversed white version
-// (pg. 11 forbids recolouring the mark to fit a background) - so this swaps
-// the whole asset for a dark-mode file rather than trying to recolour one
-// image. In 'auto' mode it watches html.dark directly (a MutationObserver,
-// not the useDarkMode hook) so the logo updates even where nothing else on
-// the page re-renders on a theme change - the sign-in shell swaps this in
-// before any app state exists to drive it from.
+// (pg. 11 forbids recolouring the mark to fit a background) - so dark mode
+// is a whole second asset rather than a recoloured image.
+//
+// 'auto' renders BOTH and lets the `dark:` variant on html.dark pick which
+// one shows. It used to read html.dark in a useState initializer and keep it
+// in sync with a MutationObserver, which meant reading `document` during
+// render: fatal in a build-time prerender (no `document` at all), and a
+// hydration mismatch in a prerendered page whose visitor uses dark mode
+// (the server picks light, the browser keeps the server's `src`). CSS has
+// the right answer at first paint, needs no observer, and still follows a
+// theme change made by anything (the sign-in shell flips the class before
+// any app state exists). The hidden copy is `display: none`, so a screen
+// reader announces one logo, not two.
 export function PremiumLogo({ size = 'md', variant = 'stacked', mode = 'auto', lang = 'en', className = '' }: PremiumLogoProps) {
-  const [autoIsDark, setAutoIsDark] = useState(
-    () => document.documentElement.classList.contains('dark'),
-  );
-
-  useEffect(() => {
-    if (mode !== 'auto') return;
-    const observer = new MutationObserver(() => {
-      setAutoIsDark(document.documentElement.classList.contains('dark'));
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-    return () => observer.disconnect();
-  }, [mode]);
-
-  const isDark = mode === 'auto' ? autoIsDark : mode === 'dark';
   const logo = LOGOS[variant][lang];
+  const base = `${SIZES[size]} w-auto object-contain ${className}`;
+
+  if (mode === 'auto') {
+    return (
+      <>
+        <img src={logo.light} alt="Premium Management Group" className={`${base} dark:hidden`} />
+        <img src={logo.dark} alt="Premium Management Group" className={`${base} hidden dark:inline`} />
+      </>
+    );
+  }
 
   return (
     <img
-      src={isDark ? logo.dark : logo.light}
+      src={mode === 'dark' ? logo.dark : logo.light}
       alt="Premium Management Group"
-      className={`${SIZES[size]} w-auto object-contain ${className}`}
+      className={base}
     />
   );
 }

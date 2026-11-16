@@ -30,6 +30,9 @@ export interface SearchPickerProps {
 // box doesn't cover on its own (no dropdown, no groups, no selection state).
 export function SearchPicker({ groups, placeholder, emptyText = 'No matches', value, onChange }: SearchPickerProps) {
   const [query, setQuery] = useState('');
+  // After the chip is cleared, its button unmounts and the box takes its place: focus goes to the box, or a keyboard user is
+  // left on the page body with a list open that they cannot reach.
+  const [focusBox, setFocusBox] = useState(false);
   const { open, setOpen, ref } = usePopover<HTMLDivElement>(() => setQuery(''));
 
   const q = query.trim().toLowerCase();
@@ -61,9 +64,10 @@ export function SearchPicker({ groups, placeholder, emptyText = 'No matches', va
         </div>
         <button
           type="button"
-          onClick={() => { onChange(null); setOpen(true); }}
+          onClick={() => { setFocusBox(true); onChange(null); setOpen(true); }}
           aria-label="Clear selection"
-          className="shrink-0 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
+          // p-2 -m-2: a hit area a finger can use around a 14px icon, with no change to the layout.
+          className="shrink-0 p-2 -m-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
         >
           <FiX size={14} />
         </button>
@@ -81,6 +85,7 @@ export function SearchPicker({ groups, placeholder, emptyText = 'No matches', va
         <FiSearch size={14} className="text-gray-400 shrink-0" />
         <input
           value={query}
+          autoFocus={focusBox}
           onFocus={() => setOpen(true)}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           placeholder={placeholder}

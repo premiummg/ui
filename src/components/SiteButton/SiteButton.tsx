@@ -1,10 +1,32 @@
-import { ButtonHTMLAttributes } from 'react';
+import { AnchorHTMLAttributes, ButtonHTMLAttributes, MouseEvent } from 'react';
+import { isPlainLeftClick } from '../../lib/linkClick';
 
 export type SiteButtonVariant = 'primary' | 'ghost' | 'onRed' | 'onDark';
 
-export interface SiteButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface SiteButtonCommon {
   variant?: SiteButtonVariant;
+  className?: string;
 }
+
+// Without `href`: a real <button>, exactly as before.
+export interface SiteButtonAsButton extends SiteButtonCommon, ButtonHTMLAttributes<HTMLButtonElement> {
+  href?: undefined;
+  onNavigate?: undefined;
+}
+
+// With `href`: a real <a>, because a marketing page's buttons are mostly
+// links ("Get your estimate" opens the contact page, "View all projects"
+// opens the projects page). A <button> that calls navigate() has no URL a
+// visitor can open in a new tab, copy, or that a crawler can follow.
+// `onNavigate` is for a client-side router: a plain click calls it instead of
+// letting the browser reload the page, while Ctrl/Cmd-click and middle-click
+// still open a new tab.
+export interface SiteButtonAsLink extends SiteButtonCommon, AnchorHTMLAttributes<HTMLAnchorElement> {
+  href: string;
+  onNavigate?: () => void;
+}
+
+export type SiteButtonProps = SiteButtonAsButton | SiteButtonAsLink;
 
 // A landing/marketing-page button - distinct from this package's own
 // `Button` (which is scoped to app chrome via `.btn-primary`) because a
@@ -24,12 +46,23 @@ const VARIANT_CLASSES: Record<SiteButtonVariant, string> = {
   onDark: 'border border-white/30 text-white hover:bg-white/10 hover:border-white/60',
 };
 
-export function SiteButton({ variant = 'primary', className = '', type = 'button', ...rest }: SiteButtonProps) {
-  return (
-    <button
-      type={type}
-      className={`${BASE} ${VARIANT_CLASSES[variant]} ${className}`}
-      {...rest}
-    />
-  );
+// The same classes SiteButton itself uses, for the rare element that has to
+// look like one but can't be one (a router's own <Link>, a <summary>).
+export function siteButtonClasses(variant: SiteButtonVariant = 'primary', className = ''): string {
+  return `${BASE} ${VARIANT_CLASSES[variant]} ${className}`;
+}
+
+export function SiteButton(props: SiteButtonProps) {
+  if (props.href !== undefined) {
+    const { variant = 'primary', className = '', onNavigate, onClick, ...rest } = props as SiteButtonAsLink;
+    const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+      onClick?.(e);
+      if (e.defaultPrevented || !onNavigate || !isPlainLeftClick(e)) return;
+      e.preventDefault();
+      onNavigate();
+    };
+    return <a className={siteButtonClasses(variant, className)} onClick={handleClick} {...rest} />;
+  }
+  const { variant = 'primary', className = '', type = 'button', ...rest } = props as SiteButtonAsButton;
+  return <button type={type} className={siteButtonClasses(variant, className)} {...rest} />;
 }

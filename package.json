@@ -1,6 +1,6 @@
 {
   "name": "@premiummg/ui",
-  "version": "0.92.0",
+  "version": "0.93.0",
   "description": "Premium MG shared React component library and design system - brand tokens, Tailwind preset, and ready-to-use components for every Premium application.",
   "license": "UNLICENSED",
   "type": "module",
@@ -41,6 +41,11 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.0.0 || ^7.0.0",
     "xlsx": ">=0.20.3"
+  },
+  "peerDependenciesMeta": {
+    "xlsx": {
+      "optional": true
+    }
   },
   "dependencies": {
     "date-fns": "^3.6.0",

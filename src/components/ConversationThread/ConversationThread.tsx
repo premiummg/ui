@@ -36,6 +36,8 @@ function pickerStrings(s: ConversationThreadStrings): ImageAttachmentPickerStrin
 }
 
 export interface ConversationThreadProps {
+  // A new function means another conversation (or a reason to read again): the thread is fetched again and the polling
+  // restarts. Pass a STABLE one (useCallback keyed on what it reads), or an inline function restarts it on every render.
   fetchFn: () => Promise<ChatMessage[]>;
   onSend: (body: string, files?: File[]) => Promise<ChatMessage>;
   // Turns on images: shows them under each message and lets the composer attach

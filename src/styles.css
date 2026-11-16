@@ -345,8 +345,19 @@ html.dark .rte-auto-ink {
 .news-ticker-track {
   animation: news-ticker linear infinite;
 }
-.news-ticker-track:hover {
+.news-ticker-track:hover,
+.news-ticker-track:focus-within {
   animation-play-state: paused;
+}
+/* A person who asked the system for less motion gets no moving strip: the track stays still and the strip scrolls
+   by hand instead, so every headline is still reachable. */
+@media (prefers-reduced-motion: reduce) {
+  .news-ticker-track {
+    animation: none;
+  }
+  .news-ticker-viewport {
+    overflow-x: auto !important;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────────────

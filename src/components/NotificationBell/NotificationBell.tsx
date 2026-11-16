@@ -60,6 +60,7 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{title}</span>
             {headerAction && (
               <button
+                type="button"
                 onClick={headerAction.onClick}
                 className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
               >
@@ -72,6 +73,7 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
 
           {footer && (
             <button
+              type="button"
               onClick={footer.onClick}
               className="w-full px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 border-t border-gray-100 dark:border-white/10 transition"
             >

@@ -173,8 +173,8 @@ export type { EyebrowProps, EyebrowTone } from './components/Eyebrow';
 export { SectionHead } from './components/SectionHead';
 export type { SectionHeadProps } from './components/SectionHead';
 
-export { SiteButton } from './components/SiteButton';
-export type { SiteButtonProps, SiteButtonVariant } from './components/SiteButton';
+export { SiteButton, siteButtonClasses } from './components/SiteButton';
+export type { SiteButtonProps, SiteButtonVariant, SiteButtonAsButton, SiteButtonAsLink } from './components/SiteButton';
 
 export { FlagCanada, FlagAcadian, FlagQuebec, AcadianStar } from './components/Flags';
 export type { FlagProps } from './components/Flags';
@@ -183,7 +183,7 @@ export { LanguageToggle } from './components/LanguageToggle';
 export type { LanguageToggleProps, Lang } from './components/LanguageToggle';
 
 export { Hero } from './components/Hero';
-export type { HeroProps, HeroAction, HeroOverlay } from './components/Hero';
+export type { HeroProps, HeroAction, HeroOverlay, HeroSize } from './components/Hero';
 
 export { SegmentedControl } from './components/SegmentedControl';
 export type { SegmentedControlProps, SegmentedControlOption } from './components/SegmentedControl';
@@ -195,7 +195,7 @@ export { PortraitFigure } from './components/PortraitFigure';
 export type { PortraitFigureProps } from './components/PortraitFigure';
 
 export { SiteFooter, FooterColumn } from './components/SiteFooter';
-export type { SiteFooterProps, FooterColumnProps } from './components/SiteFooter';
+export type { SiteFooterProps, FooterColumnProps, SiteFooterColumns } from './components/SiteFooter';
 
 export { FeatureCard } from './components/FeatureCard';
 export type { FeatureCardProps } from './components/FeatureCard';
@@ -210,7 +210,19 @@ export { StatBlock } from './components/StatBlock';
 export type { StatBlockProps } from './components/StatBlock';
 
 export { MediaCard } from './components/MediaCard';
-export type { MediaCardProps } from './components/MediaCard';
+export type { MediaCardProps, MediaCardAspect } from './components/MediaCard';
+
+export { StatBand } from './components/StatBand';
+export type { StatBandProps, StatBandItem } from './components/StatBand';
+
+export { CredentialBadges } from './components/CredentialBadges';
+export type { CredentialBadgesProps, CredentialBadge, CredentialBadgesSize } from './components/CredentialBadges';
+
+export { PhotoTile } from './components/PhotoTile';
+export type { PhotoTileProps } from './components/PhotoTile';
+
+export { PostCard } from './components/PostCard';
+export type { PostCardProps } from './components/PostCard';
 
 export { Avatar } from './components/Avatar';
 export type { AvatarProps } from './components/Avatar';
@@ -327,6 +339,7 @@ export { useGoBack, useLeaveTo, useHistoryTracker } from './hooks/useGoBack';
 export { importedHeaderSet, resolveImportRow, diffForImportUpdate, runMultiPassImport } from './lib/bulkImport';
 export type { ImportFieldSpec, MultiPassOutcome } from './lib/bulkImport';
 export { copyToClipboard } from './lib/clipboard';
+export { isPlainLeftClick } from './lib/linkClick';
 export { initials } from './lib/initials';
 export { formatPhone, toE164 } from './lib/phone';
 export { uniqueValues, uniqueEntities } from './lib/filters';

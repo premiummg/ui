@@ -52,7 +52,7 @@ export function PageHeader({ backLabel, onBack, title, eyebrow, count, actions, 
       />
       <div className="relative">
         {onBack && backLabel && (
-          <button
+          <button type="button"
             onClick={onBack}
             className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white transition"
           >

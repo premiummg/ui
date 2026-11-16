@@ -42,6 +42,21 @@ const CHUNK_LOAD_ERROR = /failed to fetch dynamically imported module|error load
 // falls back to the manual "Try again" button below.
 const CHUNK_RELOAD_KEY = 'chunk-reload-attempted';
 
+// Storage can be blocked (some embedded or privacy-locked browsers throw a SecurityError). This runs inside
+// componentDidCatch, where a throw would replace the original error with a white screen: when storage is not
+// there, the reload is simply not remembered.
+function safeSession(action: 'get' | 'set'): boolean {
+  try {
+    if (action === 'set') {
+      sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
+      return true;
+    }
+    return !!sessionStorage.getItem(CHUNK_RELOAD_KEY);
+  } catch {
+    return action === 'get';
+  }
+}
+
 export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   state: State = { hasError: false };
 
@@ -51,8 +66,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[ErrorBoundary]', error, info.componentStack);
-    if (CHUNK_LOAD_ERROR.test(error.message) && !sessionStorage.getItem(CHUNK_RELOAD_KEY)) {
-      sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
+    if (CHUNK_LOAD_ERROR.test(error.message) && !safeSession('get')) {
+      safeSession('set');
       window.location.reload();
     }
   }
@@ -81,7 +96,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
               {body}
             </p>
-            <button onClick={() => window.location.reload()} className="btn-primary px-5">
+            <button type="button" onClick={() => window.location.reload()} className="btn-primary px-5">
               {reloadLabel}
             </button>
           </div>

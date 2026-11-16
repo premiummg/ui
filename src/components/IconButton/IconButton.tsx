@@ -16,8 +16,8 @@ const TONE_CLASSES: Record<IconButtonTone, string> = {
 
 // sm sits in a table row; md is the square the page band uses next to a 36px button.
 const SIZE_CLASSES: Record<IconButtonSize, string> = {
-  sm: 'p-1.5',
-  md: 'w-9 h-9',
+  sm: 'p-1.5 pointer-coarse:min-h-11 pointer-coarse:min-w-11',
+  md: 'w-9 h-9 pointer-coarse:w-11 pointer-coarse:h-11',
 };
 
 export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'aria-label'> {

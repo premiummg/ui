@@ -1,2 +1,2 @@
 export { MediaCard } from './MediaCard';
-export type { MediaCardProps } from './MediaCard';
+export type { MediaCardProps, MediaCardAspect } from './MediaCard';

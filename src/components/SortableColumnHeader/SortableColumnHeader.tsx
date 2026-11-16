@@ -15,7 +15,7 @@ export function SortableColumnHeader({ col, label, sortBy, sortDir, onSort, clas
   const active = sortBy === col;
   return (
     <th className={`px-4 py-3 ${className}`}>
-      <button
+      <button type="button"
         onClick={() => onSort(col)}
         className={`inline-flex items-center gap-1 pmg-eyebrow transition ${active ? 'text-(--premium-red)' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
       >

@@ -38,4 +38,11 @@ describe('IconButton', () => {
     await userEvent.click(screen.getByRole('button'));
     expect(onClick).not.toHaveBeenCalled();
   });
+  test('grows to a size a finger can hit on a touch screen, and keeps its own size for a mouse', () => {
+    render(<><IconButton aria-label="small">x</IconButton><IconButton aria-label="medium" size="md">x</IconButton></>);
+    expect(screen.getByRole('button', { name: 'small' }).className).toContain('pointer-coarse:min-h-11');
+    expect(screen.getByRole('button', { name: 'small' }).className).toContain('p-1.5');
+    expect(screen.getByRole('button', { name: 'medium' }).className).toContain('pointer-coarse:h-11');
+    expect(screen.getByRole('button', { name: 'medium' }).className).toContain('w-9');
+  });
 });

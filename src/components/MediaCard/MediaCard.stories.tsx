@@ -66,3 +66,21 @@ export const Grid: Story = {
     );
   },
 };
+
+export const ServiceTile: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <MediaCard
+        imageSrc={PLACEHOLDER}
+        imageAlt="Firestopped penetrations"
+        title="Firestopping"
+        aspect="wide"
+        tag="02"
+        href="#firestopping"
+        footer={<span className="font-heading font-bold text-sm text-(--premium-red-dark)">Learn more</span>}
+      >
+        UL-certified systems at every penetration through a rated assembly.
+      </MediaCard>
+    </div>
+  ),
+};

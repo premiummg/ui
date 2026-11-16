@@ -42,7 +42,7 @@ export function NewsTicker({ items, label = 'Latest News', onItemClick, classNam
       <span className="shrink-0 whitespace-nowrap px-4 py-3 pmg-eyebrow text-white bg-(--premium-red)">
         {label}
       </span>
-      <div className="relative flex-1 overflow-hidden">
+      <div className="news-ticker-viewport relative flex-1 overflow-hidden">
         <div
           className="news-ticker-track flex w-max gap-10 whitespace-nowrap py-3 pl-6"
           // 30s per item keeps a constant scroll speed at any item count - a
@@ -60,7 +60,9 @@ export function NewsTicker({ items, label = 'Latest News', onItemClick, classNam
             }`;
             const handleClick = onItemClick ? () => onItemClick(item) : undefined;
             return (
-              <div key={`${item.id}-${i}`} className="flex items-center gap-3">
+              // Only the first run of the list is real: the rest exist to make the loop seamless, so they are hidden from
+              // screen readers and the keyboard (they used to repeat every headline, and every link, a dozen times).
+              <div key={`${item.id}-${i}`} className="flex items-center gap-3" {...(i >= items.length ? { 'aria-hidden': true, inert: true } : {})}>
                 {item.href ? (
                   <a href={item.href} target="_blank" rel="noopener noreferrer" onClick={handleClick} className={linkClassName}>
                     {item.title}

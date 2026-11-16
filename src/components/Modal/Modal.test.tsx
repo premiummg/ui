@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { Modal } from './Modal';
+import { usePopover } from '../../hooks/usePopover';
 
 describe('Modal', () => {
   test('renders children', () => {
@@ -144,6 +145,41 @@ describe('Modal', () => {
     await userEvent.keyboard('{Escape}');
     await userEvent.click(container.firstChild as Element);
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  test('Escape closes an open popover inside the modal and leaves the modal (and its form) open', async () => {
+    function WithPopover() {
+      const { open, setOpen } = usePopover();
+      return (
+        <div>
+          <button onClick={() => setOpen(true)}>open picker</button>
+          {open && <div>picker list</div>}
+        </div>
+      );
+    }
+    const onClose = vi.fn();
+    render(<Modal onClose={onClose}><WithPopover /></Modal>);
+    await userEvent.click(screen.getByText('open picker'));
+    expect(screen.getByText('picker list')).toBeInTheDocument();
+
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByText('picker list')).not.toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
+
+    // with nothing left open, the next Escape is the modal's own
+    await userEvent.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  test('the page behind does not scroll while a modal is open, and is released when the last one closes', () => {
+    document.body.style.overflow = '';
+    const first = render(<Modal onClose={() => {}}>one</Modal>);
+    expect(document.body.style.overflow).toBe('hidden');
+    const second = render(<Modal onClose={() => {}}>two</Modal>);
+    first.unmount();
+    expect(document.body.style.overflow).toBe('hidden');
+    second.unmount();
+    expect(document.body.style.overflow).toBe('');
   });
 
   test('the overlay scrolls, so a modal taller than the screen can still be reached', () => {

@@ -9,7 +9,7 @@ describe('Navbar', () => {
         <button>Sign out</button>
       </Navbar>,
     );
-    expect(screen.getByAltText('Premium Management Group')).toBeInTheDocument();
+    expect(screen.getAllByAltText('Premium Management Group')[0]).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
   });
 
@@ -54,6 +54,6 @@ describe('Navbar', () => {
 
   test('renders with no children at all', () => {
     render(<Navbar />);
-    expect(screen.getByAltText('Premium Management Group')).toBeInTheDocument();
+    expect(screen.getAllByAltText('Premium Management Group')[0]).toBeInTheDocument();
   });
 });

@@ -12,13 +12,11 @@ export function useDarkMode() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (isDark) {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    root.classList.toggle('dark', isDark);
+    // A blocked or full storage must not crash the toggle: the choice just lasts until the page is closed.
+    try {
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    } catch {}
   }, [isDark]);
 
   return { isDark, toggle: () => setIsDark(d => !d) };

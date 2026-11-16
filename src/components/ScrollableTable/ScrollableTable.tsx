@@ -30,7 +30,7 @@ const FADE_V = 'pointer-events-none absolute top-0 bottom-0 w-16 z-10';
 // it's the other way around: a real, brand-red scrollbar is the familiar,
 // always-grabbable affordance, and the fade/chevron overlay is hidden so the
 // two don't double up.
-export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children, dragToScroll = false }: ScrollableTableProps) {
+export function ScrollableTable({ maxHeight = 'max(240px, calc(100dvh - 320px))', children, dragToScroll = false }: ScrollableTableProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [s, setS] = useState({ left: false, right: false, up: false, down: false });
   // Plain refs, not state - a drag fires pointermove dozens of times a
@@ -120,7 +120,7 @@ export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children, d
       {s.left && (
         <div className="contents pmg-touch-scroll-hint">
           <div className={`${FADE_V} left-0 bg-linear-to-r from-white dark:from-(--premium-dark-grey) to-transparent`} />
-          <button onClick={() => ref.current?.scrollBy({ left: -200, behavior: 'smooth' })} className={`${BTN} left-2 top-1/2 -translate-y-1/2`}>
+          <button type="button" onClick={() => ref.current?.scrollBy({ left: -200, behavior: 'smooth' })} className={`${BTN} left-2 top-1/2 -translate-y-1/2`}>
             <FiChevronLeft size={14} />
           </button>
         </div>
@@ -128,7 +128,7 @@ export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children, d
       {s.right && (
         <div className="contents pmg-touch-scroll-hint">
           <div className={`${FADE_V} right-0 bg-linear-to-l from-white dark:from-(--premium-dark-grey) to-transparent`} />
-          <button onClick={() => ref.current?.scrollBy({ left: 200, behavior: 'smooth' })} className={`${BTN} right-2 top-1/2 -translate-y-1/2`}>
+          <button type="button" onClick={() => ref.current?.scrollBy({ left: 200, behavior: 'smooth' })} className={`${BTN} right-2 top-1/2 -translate-y-1/2`}>
             <FiChevronRight size={14} />
           </button>
         </div>
@@ -136,7 +136,7 @@ export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children, d
       {s.up && (
         <div className="contents pmg-touch-scroll-hint">
           <div className={`${FADE_H} top-0 bg-linear-to-b from-white dark:from-(--premium-dark-grey) to-transparent`} />
-          <button onClick={() => ref.current?.scrollBy({ top: -150, behavior: 'smooth' })} className={`${BTN} top-2 left-1/2 -translate-x-1/2`}>
+          <button type="button" onClick={() => ref.current?.scrollBy({ top: -150, behavior: 'smooth' })} className={`${BTN} top-2 left-1/2 -translate-x-1/2`}>
             <FiChevronUp size={14} />
           </button>
         </div>
@@ -144,7 +144,7 @@ export function ScrollableTable({ maxHeight = 'calc(100vh - 320px)', children, d
       {s.down && (
         <div className="contents pmg-touch-scroll-hint">
           <div className={`${FADE_H} bottom-0 bg-linear-to-t from-white dark:from-(--premium-dark-grey) to-transparent`} />
-          <button onClick={() => ref.current?.scrollBy({ top: 150, behavior: 'smooth' })} className={`${BTN} bottom-2 left-1/2 -translate-x-1/2`}>
+          <button type="button" onClick={() => ref.current?.scrollBy({ top: 150, behavior: 'smooth' })} className={`${BTN} bottom-2 left-1/2 -translate-x-1/2`}>
             <FiChevronDown size={14} />
           </button>
         </div>
