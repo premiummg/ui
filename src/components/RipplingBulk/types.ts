@@ -35,6 +35,9 @@ export interface RipplingBulkFillRow {
   employee_id: string;
   employee_name: string;
   fields: Record<string, string>;
+  // Rippling has this person terminated and they are still active in the app. Applying the row deactivates them (there is
+  // nothing to fill for them). It is not selected by default: deactivating is the one thing here that is not a fill.
+  terminated?: boolean;
 }
 
 export interface RipplingBulkFillPreview {

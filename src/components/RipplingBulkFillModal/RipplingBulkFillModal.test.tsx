@@ -133,4 +133,80 @@ describe('RipplingBulkFillModal', () => {
       expect(container.querySelector('img')).toBeNull();
     });
   });
+  describe('a person Rippling has terminated', () => {
+    const WITH_TERMINATED: RipplingBulkFillPreview = {
+      rows: [
+        { employee_id: 'e1', employee_name: 'Ana Ruiz', fields: { phone: '506-555-0100' } },
+        { employee_id: 'e3', employee_name: 'Carla Gomez', fields: {}, terminated: true },
+      ],
+      failed: 0, total: 2, truncated: 0,
+    };
+    const deactivationLabels: RipplingBulkFillModalLabels = {
+      ...labels,
+      terminatedNote: 'Terminated in Rippling. Will be deactivated',
+      applyWithDeactivations: (filled, deactivated) => `Fill ${filled} and deactivate ${deactivated}`,
+      resultDeactivated: (n) => `${n} deactivated`,
+    };
+
+    test('is listed with its own notice, and is NOT selected until the admin ticks it', async () => {
+      renderModal({ loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED), labels: deactivationLabels });
+      expect(await screen.findByText('Carla Gomez')).toBeInTheDocument();
+      expect(screen.getByText('Terminated in Rippling. Will be deactivated')).toBeInTheDocument();
+      const boxes = screen.getAllByRole('checkbox');
+      // [select all, Ana, Carla]: Ana (a fill) starts selected, Carla (a deactivation) does not
+      expect(boxes[1]).toBeChecked();
+      expect(boxes[2]).not.toBeChecked();
+      expect(screen.getByRole('button', { name: 'Fill 1 selected' })).toBeInTheDocument();
+    });
+
+    test('ticking it changes the button to say what will be deactivated, and only then are they sent', async () => {
+      const props = renderModal({
+        loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED),
+        onApply: vi.fn().mockResolvedValue({
+          filled: [
+            { employee_id: 'e1', employee_name: 'Ana Ruiz', fields: ['phone'] },
+            { employee_id: 'e3', employee_name: 'Carla Gomez', fields: ['deactivated'] },
+          ],
+          skipped: [],
+        }),
+        labels: deactivationLabels,
+      });
+      await screen.findByText('Carla Gomez');
+      await userEvent.click(screen.getAllByRole('checkbox')[2]);
+      await userEvent.click(screen.getByRole('button', { name: 'Fill 1 and deactivate 1' }));
+      await waitFor(() => expect(props.onApply).toHaveBeenCalledWith(['e1', 'e3']));
+    });
+
+    test('without ticking it, a fill never sends them', async () => {
+      const props = renderModal({ loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED), labels: deactivationLabels });
+      await screen.findByText('Carla Gomez');
+      await userEvent.click(screen.getByRole('button', { name: 'Fill 1 selected' }));
+      await waitFor(() => expect(props.onApply).toHaveBeenCalledWith(['e1']));
+    });
+
+    test('the result says who was filled and who was deactivated', async () => {
+      renderModal({
+        loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED),
+        onApply: vi.fn().mockResolvedValue({
+          filled: [
+            { employee_id: 'e1', employee_name: 'Ana Ruiz', fields: ['phone'] },
+            { employee_id: 'e3', employee_name: 'Carla Gomez', fields: ['deactivated'] },
+          ],
+          skipped: [{ employee_id: 'e9', code: 'not_linked' }],
+        }),
+        labels: deactivationLabels,
+      });
+      await screen.findByText('Carla Gomez');
+      await userEvent.click(screen.getAllByRole('checkbox')[2]);
+      await userEvent.click(screen.getByRole('button', { name: /deactivate/ }));
+      expect(await screen.findByText(/1 filled · 1 deactivated/)).toBeInTheDocument();
+    });
+
+    test('an app that does not give the new words still shows the notice and fills as before', async () => {
+      renderModal({ loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED) });
+      await screen.findByText('Carla Gomez');
+      expect(screen.getByText(/Terminated in Rippling/)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Fill 1 selected' })).toBeInTheDocument();
+    });
+  });
 });

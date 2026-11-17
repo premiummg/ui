@@ -27,6 +27,12 @@ export interface RipplingBulkFillModalLabels {
   // Said when some photos were left for another time. Without it nothing is said.
   photosPending?: (n: number) => string;
   fillError: string;
+  // For a person Rippling has terminated (see RipplingBulkFillRow.terminated). All optional: an app that does not give
+  // them gets plain English defaults for the first and the button/result of a fill for the others.
+  terminatedNote?: string;
+  // The button when somebody to deactivate is selected: how many are filled and how many deactivated.
+  applyWithDeactivations?: (filled: number, deactivated: number) => string;
+  resultDeactivated?: (n: number) => string;
 }
 
 export interface RipplingBulkFillModalProps {
@@ -46,6 +52,14 @@ export interface RipplingBulkFillModalProps {
 // The single-employee "Fill missing info from Rippling" for everyone linked at
 // once. A field filled in since the preview was shown is never overwritten,
 // because the app recomputes what is missing when it applies.
+// What the result says was done: what was filled, and apart from it who was deactivated (when the app gives the words).
+function resultLines(result: RipplingBulkFillResult, t: RipplingBulkFillModalLabels): string {
+  const deactivated = result.filled.filter((f) => f.fields.includes('deactivated')).length;
+  if (deactivated === 0 || !t.resultDeactivated) return t.resultFilled(result.filled.length);
+  const filled = result.filled.length - deactivated;
+  return filled > 0 ? `${t.resultFilled(filled)} · ${t.resultDeactivated(deactivated)}` : t.resultDeactivated(deactivated);
+}
+
 export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFilled, onClose, errorMessage, labels: t }: RipplingBulkFillModalProps) {
   const { toast } = useToast();
   const [data, setData] = useState<RipplingBulkFillPreview | null>(null);
@@ -61,7 +75,8 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
     loadPreview()
       .then((res) => {
         setData(res);
-        selection.reset(res.rows.map((r) => r.employee_id));
+        // Deactivating somebody is not a fill: those rows start unselected, and the admin ticks them on purpose.
+        selection.reset(res.rows.filter((r) => !r.terminated).map((r) => r.employee_id));
       })
       .catch(() => setLoadFailed(true))
       .finally(() => setLoading(false));
@@ -74,6 +89,9 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
   const rowIds = useMemo(() => rows.map((r) => r.employee_id), [rows]);
   const allSelected = rows.length > 0 && rows.every((r) => selection.selected.has(r.employee_id));
   const nameById = useMemo(() => new Map(rows.map((r) => [r.employee_id, r.employee_name])), [rows]);
+  const selectedRows = rows.filter((r) => selection.selected.has(r.employee_id));
+  const deactivateCount = selectedRows.filter((r) => r.terminated).length;
+  const fillCount = selectedRows.length - deactivateCount;
 
   async function handleFill() {
     const ids = rows.filter((r) => selection.selected.has(r.employee_id)).map((r) => r.employee_id);
@@ -84,7 +102,8 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
       setResult(res);
       onFilled();
       if (res.skipped.length === 0 && !res.photos_pending?.length) {
-        toast(t.resultFilled(res.filled.length), 'success');
+        const deactivated = res.filled.filter((f) => f.fields.includes('deactivated')).length;
+        toast(deactivated > 0 && deactivated === res.filled.length && t.resultDeactivated ? t.resultDeactivated(deactivated) : t.resultFilled(res.filled.length), 'success');
         onClose();
       }
     } catch (err) {
@@ -106,7 +125,7 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
         {data && result && (
           <div className="space-y-3 py-2">
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              {t.resultFilled(result.filled.length)}
+              {resultLines(result, t)}
               {result.skipped.length > 0 && <> · {t.resultSkipped(result.skipped.length)}</>}
             </p>
             {!!result.photos_pending?.length && t.photosPending && (
@@ -148,7 +167,12 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
                         <span className="min-w-0 flex-1">
                           <span className="block text-sm font-medium text-gray-900 dark:text-gray-100">
                             {row.employee_name}
-                            <span className="ml-2 text-xs font-normal text-gray-400">{t.fieldsCount(entries.length)}</span>
+                            {row.terminated ? (
+                              // Not a fill: said in red, so it is not mistaken for one.
+                              <span className="ml-2 text-xs font-semibold text-red-600 dark:text-red-400">{t.terminatedNote ?? 'Terminated in Rippling. Will be deactivated here'}</span>
+                            ) : (
+                              <span className="ml-2 text-xs font-normal text-gray-400">{t.fieldsCount(entries.length)}</span>
+                            )}
                           </span>
                           <span className="mt-1 grid grid-cols-1 gap-x-6 gap-y-0.5 sm:grid-cols-2">
                             {entries.map(([field, value]) => (
@@ -174,7 +198,7 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
             <div className="mt-6 flex gap-2">
               {rows.length > 0 && (
                 <Button onClick={handleFill} disabled={applying || selection.selected.size === 0} className="flex-1 justify-center">
-                  {applying ? t.filling : t.fill(selection.selected.size)}
+                  {applying ? t.filling : deactivateCount > 0 && t.applyWithDeactivations ? t.applyWithDeactivations(fillCount, deactivateCount) : t.fill(selection.selected.size)}
                 </Button>
               )}
               <Button variant="secondary" onClick={onClose} disabled={applying} className={rows.length > 0 ? 'flex-1 justify-center' : 'w-full justify-center'}>
