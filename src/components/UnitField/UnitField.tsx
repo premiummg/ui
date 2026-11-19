@@ -14,10 +14,10 @@ export interface UnitFieldProps {
   // something else" behavior for any other closed-but-extensible list.
   options?: string[];
   // Displays every option (and the typed-custom value) title-cased, without
-  // changing the stored value itself: for a list of options stored lowercase
-  // (like role or status) that should read as normal words. Off by default,
-  // since the default list is abbreviations (kg, ft, gal) that read oddly
-  // capitalized.
+  // changing the stored value itself ("pcs" is stored, "Pcs" is shown). On by
+  // default, as the screens of the apps were built around it (it was off for a
+  // few versions, and "Pcs/Boxes" read as "pcs/boxes" there). Pass false for a
+  // list that must show exactly as stored.
   capitalize?: boolean;
   // Text overrides - e.g. translated copy for a localized consumer. Each
   // defaults to the English copy.
@@ -35,7 +35,7 @@ const TEXT = {
 };
 
 export function UnitField({
-  value, onChange, className, disabled, options = DEFAULT_UNIT_OPTIONS, capitalize = false,
+  value, onChange, className, disabled, options = DEFAULT_UNIT_OPTIONS, capitalize = true,
   typeLabel: typeIn, backLabel: backIn, otherLabel: otherIn,
 }: UnitFieldProps) {
   const tx = useUiText(TEXT);
