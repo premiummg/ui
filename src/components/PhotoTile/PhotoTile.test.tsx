@@ -26,4 +26,11 @@ describe('PhotoTile', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
+  test('with onClick and no href it is a button, and the click is not dropped', async () => {
+    const onClick = vi.fn();
+    render(<PhotoTile imageSrc="/a.jpg" imageAlt="a" title="t" onClick={onClick} />);
+    await userEvent.click(screen.getByRole('button'));
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
 });

@@ -6,8 +6,9 @@ import { useState, useEffect } from 'react';
 // falling back to `prefers-color-scheme` - this hook only tracks and flips
 // it from then on, and persists the choice back to `localStorage` itself.
 export function useDarkMode() {
+  // No document while a page is rendered ahead of time (prerender, SSR): light until the browser takes over.
   const [isDark, setIsDark] = useState(
-    () => document.documentElement.classList.contains('dark'),
+    () => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'),
   );
 
   useEffect(() => {

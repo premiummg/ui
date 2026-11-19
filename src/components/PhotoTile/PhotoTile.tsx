@@ -12,7 +12,8 @@ export interface PhotoTileProps {
   // `md` up - one lead photo among smaller ones. The grid sets the row height.
   size?: 'default' | 'feature';
   // Given, the tile is a real link (a project's own page); `onClick` then
-  // stands in for a plain click, the hook for a client-side router.
+  // stands in for a plain click, the hook for a client-side router. With
+  // `onClick` and no `href`, the tile is a button.
   href?: string;
   onClick?: () => void;
   className?: string;
@@ -53,6 +54,14 @@ export function PhotoTile({ imageSrc, imageAlt, eyebrow, title, size = 'default'
       <a href={href} onClick={handleClick} className={shell}>
         <figure className="m-0 absolute inset-0">{inner}</figure>
       </a>
+    );
+  }
+  // An `onClick` with no `href` (open the photo in a viewer, say) makes the tile a button: it used to be dropped.
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={`${shell} w-full p-0 text-left cursor-pointer`}>
+        <figure className="m-0 absolute inset-0">{inner}</figure>
+      </button>
     );
   }
   return <figure className={`m-0 ${shell}`}>{inner}</figure>;
