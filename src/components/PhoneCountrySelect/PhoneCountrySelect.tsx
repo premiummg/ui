@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { createPortal } from 'react-dom';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 const PANEL_WIDTH = 224; // w-56
 const VIEWPORT_MARGIN = 8;
@@ -71,6 +72,8 @@ export function PhoneCountrySelect({ value, onChange, options, disabled, readOnl
   const triggerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   useOutsideClick(triggerRef, panelRef, () => setOpen(false));
+  // Escape closes the list only, not the Modal the form is in.
+  useEscapeToClose(open, () => setOpen(false));
 
   useLayoutEffect(() => {
     if (!open) return;

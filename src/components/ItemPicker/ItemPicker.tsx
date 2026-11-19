@@ -1,6 +1,6 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { usePopover } from '../../hooks/usePopover';
 import { useUiText } from '../../lib/i18n';
 import { IconButton } from '../IconButton';
 import { Input } from '../Input';
@@ -38,9 +38,12 @@ export function ItemPicker<T>({
 }: ItemPickerProps<T>) {
   const tx = useUiText(TEXT);
   const [query, setQuery] = useState('');
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  useOutsideClick(containerRef, () => setOpen(false), open);
+  // usePopover, like SearchPicker: Escape closes the list and nothing else (inside a Modal it used to close the whole
+  // dialog and lose what was picked there), and a click outside closes it too.
+  const { open, setOpen, ref: containerRef } = usePopover<HTMLDivElement>();
+  // After the chip is cleared its button unmounts and the box takes its place: focus goes to the box, or a keyboard user
+  // is left on the page body.
+  const [focusBox, setFocusBox] = useState(false);
 
   const trimmed = query.trim().toLowerCase();
   const filtered = trimmed ? items.filter(item => matches(item, trimmed)) : items;
@@ -55,7 +58,7 @@ export function ItemPicker<T>({
     return (
       <div className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-(--premium-red) bg-red-50/30 dark:bg-red-900/10">
         {renderSelected(selected)}
-        <IconButton onClick={() => { onSelect(null); setQuery(''); }} aria-label={clearSelectionLabel ?? tx.clearSelection}>
+        <IconButton onClick={() => { setFocusBox(true); onSelect(null); setQuery(''); }} aria-label={clearSelectionLabel ?? tx.clearSelection}>
           <FiX size={14} />
         </IconButton>
       </div>
@@ -69,11 +72,14 @@ export function ItemPicker<T>({
         <Input
           type="text"
           value={query}
+          autoFocus={focusBox}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
-          onFocus={() => setOpen(true)}
+          // Used once: a form reset later must not have the box take the focus (and open the list) on its own.
+          onFocus={() => { setOpen(true); setFocusBox(false); }}
           placeholder={searchPlaceholder}
           aria-label={searchPlaceholder}
-          className="flex-1 min-w-0 bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+          // text-base: iOS Safari zooms in on a text input under 16px when it gets focus (the row above is text-sm).
+          className="flex-1 min-w-0 bg-transparent outline-none text-base text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
         />
         {query && (
           <button type="button" onClick={() => setQuery('')} aria-label={clearQueryLabel ?? tx.clearQuery} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">

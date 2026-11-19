@@ -70,6 +70,25 @@ describe('AnnouncementGate', () => {
     expect(send).toHaveFocus();
   });
 
+  test('a message that only asks to be acknowledged takes the focus, and keeps it from the page behind', async () => {
+    const behind = vi.fn();
+    render(
+      <div>
+        <button onClick={behind}>page behind</button>
+        <AnnouncementGate queue={[item({ requires_reply: false })]} onRespond={vi.fn()} labels={labels} />
+      </div>,
+    );
+    const gotIt = screen.getByRole('button', { name: 'Got it' });
+    expect(gotIt).toHaveFocus();
+    // Focus pushed onto the page behind comes straight back.
+    screen.getByRole('button', { name: 'page behind' }).focus();
+    expect(gotIt).toHaveFocus();
+    await userEvent.tab();
+    expect(gotIt).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    expect(behind).not.toHaveBeenCalled();
+  });
+
   test('says it is a group message and names the recipients when there are several', () => {
     render(
       <AnnouncementGate

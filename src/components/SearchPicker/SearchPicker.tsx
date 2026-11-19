@@ -97,7 +97,8 @@ export function SearchPicker({ groups, placeholder, emptyText: emptyIn, clearLab
         <input
           value={query}
           autoFocus={focusBox}
-          onFocus={() => setOpen(true)}
+          // Used once: a form reset later must not have the box take the focus (and open the list) on its own.
+          onFocus={() => { setOpen(true); setFocusBox(false); }}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           placeholder={placeholder}
           // text-base overrides the text-sm this inherits from the row

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, test, vi } from 'vitest';
@@ -52,6 +53,34 @@ describe('ItemPicker', () => {
   test('speaks French inside the provider', () => {
     render(<UiLangProvider lang="fr"><Picker selected={PROJECTS[0]} placeholder="Chercher" /></UiLangProvider>);
     expect(screen.getByRole('button', { name: 'Effacer la sélection' })).toBeTruthy();
+  });
+
+  test('Escape closes the list and is not passed on, so a Modal around it stays open', async () => {
+    const outer = vi.fn();
+    document.addEventListener('keydown', outer);
+    render(<Picker />);
+    await userEvent.click(screen.getByPlaceholderText('Search projects'));
+    expect(screen.getByText(/School gym/)).toBeTruthy();
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByText(/School gym/)).toBeNull();
+    // Modal closes on an Escape that nobody handled: this one arrives already handled.
+    expect(outer.mock.calls.every(([e]) => (e as KeyboardEvent).defaultPrevented)).toBe(true);
+    document.removeEventListener('keydown', outer);
+  });
+
+  test('after clearing the chosen item, the search box has the focus', async () => {
+    function Controlled() {
+      const [p, setP] = useState<Project | null>(PROJECTS[0]);
+      return <Picker selected={p} onSelect={setP} />;
+    }
+    render(<Controlled />);
+    await userEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
+    expect(document.activeElement).toBe(screen.getByPlaceholderText('Search projects'));
+  });
+
+  test('the search box is 16px, so iOS does not zoom in on it', () => {
+    render(<Picker />);
+    expect(screen.getByPlaceholderText('Search projects').className).toMatch(/\btext-base\b/);
   });
 
   test('clears the typed text', async () => {

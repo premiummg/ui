@@ -1,5 +1,5 @@
 import { FiAlertCircle } from 'react-icons/fi';
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Avatar } from '../Avatar';
 
 // A work date is a calendar day, not an instant: `new Date('2026-11-13')` is midnight UTC, which a person west of
@@ -110,8 +110,30 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
   const [error, setError] = useState('');
   const id = useId();
   const gateRef = useRef<HTMLDivElement>(null);
+  const actionRef = useRef<HTMLButtonElement>(null);
 
   const current = queue[0];
+  const currentId = current?.id;
+  // The Tab trap below only works once the focus is inside. A message with a reply box got there through the box's
+  // autoFocus; one that only asks to be acknowledged had nothing taking the focus, so it stayed on the page behind and
+  // Tab, Enter and the keyboard went on working it. So: each message takes the focus (on its button when there is no
+  // box), and focus that ends up outside the gate (a click on something behind it, a script) is brought back.
+  useEffect(() => {
+    if (!currentId) return;
+    const gate = gateRef.current;
+    if (gate && !gate.contains(document.activeElement)) {
+      (gate.querySelector<HTMLElement>('textarea') ?? actionRef.current)?.focus();
+    }
+    const keepInside = (e: FocusEvent) => {
+      const g = gateRef.current;
+      if (g && e.target instanceof Node && !g.contains(e.target)) {
+        (g.querySelector<HTMLElement>('textarea') ?? actionRef.current)?.focus();
+      }
+    };
+    document.addEventListener('focusin', keepInside);
+    return () => document.removeEventListener('focusin', keepInside);
+  }, [currentId]);
+
   if (!current) return null;
 
   async function submit() {
@@ -266,6 +288,7 @@ export function AnnouncementGate({ queue, onRespond, labels: t }: AnnouncementGa
             {error && <p className="mb-3 text-sm" style={{ color: 'var(--premium-red)' }}>{error}</p>}
 
             <button type="button"
+              ref={actionRef}
               onClick={submit}
               disabled={sending}
               className="btn-primary w-full py-2.5 text-sm disabled:opacity-60"

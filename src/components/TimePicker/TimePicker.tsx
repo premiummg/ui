@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useLayoutEffect, RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { FiClock, FiX } from 'react-icons/fi';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
+import { useEscapeToClose } from '../../hooks/useEscapeToClose';
 
 // A brand-matched replacement for the native `<input type="time">` - same
 // reason DatePicker.tsx exists for dates: the native widget can't be
@@ -343,6 +344,8 @@ export function TimePicker({
   const containerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const pos = usePanelPosition(containerRef, open);
+  // Escape closes the wheel only, not the Modal the form is in.
+  useEscapeToClose(open, () => setOpen(false));
 
   // Not this package's own useOutsideClick/usePopover here: those only take
   // one ref, and the panel is no longer a DOM descendant of containerRef
