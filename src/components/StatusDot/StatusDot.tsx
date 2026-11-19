@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 export interface StatusDotProps {
   // Access to this app.
   active: boolean;
@@ -21,15 +22,22 @@ export interface StatusDotProps {
 
 // Tiny at-a-glance state marker for list rows. Colour alone is never the whole
 // story - the title gives the same information on hover.
+const TEXT = {
+  en: { inactive: 'Inactive: no access to this app', deactivated: 'Deactivated across all Premium apps: cannot sign in', active: 'Active' },
+  fr: { inactive: 'Inactif : aucun accès à cette application', deactivated: 'Désactivé dans toutes les applications Premium : connexion impossible', active: 'Actif' },
+};
+
 export function StatusDot({
   active,
   identityActive,
   className = '',
   variant = 'inline',
-  inactiveLabel = 'Inactive - no access to this app',
-  deactivatedLabel = 'Deactivated across all Premium apps - cannot sign in',
-  activeLabel = 'Active',
+  inactiveLabel: inactiveIn,
+  deactivatedLabel: deactivatedIn,
+  activeLabel: activeIn,
 }: StatusDotProps) {
+  const tx = useUiText(TEXT);
+  const inactiveLabel = inactiveIn ?? tx.inactive, deactivatedLabel = deactivatedIn ?? tx.deactivated, activeLabel = activeIn ?? tx.active;
   const globallyOff = identityActive === false;
   const color = !active
     ? 'bg-gray-300 dark:bg-[#4A4A4A]'

@@ -69,3 +69,26 @@ describe('NotificationBell', () => {
     expect(screen.queryByText('No notifications')).not.toBeInTheDocument();
   });
 });
+
+describe('NotificationBell close, badge tone and trigger title', () => {
+  test('a function child gets close, which shuts the panel', async () => {
+    render(
+      <NotificationBell icon={FiBell} label="Pending" title="Pending review">
+        {(close) => <button onClick={close}>Go</button>}
+      </NotificationBell>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Pending' }));
+    await userEvent.click(screen.getByText('Go'));
+    expect(screen.queryByText('Go')).not.toBeInTheDocument();
+  });
+
+  test('the red tone paints the badge brand red, and the trigger carries a title', () => {
+    render(
+      <NotificationBell icon={FiBell} label="Notifications" title="Notifications" count={3} badgeTone="red" triggerTitle="3 unread">
+        <NotificationBellEmpty>none</NotificationBellEmpty>
+      </NotificationBell>,
+    );
+    expect(screen.getByText('3').getAttribute('style')).toContain('--premium-red');
+    expect(screen.getByRole('button', { name: 'Notifications' }).getAttribute('title')).toBe('3 unread');
+  });
+});

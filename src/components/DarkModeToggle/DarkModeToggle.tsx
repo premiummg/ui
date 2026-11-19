@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { FiSun, FiMoon } from 'react-icons/fi';
 
 export interface DarkModeToggleProps {
@@ -17,7 +18,11 @@ export interface DarkModeToggleProps {
 // here taking its state as props instead of owning it.
 // aria-pressed tells a screen reader whether dark mode is on, and the icon is
 // grey-600 (not 400) so it clears the 3:1 that an icon-only control needs.
-export function DarkModeToggle({ isDark, onToggle, size = 16, className = '', ariaLabel = 'Toggle dark mode' }: DarkModeToggleProps) {
+const TEXT = { en: { toggle: 'Toggle dark mode' }, fr: { toggle: 'Basculer le mode sombre' } };
+
+export function DarkModeToggle({ isDark, onToggle, size = 16, className = '', ariaLabel: ariaIn }: DarkModeToggleProps) {
+  const tx = useUiText(TEXT);
+  const ariaLabel = ariaIn ?? tx.toggle;
   return (
     <button
       type="button"

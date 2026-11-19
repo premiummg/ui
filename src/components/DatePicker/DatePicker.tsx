@@ -1,3 +1,4 @@
+import { useUiText, useUiLocale } from '../../lib/i18n';
 import { useState, useMemo } from 'react';
 import {
   format, startOfMonth, startOfWeek, addDays, addMonths, subMonths,
@@ -50,10 +51,20 @@ function yearPageStart(year: number) {
   return Math.floor(year / YEARS_PER_PAGE) * YEARS_PER_PAGE;
 }
 
+const TEXT = {
+  en: { select: 'Select date', clear: 'Clear', today: 'Today', unavailable: 'Already submitted' },
+  fr: { select: 'Sélectionner une date', clear: 'Effacer', today: "Aujourd'hui", unavailable: 'Déjà soumis' },
+};
+
 export function DatePicker({
-  value, onChange, disabled, placeholder = 'Select date', id, className = '', maxDate, minDate, unavailableDates,
-  locale, clearLabel = 'Clear', todayLabel = 'Today', unavailableTitle = 'Already submitted',
+  value, onChange, disabled, placeholder: placeholderIn, id, className = '', maxDate, minDate, unavailableDates,
+  locale: localeIn, clearLabel: clearIn, todayLabel: todayIn, unavailableTitle: unavailableIn,
 }: DatePickerProps) {
+  const tx = useUiText(TEXT);
+  const uiLocale = useUiLocale();
+  const locale = localeIn ?? uiLocale;
+  const placeholder = placeholderIn ?? tx.select;
+  const clearLabel = clearIn ?? tx.clear, todayLabel = todayIn ?? tx.today, unavailableTitle = unavailableIn ?? tx.unavailable;
   const [view, setView] = useState<View>('days');
   const dayLabels = useMemo(
     () => Array.from({ length: 7 }, (_, i) => format(addDays(startOfWeek(new Date(2024, 0, 7)), i), 'EEE', { locale }).slice(0, 2)),

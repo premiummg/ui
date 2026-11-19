@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useUiText } from '../../lib/i18n';
 
 export const DEFAULT_UNIT_OPTIONS = ['pcs', 'boxes', 'bags', 'rolls', 'sheets', 'lbs', 'kg', 'ft', 'gal', 'hrs'];
 const OTHER_SENTINEL = '__other__';
@@ -13,10 +14,10 @@ export interface UnitFieldProps {
   // something else" behavior for any other closed-but-extensible list.
   options?: string[];
   // Displays every option (and the typed-custom value) title-cased, without
-  // changing the stored value itself - for a list of options stored
-  // lowercase (like role/status elsewhere) that should still read as normal
-  // words rather than shouting or all-lowercase. Defaults on; pass `false`
-  // for a list of abbreviations (kg, ft, gal) that read oddly capitalized.
+  // changing the stored value itself: for a list of options stored lowercase
+  // (like role or status) that should read as normal words. Off by default,
+  // since the default list is abbreviations (kg, ft, gal) that read oddly
+  // capitalized.
   capitalize?: boolean;
   // Text overrides - e.g. translated copy for a localized consumer. Each
   // defaults to the English copy.
@@ -28,10 +29,17 @@ export interface UnitFieldProps {
 // A <select> that also accepts a value outside its own list: picking "Other…"
 // swaps it for a plain text input (auto-focused), with a "back to list"
 // button that returns to the dropdown - value isn't lost, just re-typed.
+const TEXT = {
+  en: { type: 'Type unit…', back: 'Back to list', other: 'Other…' },
+  fr: { type: 'Saisir une unité…', back: 'Retour à la liste', other: 'Autre…' },
+};
+
 export function UnitField({
-  value, onChange, className, disabled, options = DEFAULT_UNIT_OPTIONS, capitalize = true,
-  typeLabel = 'Type unit…', backLabel = 'Back to list', otherLabel = 'Other…',
+  value, onChange, className, disabled, options = DEFAULT_UNIT_OPTIONS, capitalize = false,
+  typeLabel: typeIn, backLabel: backIn, otherLabel: otherIn,
 }: UnitFieldProps) {
+  const tx = useUiText(TEXT);
+  const typeLabel = typeIn ?? tx.type, backLabel = backIn ?? tx.back, otherLabel = otherIn ?? tx.other;
   const [justPickedOther, setJustPickedOther] = useState(false);
   const isCustom = justPickedOther || (value !== '' && !options.includes(value));
   const fieldClassName = `${className ?? ''} ${capitalize ? 'capitalize' : ''}`.trim();
@@ -70,6 +78,9 @@ export function UnitField({
       className={fieldClassName}
       disabled={disabled}
     >
+      {/* While nothing is chosen there is a blank option to land on: without it the browser shows the first unit as if it
+          were selected while the value is still empty. */}
+      {value === '' && <option value="" />}
       {options.map(u => <option key={u} value={u}>{u}</option>)}
       <option value={OTHER_SENTINEL}>{otherLabel}</option>
     </select>

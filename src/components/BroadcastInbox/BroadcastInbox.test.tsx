@@ -57,6 +57,25 @@ describe('BroadcastInbox', () => {
     expect(screen.queryByText('Confirm your hours')).not.toBeInTheDocument();
   });
 
+  test('with fetchFeedback, the Feedback tab lists its own page, apart from the other lists', async () => {
+    render(
+      <BroadcastInbox
+        {...baseProps}
+        showFeedback
+        strings={{ ...strings, feedbackTabLabel: 'Feedback', noFeedbackYet: 'No feedback yet.' }}
+        fetchSent={async () => []}
+        fetchReceived={async () => [broadcast({ id: 'r1', title: 'Ordinary message' })]}
+        fetchFeedback={async () => [broadcast({ id: 'f9', title: 'Old feedback', isFeedback: true })]}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Feedback$/ })).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: /^Feedback$/ }));
+    await waitFor(() => expect(screen.getByText('Old feedback')).toBeInTheDocument());
+    expect(screen.queryByText('Ordinary message')).not.toBeInTheDocument();
+  });
+
   test('feedback on the received side can be deleted by whoever manages it', async () => {
     const onDelete = vi.fn().mockResolvedValue(undefined);
     render(

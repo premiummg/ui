@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { useEffect, useState } from 'react';
 import { searchAddress, type AddressSuggestion, type SearchAddressOptions } from './nominatim';
 
@@ -44,6 +45,11 @@ function FlagIcon({ countryCode }: { countryCode: string }) {
 // consumer's own field/label wrapper like the plain `<input>` it replaces -
 // it renders no label itself, just the input, dropdown and attribution line
 // Nominatim's usage policy requires.
+const TEXT = {
+  en: { searching: 'Searching…', attribution: 'Data from OpenStreetMap contributors' },
+  fr: { searching: 'Recherche…', attribution: 'Données des contributeurs d’OpenStreetMap' },
+};
+
 export function AddressAutocomplete({
   id,
   value,
@@ -55,9 +61,11 @@ export function AddressAutocomplete({
   debounceMs = 400,
   countryCodes,
   userAgent,
-  searchingLabel = 'Searching…',
-  attributionLabel = 'Data from OpenStreetMap contributors',
+  searchingLabel: searchingIn,
+  attributionLabel: attributionIn,
 }: AddressAutocompleteProps) {
+  const tx = useUiText(TEXT);
+  const searchingLabel = searchingIn ?? tx.searching, attributionLabel = attributionIn ?? tx.attribution;
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);

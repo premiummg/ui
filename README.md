@@ -485,6 +485,38 @@ multi-angle review of the library:
   `StatCard`'s `accent?: 'amber'` -> `tone?: StatCardTone` (matches every other tone-bearing
   component - `StatusBadge`, `Eyebrow`, `ConfirmDialog`).
 
+### Added in 0.95.0
+
+- `ItemPicker<T>`: a search-then-select combobox over any list of objects. The caller says how an item is matched
+  (`matches`), drawn as a row (`renderOption`) and drawn once chosen (`renderSelected`); the open, filter,
+  outside-click and clear behaviour is shared. Its three labels default to the current language.
+- `ImportResultsCard`, `BulkResultsCard`: the card that lists the result of an import or a bulk action, one row per line
+  with a green or red tag and the reason. `BulkResultsCard` names rows through `labelFor(id)`.
+- `BulkActionBar`: the fixed bar of a list's selecting mode (count, "select all", cancel, the action).
+- `NotificationBell`: `children` may be a function that gets `close`; `badgeTone` (`amber` default, `red`) and `triggerTitle`.
+- `SegmentedControl`: `tone="onColor"` for a control that sits on a solid brand band.
+
+### Language: `UiLangProvider`
+
+Wrap the app once and every built-in text follows the language, with no label props to pass:
+
+```tsx
+import { UiLangProvider } from '@premiummg/ui';
+
+<UiLangProvider lang={lang}>{/* lang is 'en' or 'fr' */}<App /></UiLangProvider>
+```
+
+Without a provider everything stays English, so an app that does not use it is unchanged. A label prop (for
+example `Pagination`'s `ofLabel`, `DatePicker`'s `todayLabel`) still overrides the built-in text, and a date-fns
+`locale` prop still overrides the one chosen from the language. Covered: `DatePicker`, `MonthNav`, `WeekNav`,
+`TimePicker`, `Pagination`, `FormLabel`, `FilterRow`, `StatusDot`, `PasswordInput`, `UnitField`, `ErrorBoundary`,
+`ConfirmDialog`, `Modal` (close button), `Toaster`, `OverflowMenu`, `TablePlaceholderRow`, `DarkModeToggle`,
+`SearchPicker`, `FileDropzone`, `AttachmentTile`, `ExcelColumnMapper`, `AddressAutocomplete`.
+
+`Modal` also takes `eyebrow` (a small label above the title) and `showClose` (an X at the top right). `UnitField`
+shows a blank option while nothing is chosen and no longer title-cases its options unless `capitalize` is passed.
+`FormLabel` accepts `children` as well as `text`.
+
 ### Unreleased: text/locale overrides on ten components, for a bilingual consumer
 
 `timesheet-payroll-system` is bilingual (EN/FR, via its own `useCopy()`/`i18n/copy/*.ts`), and ten

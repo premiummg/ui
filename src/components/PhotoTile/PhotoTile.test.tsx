@@ -25,4 +25,5 @@ describe('PhotoTile', () => {
     await userEvent.click(link);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
 });

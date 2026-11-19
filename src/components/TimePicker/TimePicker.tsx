@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { useState, useRef, useEffect, useLayoutEffect, RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { FiClock, FiX } from 'react-icons/fi';
@@ -330,10 +331,14 @@ function PeriodColumn({ h24, onPick }: { h24: number; onPick: (period: 'AM' | 'P
   );
 }
 
+const TEXT = { en: { clear: 'Clear', done: 'Done' }, fr: { clear: 'Effacer', done: 'Terminé' } };
+
 export function TimePicker({
   value, onChange, disabled, placeholder = '--:-- --', id, className = '',
-  clearLabel = 'Clear', doneLabel = 'Done',
+  clearLabel: clearIn, doneLabel: doneIn,
 }: TimePickerProps) {
+  const tx = useUiText(TEXT);
+  const clearLabel = clearIn ?? tx.clear, doneLabel = doneIn ?? tx.done;
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);

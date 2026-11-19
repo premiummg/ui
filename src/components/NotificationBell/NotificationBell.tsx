@@ -16,7 +16,12 @@ export interface NotificationBellProps {
   headerAction?: { label: string; onClick: () => void };
   // Body content - fully custom (empty state, grouped lists, whatever the
   // caller needs). Wrap it in your own scroll container if it can get long.
-  children: ReactNode;
+  // Pass a function to get `close`, which shuts the panel: a row that navigates somewhere should close it first.
+  children: ReactNode | ((close: () => void) => ReactNode);
+  // The badge colour: brand hi-vis amber (default) for "waiting on you", brand red for an unread notification count.
+  badgeTone?: 'amber' | 'red';
+  // Tooltip of the trigger. Defaults to `label`.
+  triggerTitle?: string;
   // Optional footer action, e.g. "View all notifications".
   footer?: { label: string; onClick: () => void };
   width?: string;
@@ -28,8 +33,9 @@ export interface NotificationBellProps {
 // What differs between them - the actual rows - stays fully up to the
 // caller via `children`, since a notification row and a "3 timesheets
 // pending" row don't share a shape worth forcing into one prop.
-export function NotificationBell({ icon: Icon, label, count, title, headerAction, children, footer, width = 'w-80' }: NotificationBellProps) {
+export function NotificationBell({ icon: Icon, label, count, title, headerAction, children, footer, width = 'w-80', badgeTone = 'amber', triggerTitle }: NotificationBellProps) {
   const { open, setOpen, ref } = usePopover<HTMLDivElement>();
+  const close = () => setOpen(false);
   const { side, panelRef } = usePopoverSide(open, ref, 'right');
 
   return (
@@ -43,12 +49,16 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
         type="button"
         onClick={() => setOpen(o => !o)}
         aria-label={label}
+        title={triggerTitle ?? label}
         aria-expanded={open}
         className="relative p-2 rounded-lg text-gray-400 dark:text-white/60 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition"
       >
         <Icon size={16} />
         {!!count && (
-          <span className="absolute top-1 right-1 w-4 h-4 text-[10px] font-bold text-yellow-900 rounded-full flex items-center justify-center bg-yellow-400 dark:bg-yellow-300">
+          <span
+            className={`absolute top-1 right-1 w-4 h-4 text-[10px] font-bold rounded-full flex items-center justify-center ${badgeTone === 'red' ? 'text-white' : 'text-[#3A3A3A] bg-[#FAAD00]'}`}
+            style={badgeTone === 'red' ? { backgroundColor: 'var(--premium-red)' } : undefined}
+          >
             {count > 9 ? '9+' : count}
           </span>
         )}
@@ -69,12 +79,12 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
             )}
           </div>
 
-          <div className="max-h-96 overflow-y-auto">{children}</div>
+          <div className="max-h-96 overflow-y-auto">{typeof children === 'function' ? children(close) : children}</div>
 
           {footer && (
             <button
               type="button"
-              onClick={footer.onClick}
+              onClick={() => { close(); footer.onClick(); }}
               className="w-full px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 border-t border-gray-100 dark:border-white/10 transition"
             >
               {footer.label}

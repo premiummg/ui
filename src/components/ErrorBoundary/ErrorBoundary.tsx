@@ -1,3 +1,4 @@
+import { UiLangContext } from '../../lib/i18n';
 import { Component, ReactNode } from 'react';
 
 export interface ErrorBoundaryProps {
@@ -57,7 +58,14 @@ function safeSession(action: 'get' | 'set'): boolean {
   }
 }
 
+const TEXT = {
+  en: { title: 'This page could not load.', body: 'Nothing you entered was lost. Reload to try again.', reload: 'Reload' },
+  fr: { title: 'Cette page n’a pas pu se charger.', body: 'Rien de ce que vous avez saisi n’a été perdu. Rechargez pour réessayer.', reload: 'Recharger' },
+};
+
 export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
+  static contextType = UiLangContext;
+  declare context: React.ContextType<typeof UiLangContext>;
   state: State = { hasError: false };
 
   static getDerivedStateFromError(error: Error): State {
@@ -79,7 +87,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
       // rather than a bare exception string, and keeps the brand in the room
       // (corner bracket, industrial texture) instead of a blank grey screen.
       // The raw error still goes to console.error above, for Sentry/support.
-      const { color, barsColor, title = 'This page could not load.', body = 'Nothing you entered was lost. Reload to try again.', reloadLabel = 'Reload' } = this.props;
+      const tx = TEXT[this.context ?? 'en'];
+      const { color, barsColor, title = tx.title, body = tx.body, reloadLabel = tx.reload } = this.props;
       return (
         <div
           className={`relative min-h-screen flex items-center justify-center overflow-hidden p-8 ${color ? '' : 'bg-[#F2F2F2] dark:bg-(--premium-black)'}`}

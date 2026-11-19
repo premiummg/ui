@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { FilterPill } from '../FilterPill';
 
 // {value, label} pairs for id-keyed facets, where the display label can
@@ -29,6 +30,8 @@ export interface FilterRowProps {
 // selected. Renders nothing when there are no options - every caller derives
 // its options from the current result set, so an empty list means the facet
 // has nothing to offer.
+const TEXT = { en: { clear: 'Clear' }, fr: { clear: 'Effacer' } };
+
 export function FilterRow({
   label,
   options,
@@ -37,8 +40,10 @@ export function FilterRow({
   onClear,
   capitalize = false,
   labelWidth = 'w-20',
-  clearLabel = 'Clear',
+  clearLabel: clearIn,
 }: FilterRowProps) {
+  const tx = useUiText(TEXT);
+  const clearLabel = clearIn ?? tx.clear;
   if (!options.length) return null;
   const opts = options.map(o => (typeof o === 'string' ? { value: o, label: o } : o));
   return (

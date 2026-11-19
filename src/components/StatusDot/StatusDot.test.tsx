@@ -5,13 +5,13 @@ import { StatusDot } from './StatusDot';
 describe('StatusDot', () => {
   test('inactive renders gray with the inactive title', () => {
     render(<StatusDot active={false} />);
-    const dot = screen.getByLabelText('Inactive - no access to this app');
+    const dot = screen.getByLabelText('Inactive: no access to this app');
     expect(dot.className).toContain('bg-gray-300');
   });
 
   test('active and identityActive=false renders amber with the deactivated title', () => {
     render(<StatusDot active identityActive={false} />);
-    const dot = screen.getByLabelText('Deactivated across all Premium apps - cannot sign in');
+    const dot = screen.getByLabelText('Deactivated across all Premium apps: cannot sign in');
     expect(dot.className).toContain('bg-[#FAAD00]');
   });
 

@@ -1,7 +1,16 @@
 import { ReactNode, useEffect, useId, useRef } from 'react';
+import { FiX } from 'react-icons/fi';
+import { IconButton } from '../IconButton';
+import { useUiText } from '../../lib/i18n';
 
 export interface ModalProps {
   onClose: () => void;
+  // A small label above the title: what kind of thing this dialog is for, for example the catalogue it belongs to.
+  eyebrow?: ReactNode;
+  // Draws a close button (an X) at the top right. Off by default: most dialogs close from their own Cancel button.
+  showClose?: boolean;
+  // The close button's accessible name. Defaults to "Close" ("Fermer" in French).
+  closeLabel?: string;
   // Optional built-in heading + one line of supporting copy: the shape
   // every real confirm/edit modal in the app already hand-rolls itself (an
   // <h3>, sometimes a <p> under it, both inside a p-6 wrapper). Omit both
@@ -45,7 +54,10 @@ function lockBodyScroll(): () => void {
   };
 }
 
-export function Modal({ onClose, title, description, children, maxWidth = 'max-w-md', zIndex = 'z-50', dismissable = true, ariaLabel }: ModalProps) {
+const TEXT = { en: { close: 'Close' }, fr: { close: 'Fermer' } };
+
+export function Modal({ onClose, eyebrow, showClose = false, closeLabel, title, description, children, maxWidth = 'max-w-md', zIndex = 'z-50', dismissable = true, ariaLabel }: ModalProps) {
+  const tx = useUiText(TEXT);
   const id = useId();
   const titleId = `${id}-title`;
   const descriptionId = `${id}-description`;
@@ -122,7 +134,20 @@ export function Modal({ onClose, title, description, children, maxWidth = 'max-w
         className={`bg-white dark:bg-(--premium-dark-grey) rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 w-full my-auto outline-none ${maxWidth}`}
       >
         <div className="p-6">
-          {title && (
+          {(eyebrow || showClose) && (
+            <div className={`flex items-start justify-between gap-4 ${description ? 'mb-1' : 'mb-4'}`}>
+              <div className="min-w-0">
+                {eyebrow && <p className="pmg-eyebrow text-gray-400 dark:text-gray-500 mb-1">{eyebrow}</p>}
+                {title && <h3 id={titleId} className="font-heading font-bold text-gray-900 dark:text-gray-100">{title}</h3>}
+              </div>
+              {showClose && (
+                <IconButton aria-label={closeLabel ?? tx.close} onClick={onClose} className="-mt-1 -mr-2 shrink-0">
+                  <FiX size={16} />
+                </IconButton>
+              )}
+            </div>
+          )}
+          {title && !eyebrow && !showClose && (
             // Tight mb-1 when a description follows right under it, a
             // looser mb-4 when the title sits directly above whatever
             // `children` brings (a form, a confirm/cancel row) instead:

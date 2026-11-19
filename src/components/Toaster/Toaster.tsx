@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { FiCheck, FiAlertTriangle, FiAlertCircle, FiInfo, FiX } from 'react-icons/fi';
 import { useToast, ToastType } from './ToastContext';
 
@@ -29,7 +30,11 @@ const CONFIG: Record<ToastType, { bg: string; icon: React.ReactNode }> = {
 // ships in this package's styles.css.
 // The container is always mounted: a screen reader only announces what is added to a live region that
 // was already there, so one created together with its first toast would stay silent.
-export function Toaster({ dismissLabel = 'Dismiss' }: { dismissLabel?: string } = {}) {
+const TEXT = { en: { dismiss: 'Dismiss' }, fr: { dismiss: 'Fermer' } };
+
+export function Toaster({ dismissLabel: dismissIn }: { dismissLabel?: string } = {}) {
+  const tx = useUiText(TEXT);
+  const dismissLabel = dismissIn ?? tx.dismiss;
   const { toasts, dismiss } = useToast();
 
   return (

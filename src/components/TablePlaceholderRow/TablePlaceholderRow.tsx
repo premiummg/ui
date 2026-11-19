@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { ReactNode } from 'react';
 import { FiRefreshCw } from 'react-icons/fi';
 
@@ -24,14 +25,18 @@ export interface TablePlaceholderRowProps {
   children?: ReactNode;
 }
 
+const TEXT = { en: { loading: 'Loading…', empty: 'No results found' }, fr: { loading: 'Chargement…', empty: 'Aucun résultat' } };
+
 export function TablePlaceholderRow({
   colSpan,
   loading = false,
-  loadingText = 'Loading…',
-  emptyText = 'No results found',
+  loadingText: loadingIn,
+  emptyText: emptyIn,
   size = 'md',
   children,
 }: TablePlaceholderRowProps) {
+  const tx = useUiText(TEXT);
+  const loadingText = loadingIn ?? tx.loading, emptyText = emptyIn ?? tx.empty;
   const { icon, text } = SIZE[size];
   return (
     <tr>

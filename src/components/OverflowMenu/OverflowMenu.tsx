@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { FiMoreHorizontal } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
 import { usePopover } from '../../hooks/usePopover';
@@ -32,7 +33,11 @@ export interface OverflowMenuProps {
 // A "more actions" menu for a set of rare, non-equal-weight row/page actions.
 // Destructive entries sit below a divider and take brand red only there, so
 // MAIN red keeps meaning "the one thing you can act on" everywhere else.
-export function OverflowMenu({ items, dangerItems, onDark = false, label = 'More actions', align = 'right' }: OverflowMenuProps) {
+const TEXT = { en: { more: 'More actions' }, fr: { more: 'Plus d’actions' } };
+
+export function OverflowMenu({ items, dangerItems, onDark = false, label: labelIn, align = 'right' }: OverflowMenuProps) {
+  const tx = useUiText(TEXT);
+  const label = labelIn ?? tx.more;
   const { open, setOpen, ref } = usePopover<HTMLDivElement>();
   const { side, panelRef } = usePopoverSide(open, ref, align);
 

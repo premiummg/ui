@@ -179,6 +179,8 @@ export type { SiteButtonProps, SiteButtonVariant, SiteButtonAsButton, SiteButton
 export { FlagCanada, FlagAcadian, FlagQuebec, AcadianStar } from './components/Flags';
 export type { FlagProps } from './components/Flags';
 
+export { UiLangProvider, useUiLang } from './lib/i18n';
+export type { UiLang } from './lib/i18n';
 export { LanguageToggle } from './components/LanguageToggle';
 export type { LanguageToggleProps, Lang } from './components/LanguageToggle';
 
@@ -277,6 +279,12 @@ export type { FilePillProps } from './components/FilePill';
 export { AttachmentTile } from './components/AttachmentTile';
 export type { AttachmentTileProps, AttachmentTileType } from './components/AttachmentTile';
 
+export { ImportResultsCard, BulkResultsCard } from './components/ImportResultsCard';
+export type { ImportResult, ImportResultsCardProps, BulkResult, BulkResultsCardProps } from './components/ImportResultsCard';
+export { BulkActionBar } from './components/BulkActionBar';
+export type { BulkActionBarProps } from './components/BulkActionBar';
+export { ItemPicker } from './components/ItemPicker';
+export type { ItemPickerProps } from './components/ItemPicker';
 export { SearchPicker } from './components/SearchPicker';
 export type { SearchPickerProps, PickerItem, PickerGroup } from './components/SearchPicker';
 

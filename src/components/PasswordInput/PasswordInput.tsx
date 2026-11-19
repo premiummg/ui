@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { ChangeEvent, ReactNode, useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
@@ -34,6 +35,11 @@ export interface PasswordInputProps {
 // someone using only the keyboard (or a screen reader) can reveal the password
 // too. The icon shows the state you are IN, not the action: an open eye
 // means the password is currently visible.
+const TEXT = {
+  en: { show: 'Show password', hide: 'Hide password' },
+  fr: { show: 'Afficher le mot de passe', hide: 'Masquer le mot de passe' },
+};
+
 export function PasswordInput({
   label,
   registration,
@@ -45,9 +51,11 @@ export function PasswordInput({
   autoFocus,
   icon: Icon,
   hint,
-  showLabel = 'Show password',
-  hideLabel = 'Hide password',
+  showLabel: showIn,
+  hideLabel: hideIn,
 }: PasswordInputProps) {
+  const tx = useUiText(TEXT);
+  const showLabel = showIn ?? tx.show, hideLabel = hideIn ?? tx.hide;
   const [show, setShow] = useState(false);
   // registration.name (react-hook-form's register() always sets it) doubles
   // as the field id in RHF mode; the plain-controlled mode has no equivalent

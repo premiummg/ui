@@ -90,6 +90,9 @@ export interface BroadcastDataProps {
   // for messages the caller actually wrote themself. Omit entirely for a role that doesn't manage a division's
   // messages (the tab never renders); an app wires this to an admin-all-only endpoint.
   fetchDivisionSent?: (before?: string) => Promise<ChatBroadcast[] | BroadcastPage>;
+  // The feedback list, paged on its own so feedback is not pushed out of the newest page by other messages. Used
+  // when `showFeedback` is on; without it the Feedback tab only has the feedback found in Sent and Received.
+  fetchFeedback?: (before?: string) => Promise<ChatBroadcast[] | BroadcastPage>;
   // One conversation by its id, from the side the caller is on, or null when there is none for them. When given, the
   // screen of a conversation reads it from here and not by looking for it in the lists, which have a size: an older
   // conversation is found, and one pushed out of the newest page by newer ones is not lost.

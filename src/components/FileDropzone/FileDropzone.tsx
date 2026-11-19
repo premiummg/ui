@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { useRef, useState } from 'react';
 import { FiUpload } from 'react-icons/fi';
 
@@ -40,12 +41,19 @@ function matchesAccept(file: File, accept: string): boolean {
 // A drag-or-click file picker - both paths (drop and the native file input
 // opened by clicking anywhere in the zone) feed the same onFiles callback,
 // so a caller never needs to branch on how the file arrived.
+const TEXT = {
+  en: { label: 'Drag a file here, or click to browse', hint: 'PDF, Word, Excel, PowerPoint, images…' },
+  fr: { label: 'Glissez un fichier ici, ou cliquez pour parcourir', hint: 'PDF, Word, Excel, PowerPoint, images…' },
+};
+
 export function FileDropzone({
   onFiles, accept, multiple = true, maxSizeMB,
-  label = 'Drag a file here, or click to browse',
-  hint = 'PDF, Word, Excel, PowerPoint, images…',
+  label: labelIn,
+  hint: hintIn,
   className = '',
 }: FileDropzoneProps) {
+  const tx = useUiText(TEXT);
+  const label = labelIn ?? tx.label, hint = hintIn ?? tx.hint;
   const [over, setOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);

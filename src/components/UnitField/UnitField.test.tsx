@@ -39,20 +39,20 @@ describe('UnitField', () => {
     expect(onChange).toHaveBeenCalledWith('each');
   });
 
-  test('capitalize defaults on, displaying options title-cased without changing the stored value', () => {
-    render(<UnitField value="pcs" onChange={() => {}} />);
+  test('capitalize is opt in, displaying options title-cased without changing the stored value', () => {
+    render(<UnitField value="pcs" onChange={() => {}} capitalize />);
     const select = screen.getByRole('combobox') as HTMLSelectElement;
     expect(select.value).toBe('pcs');
     expect(select.className).toContain('capitalize');
   });
 
-  test('capitalize also applies to the custom-value input by default', () => {
-    render(<UnitField value="shipping containers" onChange={() => {}} />);
+  test('capitalize also applies to the custom-value input when on', () => {
+    render(<UnitField value="shipping containers" onChange={() => {}} capitalize />);
     expect(screen.getByPlaceholderText('Type unit…').className).toContain('capitalize');
   });
 
-  test('capitalize={false} opts out, e.g. for abbreviations that read oddly title-cased', () => {
-    render(<UnitField value="kg" onChange={() => {}} capitalize={false} />);
+  test('capitalize is off by default, since the units are abbreviations that read oddly title-cased', () => {
+    render(<UnitField value="kg" onChange={() => {}} />);
     expect(screen.getByRole('combobox').className).not.toContain('capitalize');
   });
 });

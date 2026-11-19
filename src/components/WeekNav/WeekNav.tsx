@@ -1,3 +1,4 @@
+import { useUiText, useUiLocale } from '../../lib/i18n';
 import { useState, useMemo } from 'react';
 import {
   format, startOfMonth, startOfWeek, endOfWeek, endOfMonth, addDays,
@@ -77,7 +78,13 @@ function decadeStart(year: number) {
   return Math.floor(year / YEARS_PER_PAGE) * YEARS_PER_PAGE;
 }
 
-export function WeekNav({ value, weeks, fetching = false, onChange, align = 'right', variant = 'default', locale, currentLabel = 'Current week' }: WeekNavProps) {
+const TEXT = { en: { current: 'Current week' }, fr: { current: 'Semaine en cours' } };
+
+export function WeekNav({ value, weeks, fetching = false, onChange, align = 'right', variant = 'default', locale: localeIn, currentLabel: currentIn }: WeekNavProps) {
+  const tx = useUiText(TEXT);
+  const uiLocale = useUiLocale();
+  const locale = localeIn ?? uiLocale;
+  const currentLabel = currentIn ?? tx.current;
   const cur = currentWeekMonday();
   const curYM = format(new Date(), 'yyyy-MM');
   const curYear = new Date().getFullYear();

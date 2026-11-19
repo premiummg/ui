@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import type { ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 import { Modal } from '../Modal';
@@ -59,10 +60,14 @@ const TONE_STYLES: Record<ConfirmDialogTone, { tile: string; icon: string }> = {
 // directly instead (see BRAND.md's "what is intentionally not here") - this
 // exists for the ones that want the packaged shape instead of hand-rolling
 // it per confirm flow.
+const TEXT = { en: { confirm: 'Confirm', cancel: 'Cancel' }, fr: { confirm: 'Confirmer', cancel: 'Annuler' } };
+
 export function ConfirmDialog({
   open, onClose, onConfirm, tone = 'danger', icon: Icon, title, message, children,
-  confirmLabel = 'Confirm', cancelLabel = 'Cancel', actions, confirmDisabled = false,
+  confirmLabel: confirmIn, cancelLabel: cancelIn, actions, confirmDisabled = false,
 }: ConfirmDialogProps) {
+  const tx = useUiText(TEXT);
+  const confirmLabel = confirmIn ?? tx.confirm, cancelLabel = cancelIn ?? tx.cancel;
   if (!open) return null;
   const { tile, icon } = TONE_STYLES[tone];
   return (

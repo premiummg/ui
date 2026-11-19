@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { ReactNode } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
@@ -26,11 +27,19 @@ export interface PaginationProps {
   allLabel?: string;
 }
 
+const TEXT = {
+  en: { of: 'of', prev: 'Previous page', next: 'Next page', perPage: 'per page', all: 'All' },
+  fr: { of: 'sur', prev: 'Page précédente', next: 'Page suivante', perPage: 'par page', all: 'Tous' },
+};
+
 export function Pagination({
   page, totalPages, total, limit, onPageChange, children,
-  ofLabel = 'of', prevLabel = 'Previous page', nextLabel = 'Next page',
-  pageSizeOptions = [20, 50, 100], onPageSizeChange, pageSizeLabel = 'per page', allLabel = 'All',
+  ofLabel: ofIn, prevLabel: prevIn, nextLabel: nextIn,
+  pageSizeOptions = [20, 50, 100], onPageSizeChange, pageSizeLabel: perPageIn, allLabel: allIn,
 }: PaginationProps) {
+  const tx = useUiText(TEXT);
+  const ofLabel = ofIn ?? tx.of, prevLabel = prevIn ?? tx.prev, nextLabel = nextIn ?? tx.next;
+  const pageSizeLabel = perPageIn ?? tx.perPage, allLabel = allIn ?? tx.all;
   // A table that lets the reader pick a size can always show everything: the "All" option closes the list.
   const sizes = pageSizeOptions.includes(PAGE_SIZE_ALL) ? pageSizeOptions : [...pageSizeOptions, PAGE_SIZE_ALL];
   if (totalPages <= 1 && !children && !onPageSizeChange) return null;

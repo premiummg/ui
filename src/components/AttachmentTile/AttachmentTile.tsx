@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { useState, type ReactNode } from 'react';
 import { FiChevronDown, FiFileText, FiDownload, FiImage } from 'react-icons/fi';
 
@@ -33,10 +34,17 @@ export interface AttachmentTileProps {
 // and (expanded, the default) a preview body. Not a full attachment
 // gallery/uploader on its own; FileDropzone + FilePill cover picking files
 // before they're uploaded, this covers showing one that already has been.
+const TEXT = {
+  en: { download: 'Download', noPreview: 'No preview available for this file type.' },
+  fr: { download: 'Télécharger', noPreview: 'Aucun aperçu disponible pour ce type de fichier.' },
+};
+
 export function AttachmentTile({
-  name, size, type, previewUrl, onDownload, downloadLabel = 'Download',
-  noPreviewLabel = 'No preview available for this file type.', children, actions, className = '',
+  name, size, type, previewUrl, onDownload, downloadLabel: downloadIn,
+  noPreviewLabel: noPreviewIn, children, actions, className = '',
 }: AttachmentTileProps) {
+  const tx = useUiText(TEXT);
+  const downloadLabel = downloadIn ?? tx.download, noPreviewLabel = noPreviewIn ?? tx.noPreview;
   const [expanded, setExpanded] = useState(true);
   return (
     <div className={`rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-(--premium-dark-grey) overflow-hidden ${className}`}>

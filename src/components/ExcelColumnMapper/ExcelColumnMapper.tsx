@@ -1,3 +1,4 @@
+import { useUiText } from '../../lib/i18n';
 import { useEffect, useMemo, useState } from 'react';
 import { Modal } from '../Modal';
 import { Button } from '../Button';
@@ -75,19 +76,37 @@ function basicGuess(header: string, fields: ExcelColumnMapperField[]): string | 
 // lets the user correct that mapping before handing back the parsed rows
 // alongside the final mapping. Knows nothing about what the rows are FOR -
 // see `fields`/`guessField`/`onConfirm` for where the domain comes in.
+const TEXT = {
+  en: {
+    title: 'Map the columns', description: 'Check that each column goes to the right field. Unmapped columns are ignored.', ignore: 'Ignore',
+    column: 'Column', field: 'Field', confirm: 'Import', cancel: 'Cancel',
+    invalid: 'Could not read this file. Make sure it is a valid .xlsx file.', empty: 'This file has no rows.',
+  },
+  fr: {
+    title: 'Associer les colonnes', description: 'Vérifiez que chaque colonne correspond au bon champ. Les colonnes non associées sont ignorées.', ignore: 'Ignorer',
+    column: 'Colonne', field: 'Champ', confirm: 'Importer', cancel: 'Annuler',
+    invalid: 'Impossible de lire ce fichier. Assurez-vous qu’il s’agit d’un fichier .xlsx valide.', empty: 'Ce fichier ne contient aucune ligne.',
+  },
+};
+
 export function ExcelColumnMapper({
   file, fields, guessField, requiredFields = [], confirmDisabled = false,
   onMappingChange, onConfirm, onCancel,
-  title = 'Map the columns',
-  description = "Check that each column goes to the right field. Unmapped columns are ignored.",
-  ignoreLabel = 'Ignore',
-  columnHeaderLabel = 'Column',
-  fieldHeaderLabel = 'Field',
-  confirmLabel = 'Import',
-  cancelLabel = 'Cancel',
-  invalidFileMessage = 'Could not read this file. Make sure it is a valid .xlsx file.',
-  emptyFileMessage = 'This file has no rows.',
+  title: titleIn,
+  description: descriptionIn,
+  ignoreLabel: ignoreIn,
+  columnHeaderLabel: columnIn,
+  fieldHeaderLabel: fieldIn,
+  confirmLabel: confirmIn,
+  cancelLabel: cancelIn,
+  invalidFileMessage: invalidIn,
+  emptyFileMessage: emptyIn,
 }: ExcelColumnMapperProps) {
+  const tx = useUiText(TEXT);
+  const title = titleIn ?? tx.title, description = descriptionIn ?? tx.description, ignoreLabel = ignoreIn ?? tx.ignore;
+  const columnHeaderLabel = columnIn ?? tx.column, fieldHeaderLabel = fieldIn ?? tx.field;
+  const confirmLabel = confirmIn ?? tx.confirm, cancelLabel = cancelIn ?? tx.cancel;
+  const invalidFileMessage = invalidIn ?? tx.invalid, emptyFileMessage = emptyIn ?? tx.empty;
   const [headers, setHeaders] = useState<string[] | null>(null);
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [mapping, setMapping] = useState<Record<string, string>>({});

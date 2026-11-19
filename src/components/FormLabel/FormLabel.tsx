@@ -1,8 +1,10 @@
+import { useUiText } from '../../lib/i18n';
 import { ReactNode } from 'react';
 
 export interface FormLabelProps {
-  // Always the field's own name/label text, never a composition slot.
-  text: ReactNode;
+  // The field's own name/label text. `children` says the same thing the way a plain <label> does, so either works.
+  text?: ReactNode;
+  children?: ReactNode;
   htmlFor?: string;
   required?: boolean;
   optional?: boolean;
@@ -11,12 +13,15 @@ export interface FormLabelProps {
   optionalLabel?: ReactNode;
 }
 
-export function FormLabel({ text, htmlFor, required = false, optional = false, optionalLabel = '(optional)' }: FormLabelProps) {
+const TEXT = { en: { optional: '(optional)' }, fr: { optional: '(facultatif)' } };
+
+export function FormLabel({ text, children, htmlFor, required = false, optional = false, optionalLabel }: FormLabelProps) {
+  const tx = useUiText(TEXT);
   return (
     <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-      {text}
+      {text ?? children}
       {required && <span className="text-red-500 ml-0.5">*</span>}
-      {optional && !required && <span className="text-gray-400 dark:text-gray-500 font-normal ml-1">{optionalLabel}</span>}
+      {optional && !required && <span className="text-gray-400 dark:text-gray-500 font-normal ml-1">{optionalLabel ?? tx.optional}</span>}
     </label>
   );
 }

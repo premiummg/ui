@@ -1,3 +1,4 @@
+import { useUiText, useUiLocale } from '../../lib/i18n';
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import type { Locale } from 'date-fns';
@@ -55,7 +56,13 @@ function decadeStart(year: number) {
   return Math.floor(year / YEARS_PER_PAGE) * YEARS_PER_PAGE;
 }
 
-export function MonthNav({ value, months, fetching = false, onChange, variant = 'default', locale, currentLabel = 'Current month' }: MonthNavProps) {
+const TEXT = { en: { current: 'Current month' }, fr: { current: 'Mois en cours' } };
+
+export function MonthNav({ value, months, fetching = false, onChange, variant = 'default', locale: localeIn, currentLabel: currentIn }: MonthNavProps) {
+  const tx = useUiText(TEXT);
+  const uiLocale = useUiLocale();
+  const locale = localeIn ?? uiLocale;
+  const currentLabel = currentIn ?? tx.current;
   const cur = getCurYM();
   const displayYM = value ?? cur;
   const [displayYear] = displayYM.split('-').map(Number);

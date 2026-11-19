@@ -39,3 +39,13 @@ describe('SegmentedControl', () => {
     }
   });
 });
+
+describe('SegmentedControl onColor tone', () => {
+  test('sits on a brand band: a translucent track, the chosen option filled white', () => {
+    render(<SegmentedControl tone="onColor" options={OPTIONS} value="pickup" onChange={() => {}} />);
+    const chosen = screen.getByRole('button', { name: /Pickup/ });
+    expect(chosen.className).toContain('bg-white');
+    expect(chosen.getAttribute('aria-pressed')).toBe('true');
+    expect(chosen.parentElement?.className).toContain('bg-white/15');
+  });
+});

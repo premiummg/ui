@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 import { usePopover } from '../../hooks/usePopover';
 import { POPOVER_PANEL } from '../../lib/popoverPanel';
+import { useUiText } from '../../lib/i18n';
 
 export interface PickerItem {
   id: string;
@@ -18,6 +19,8 @@ export interface SearchPickerProps {
   groups: PickerGroup[];
   placeholder: string;
   emptyText?: string;
+  // The accessible name of the button that clears the chosen value. Defaults to "Clear selection" (French in French).
+  clearLabel?: string;
   value?: PickerItem | null;
   onChange: (item: PickerItem | null) => void;
 }
@@ -28,7 +31,15 @@ export interface SearchPickerProps {
 // every "find and pick one" control in a real app - a project search, an
 // employee picker, a vendor picker - that SearchInput's plain debounced text
 // box doesn't cover on its own (no dropdown, no groups, no selection state).
-export function SearchPicker({ groups, placeholder, emptyText = 'No matches', value, onChange }: SearchPickerProps) {
+const TEXT = {
+  en: { empty: 'No matches', clear: 'Clear selection' },
+  fr: { empty: 'Aucun résultat', clear: 'Effacer la sélection' },
+};
+
+export function SearchPicker({ groups, placeholder, emptyText: emptyIn, clearLabel: clearIn, value, onChange }: SearchPickerProps) {
+  const tx = useUiText(TEXT);
+  const emptyText = emptyIn ?? tx.empty;
+  const clearLabel = clearIn ?? tx.clear;
   const [query, setQuery] = useState('');
   // After the chip is cleared, its button unmounts and the box takes its place: focus goes to the box, or a keyboard user is
   // left on the page body with a list open that they cannot reach.
@@ -65,7 +76,7 @@ export function SearchPicker({ groups, placeholder, emptyText = 'No matches', va
         <button
           type="button"
           onClick={() => { setFocusBox(true); onChange(null); setOpen(true); }}
-          aria-label="Clear selection"
+          aria-label={clearLabel}
           // p-2 -m-2: a hit area a finger can use around a 14px icon, with no change to the layout.
           className="shrink-0 p-2 -m-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
         >

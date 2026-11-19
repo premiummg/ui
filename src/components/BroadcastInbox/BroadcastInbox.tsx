@@ -122,6 +122,7 @@ export function BroadcastInbox({
   fetchSent,
   fetchReceived,
   fetchDivisionSent,
+  fetchFeedback,
   onDelete,
   currentUserId,
   canSendMessages,
@@ -154,8 +155,10 @@ export function BroadcastInbox({
   }, [view, canReadSent, showFeedback, canReadDivisionSent]);
   // The latest fetchers, so a new function (another person, a closure over a filter) is used by the next poll
   // without tearing the timer down.
-  const fetchers = useRef({ fetchSent, fetchReceived, fetchDivisionSent });
-  fetchers.current = { fetchSent, fetchReceived, fetchDivisionSent };
+  const fetchers = useRef({ fetchSent, fetchReceived, fetchDivisionSent, fetchFeedback });
+  fetchers.current = { fetchSent, fetchReceived, fetchDivisionSent, fetchFeedback };
+  const ownFeedbackList = showFeedback && !!fetchFeedback;
+  const [feedbackList, setFeedbackList] = useState<ChatBroadcast[]>([]);
   const [sent, setSent] = useState<ChatBroadcast[]>([]);
   const [received, setReceived] = useState<ChatBroadcast[]>([]);
   const [divisionSent, setDivisionSent] = useState<ChatBroadcast[]>([]);
@@ -165,8 +168,8 @@ export function BroadcastInbox({
   const [divisionSentTotal, setDivisionSentTotal] = useState<number | undefined>(undefined);
   // Whether each list has older conversations to load, and whether one was loaded already: from then on the check of
   // the newest page no longer says whether there are more, only the last page asked for does.
-  const [more, setMore] = useState<Record<'sent' | 'received' | 'divisionSent', boolean>>({ sent: false, received: false, divisionSent: false });
-  const olderLoaded = useRef<Record<'sent' | 'received' | 'divisionSent', boolean>>({ sent: false, received: false, divisionSent: false });
+  const [more, setMore] = useState<Record<'sent' | 'received' | 'divisionSent' | 'feedback', boolean>>({ sent: false, received: false, divisionSent: false, feedback: false });
+  const olderLoaded = useRef<Record<'sent' | 'received' | 'divisionSent' | 'feedback', boolean>>({ sent: false, received: false, divisionSent: false, feedback: false });
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadingSent, setLoadingSent] = useState(canReadSent);
   const [loadingDivisionSent, setLoadingDivisionSent] = useState(canReadDivisionSent);
@@ -225,6 +228,16 @@ export function BroadcastInbox({
         if (!olderLoaded.current.divisionSent) setMore((m) => ({ ...m, divisionSent: morePages(page, page.items.length) }));
       }).catch(() => {});
     };
+    let feedbackSeq = 0;
+    const loadFeedback = () => {
+      const seq = ++feedbackSeq;
+      return fetchers.current.fetchFeedback!().then((r) => {
+        if (!live || seq !== feedbackSeq) return;
+        const page = asPage(r);
+        setFeedbackList((prev) => withFirstPage(prev, page.items));
+        if (!olderLoaded.current.feedback) setMore((m) => ({ ...m, feedback: morePages(page, page.items.length) }));
+      }).catch(() => {});
+    };
     // Coming back to the tab fires visibilitychange and focus together: one refresh, not two.
     let lastRun = 0;
     function refresh() {
@@ -233,8 +246,10 @@ export function BroadcastInbox({
       lastRun = Date.now();
       if (canReadSent) loadSent();
       if (canReadDivisionSent) loadDivisionSent();
+      if (ownFeedbackList) loadFeedback();
       loadReceived();
     }
+    if (ownFeedbackList) loadFeedback();
     if (canReadSent) loadSent().finally(() => { if (live) setLoadingSent(false); });
     if (canReadDivisionSent) loadDivisionSent().finally(() => { if (live) setLoadingDivisionSent(false); });
     loadReceived().finally(() => { if (live) setLoadingReceived(false); });
@@ -249,22 +264,23 @@ export function BroadcastInbox({
       window.removeEventListener('focus', refresh);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canReadSent, canReadDivisionSent, pollIntervalMs, currentUserId]);
+  }, [canReadSent, canReadDivisionSent, ownFeedbackList, pollIntervalMs, currentUserId]);
 
   // The older ones of a list: what comes after the last conversation on screen, which its cursor says.
-  type ListName = 'sent' | 'received' | 'divisionSent';
+  type ListName = 'sent' | 'received' | 'divisionSent' | 'feedback';
   const listsOfView: ListName[] =
-    view === 'sent' ? ['sent'] : view === 'received' ? ['received'] : view === 'divisionSent' ? ['divisionSent'] : canReadSent ? ['sent', 'received'] : ['received'];
+    view === 'sent' ? ['sent'] : view === 'received' ? ['received'] : view === 'divisionSent' ? ['divisionSent']
+      : view === 'feedback' && ownFeedbackList ? ['feedback'] : canReadSent ? ['sent', 'received'] : ['received'];
   const lastCursor = (items: ChatBroadcast[]) => items[items.length - 1]?.cursor;
-  const moreOf = (list: ListName) =>
-    more[list] && !!lastCursor(list === 'sent' ? sent : list === 'received' ? received : divisionSent);
+  const itemsOf = (list: ListName) => (list === 'sent' ? sent : list === 'received' ? received : list === 'feedback' ? feedbackList : divisionSent);
+  const moreOf = (list: ListName) => more[list] && !!lastCursor(itemsOf(list));
   const moreAvailable = listsOfView.some(moreOf);
   async function loadMore() {
     setLoadingMore(true);
     try {
       await Promise.all(listsOfView.filter(moreOf).map(async (list) => {
-        const items = list === 'sent' ? sent : list === 'received' ? received : divisionSent;
-        const fetcher = list === 'sent' ? fetchers.current.fetchSent : list === 'received' ? fetchers.current.fetchReceived : fetchers.current.fetchDivisionSent;
+        const items = itemsOf(list);
+        const fetcher = list === 'sent' ? fetchers.current.fetchSent : list === 'received' ? fetchers.current.fetchReceived : list === 'feedback' ? fetchers.current.fetchFeedback : fetchers.current.fetchDivisionSent;
         const page = asPage(await fetcher!(lastCursor(items)));
         olderLoaded.current[list] = true;
         setMore((m) => ({ ...m, [list]: morePages(page, items.length + page.items.length) }));
@@ -274,6 +290,7 @@ export function BroadcastInbox({
         };
         if (list === 'sent') { setSent(append); if (page.total !== undefined) setSentTotal(page.total); }
         else if (list === 'received') { setReceived(append); if (page.total !== undefined) setReceivedTotal(page.total); }
+        else if (list === 'feedback') setFeedbackList(append);
         else { setDivisionSent(append); if (page.total !== undefined) setDivisionSentTotal(page.total); }
       }));
     } catch { /* the button stays, and a later try asks again */ }
@@ -283,15 +300,16 @@ export function BroadcastInbox({
   // With a Feedback tab, feedback lives there and not in Sent or Received.
   const inSentReceived = (b: ChatBroadcast) => !(showFeedback && b.isFeedback);
   // The Feedback tab counts what is still unread, so the number goes down as feedback is opened.
-  const feedbackUnreadCount = new Set([...received, ...sent].filter((b) => b.isFeedback && b.unread).map((b) => b.id)).size;
+  const feedbackUnreadCount = new Set([...feedbackList, ...received, ...sent].filter((b) => b.isFeedback && b.unread).map((b) => b.id)).size;
 
   // Each row carries the side it belongs to: the status and the people shown
   // depend on it, and the unread view mixes both.
   const rows = useMemo<{ b: ChatBroadcast; side: BroadcastSide }[]>(() => {
     if (view === 'feedback') {
       const seenFeedback = new Set<string>();
-      return [...received, ...sent]
+      return [...feedbackList, ...received, ...sent]
         .filter((b) => b.isFeedback && !seenFeedback.has(b.id) && !!seenFeedback.add(b.id))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .map((b) => ({ b, side: 'received' as const }));
     }
     if (view === 'sent') return sent.filter(inSentReceived).map((b) => ({ b, side: 'sent' as const }));
@@ -304,9 +322,11 @@ export function BroadcastInbox({
     const seen = new Set(unreadSent.map((b) => b.id));
     return [
       ...unreadSent.map((b) => ({ b, side: 'sent' as const })),
-      ...received.filter((b) => b.unread && !seen.has(b.id)).map((b) => ({ b, side: 'received' as const })),
+      ...[...received, ...(ownFeedbackList ? feedbackList : [])]
+        .filter((b, i, all) => b.unread && !seen.has(b.id) && all.findIndex((x) => x.id === b.id) === i)
+        .map((b) => ({ b, side: 'received' as const })),
     ];
-  }, [view, sent, received, divisionSent, showFeedback]);
+  }, [view, sent, received, divisionSent, feedbackList, showFeedback, ownFeedbackList]);
   const loadingItems =
     (view !== 'received' && view !== 'divisionSent' && canReadSent && loadingSent)
     || (view !== 'sent' && view !== 'divisionSent' && loadingReceived)
@@ -332,7 +352,7 @@ export function BroadcastInbox({
   // Feedback tab takes feedback out of Sent and Received, so then it would not be the number on screen.
   const listTotal = filtersActive || (showFeedback && view !== 'divisionSent') ? undefined
     : view === 'sent' ? sentTotal : view === 'received' ? receivedTotal : view === 'divisionSent' ? divisionSentTotal : undefined;
-  const unreadCount = new Set([...(canReadSent ? sent : []), ...received].filter((b) => b.unread).map((b) => b.id)).size;
+  const unreadCount = new Set([...(canReadSent ? sent : []), ...received, ...(ownFeedbackList ? feedbackList : [])].filter((b) => b.unread).map((b) => b.id)).size;
   // What a tab says about itself is only what is NEW in it (nothing when nothing is), capped at 99+: the row is a
   // prompt to go and read, not an inventory. Sent has no "new" of its own, so it never carries a number. How many
   // conversations a tab holds is said inside it, over its list.
@@ -341,7 +361,7 @@ export function BroadcastInbox({
   const unreadTabLabel = unreadCount > BADGE_CAP
     ? (() => { const l = strings.unreadOnlyLabel(BADGE_CAP); const at = l.lastIndexOf(String(BADGE_CAP)); return at < 0 ? l : `${l.slice(0, at + 2)}+${l.slice(at + 2)}`; })()
     : strings.unreadOnlyLabel(unreadCount);
-  const deletingBroadcast = [...sent, ...received, ...divisionSent].find((b) => b.id === deletingId);
+  const deletingBroadcast = [...sent, ...received, ...divisionSent, ...feedbackList].find((b) => b.id === deletingId);
 
   function clearFilters() {
     setQuery('');
@@ -357,6 +377,7 @@ export function BroadcastInbox({
       await onDelete(deletingId);
       setSent((prev) => prev.filter((b) => b.id !== deletingId));
       setReceived((prev) => prev.filter((b) => b.id !== deletingId));
+      setFeedbackList((prev) => prev.filter((b) => b.id !== deletingId));
       setDivisionSent((prev) => prev.filter((b) => b.id !== deletingId));
       setDeletingId(null);
     } finally {
