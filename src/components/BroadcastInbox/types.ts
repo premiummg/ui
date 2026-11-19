@@ -76,6 +76,11 @@ export interface BroadcastPage {
   total?: number;
   // Whether there are older ones after this page. When the app does not say, it is read from `total`.
   more?: boolean;
+  // The cursor that asks for the page after this one. An app that takes conversations out of a page before handing it
+  // over (its own ones from Received, say) gives the cursor of the page as the server sent it: the last one left on
+  // screen is not where the server stopped, and a page it emptied would ask for the same page again and again. Without
+  // it, the cursor of the last conversation of the list is used.
+  nextCursor?: string;
 }
 
 export type BroadcastStatus = 'needsReply' | 'waiting' | 'answered' | 'closed';

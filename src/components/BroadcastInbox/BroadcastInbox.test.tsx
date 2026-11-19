@@ -76,6 +76,27 @@ describe('BroadcastInbox', () => {
     expect(screen.queryByText('Ordinary message')).not.toBeInTheDocument();
   });
 
+  test('while the feedback list is still loading its tab says so, not "no feedback yet"', async () => {
+    let release!: (v: unknown) => void;
+    render(
+      <BroadcastInbox
+        {...baseProps}
+        showFeedback
+        strings={{ ...strings, feedbackTabLabel: 'Feedback', noFeedbackYet: 'No feedback yet.' }}
+        fetchSent={async () => []}
+        fetchReceived={async () => []}
+        fetchFeedback={() => new Promise((resolve) => { release = resolve; }) as never}
+        currentUserId="admin-1"
+        canSendMessages
+      />,
+    );
+    await userEvent.click(await screen.findByRole('button', { name: /^Feedback$/ }));
+    expect(screen.queryByText('No feedback yet.')).not.toBeInTheDocument();
+    expect(screen.getByText(strings.loadingLabel)).toBeInTheDocument();
+    release([]);
+    expect(await screen.findByText('No feedback yet.')).toBeInTheDocument();
+  });
+
   test('feedback on the received side can be deleted by whoever manages it', async () => {
     const onDelete = vi.fn().mockResolvedValue(undefined);
     render(

@@ -106,8 +106,10 @@ const asPage = (r: ChatBroadcast[] | BroadcastPage): BroadcastPage => (Array.isA
 const morePages = (page: BroadcastPage, loaded: number): boolean => page.more ?? (page.total !== undefined && loaded < page.total);
 
 // The newest page of a list replaces the start of what is on screen; the older ones that were loaded after it stay.
-function withFirstPage(prev: ChatBroadcast[], first: ChatBroadcast[]): ChatBroadcast[] {
-  if (!first.length) return [];
+// A newest page that came back empty only empties the list when there is nothing after it either: an app that took
+// every conversation of that page out (its own ones, say) still has older ones, and those already loaded stay.
+function withFirstPage(prev: ChatBroadcast[], first: ChatBroadcast[], page?: BroadcastPage): ChatBroadcast[] {
+  if (!first.length) return page && morePages(page, 0) ? prev : [];
   const oldest = new Date(first[first.length - 1].createdAt).getTime();
   const firstIds = new Set(first.map((b) => b.id));
   return [...first, ...prev.filter((b) => !firstIds.has(b.id) && new Date(b.createdAt).getTime() <= oldest)];
@@ -170,12 +172,16 @@ export function BroadcastInbox({
   // the newest page no longer says whether there are more, only the last page asked for does.
   const [more, setMore] = useState<Record<'sent' | 'received' | 'divisionSent' | 'feedback', boolean>>({ sent: false, received: false, divisionSent: false, feedback: false });
   const olderLoaded = useRef<Record<'sent' | 'received' | 'divisionSent' | 'feedback', boolean>>({ sent: false, received: false, divisionSent: false, feedback: false });
+  // The cursor the app gave with the last page of each list (BroadcastPage.nextCursor), when it gives one.
+  const nextCursors = useRef<Record<'sent' | 'received' | 'divisionSent' | 'feedback', string | undefined>>({ sent: undefined, received: undefined, divisionSent: undefined, feedback: undefined });
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadingSent, setLoadingSent] = useState(canReadSent);
   const [loadingDivisionSent, setLoadingDivisionSent] = useState(canReadDivisionSent);
   const pausePollingRef = useRef(pausePolling);
   pausePollingRef.current = pausePolling;
   const [loadingReceived, setLoadingReceived] = useState(true);
+  // The feedback tab of its own list: until its first page arrives it says "loading", not "no feedback yet".
+  const [loadingFeedback, setLoadingFeedback] = useState(showFeedback && !!fetchFeedback);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [from, setFrom] = useState('');
@@ -203,9 +209,9 @@ export function BroadcastInbox({
       return fetchers.current.fetchSent!().then((r) => {
         if (!live || seq !== sentSeq) return;
         const page = asPage(r);
-        setSent((prev) => withFirstPage(prev, page.items));
+        setSent((prev) => withFirstPage(prev, page.items, page));
         setSentTotal(page.total);
-        if (!olderLoaded.current.sent) setMore((m) => ({ ...m, sent: morePages(page, page.items.length) }));
+        if (!olderLoaded.current.sent) { setMore((m) => ({ ...m, sent: morePages(page, page.items.length) })); nextCursors.current.sent = page.nextCursor; }
       }).catch(() => {});
     };
     const loadReceived = () => {
@@ -213,9 +219,9 @@ export function BroadcastInbox({
       return fetchers.current.fetchReceived().then((r) => {
         if (!live || seq !== receivedSeq) return;
         const page = asPage(r);
-        setReceived((prev) => withFirstPage(prev, page.items));
+        setReceived((prev) => withFirstPage(prev, page.items, page));
         setReceivedTotal(page.total);
-        if (!olderLoaded.current.received) setMore((m) => ({ ...m, received: morePages(page, page.items.length) }));
+        if (!olderLoaded.current.received) { setMore((m) => ({ ...m, received: morePages(page, page.items.length) })); nextCursors.current.received = page.nextCursor; }
       }).catch(() => {});
     };
     const loadDivisionSent = () => {
@@ -223,9 +229,9 @@ export function BroadcastInbox({
       return fetchers.current.fetchDivisionSent!().then((r) => {
         if (!live || seq !== divisionSentSeq) return;
         const page = asPage(r);
-        setDivisionSent((prev) => withFirstPage(prev, page.items));
+        setDivisionSent((prev) => withFirstPage(prev, page.items, page));
         setDivisionSentTotal(page.total);
-        if (!olderLoaded.current.divisionSent) setMore((m) => ({ ...m, divisionSent: morePages(page, page.items.length) }));
+        if (!olderLoaded.current.divisionSent) { setMore((m) => ({ ...m, divisionSent: morePages(page, page.items.length) })); nextCursors.current.divisionSent = page.nextCursor; }
       }).catch(() => {});
     };
     let feedbackSeq = 0;
@@ -234,8 +240,8 @@ export function BroadcastInbox({
       return fetchers.current.fetchFeedback!().then((r) => {
         if (!live || seq !== feedbackSeq) return;
         const page = asPage(r);
-        setFeedbackList((prev) => withFirstPage(prev, page.items));
-        if (!olderLoaded.current.feedback) setMore((m) => ({ ...m, feedback: morePages(page, page.items.length) }));
+        setFeedbackList((prev) => withFirstPage(prev, page.items, page));
+        if (!olderLoaded.current.feedback) { setMore((m) => ({ ...m, feedback: morePages(page, page.items.length) })); nextCursors.current.feedback = page.nextCursor; }
       }).catch(() => {});
     };
     // Coming back to the tab fires visibilitychange and focus together: one refresh, not two.
@@ -249,7 +255,7 @@ export function BroadcastInbox({
       if (ownFeedbackList) loadFeedback();
       loadReceived();
     }
-    if (ownFeedbackList) loadFeedback();
+    if (ownFeedbackList) loadFeedback().finally(() => { if (live) setLoadingFeedback(false); });
     if (canReadSent) loadSent().finally(() => { if (live) setLoadingSent(false); });
     if (canReadDivisionSent) loadDivisionSent().finally(() => { if (live) setLoadingDivisionSent(false); });
     loadReceived().finally(() => { if (live) setLoadingReceived(false); });
@@ -270,10 +276,13 @@ export function BroadcastInbox({
   type ListName = 'sent' | 'received' | 'divisionSent' | 'feedback';
   const listsOfView: ListName[] =
     view === 'sent' ? ['sent'] : view === 'received' ? ['received'] : view === 'divisionSent' ? ['divisionSent']
-      : view === 'feedback' && ownFeedbackList ? ['feedback'] : canReadSent ? ['sent', 'received'] : ['received'];
-  const lastCursor = (items: ChatBroadcast[]) => items[items.length - 1]?.cursor;
+      : view === 'feedback' && ownFeedbackList ? ['feedback']
+        // The unread view shows the feedback of its own list too, so it pages it as well.
+        : [...(canReadSent ? ['sent' as const] : []), 'received' as const, ...(view === 'unread' && ownFeedbackList ? ['feedback' as const] : [])];
   const itemsOf = (list: ListName) => (list === 'sent' ? sent : list === 'received' ? received : list === 'feedback' ? feedbackList : divisionSent);
-  const moreOf = (list: ListName) => more[list] && !!lastCursor(itemsOf(list));
+  // Where the server stopped, when the app said (BroadcastPage.nextCursor); else the last conversation on screen.
+  const cursorOf = (list: ListName) => nextCursors.current[list] ?? itemsOf(list)[itemsOf(list).length - 1]?.cursor;
+  const moreOf = (list: ListName) => more[list] && !!cursorOf(list);
   const moreAvailable = listsOfView.some(moreOf);
   async function loadMore() {
     setLoadingMore(true);
@@ -281,8 +290,9 @@ export function BroadcastInbox({
       await Promise.all(listsOfView.filter(moreOf).map(async (list) => {
         const items = itemsOf(list);
         const fetcher = list === 'sent' ? fetchers.current.fetchSent : list === 'received' ? fetchers.current.fetchReceived : list === 'feedback' ? fetchers.current.fetchFeedback : fetchers.current.fetchDivisionSent;
-        const page = asPage(await fetcher!(lastCursor(items)));
+        const page = asPage(await fetcher!(cursorOf(list)));
         olderLoaded.current[list] = true;
+        nextCursors.current[list] = page.nextCursor;
         setMore((m) => ({ ...m, [list]: morePages(page, items.length + page.items.length) }));
         const append = (prev: ChatBroadcast[]) => {
           const have = new Set(prev.map((b) => b.id));
@@ -330,7 +340,8 @@ export function BroadcastInbox({
   const loadingItems =
     (view !== 'received' && view !== 'divisionSent' && canReadSent && loadingSent)
     || (view !== 'sent' && view !== 'divisionSent' && loadingReceived)
-    || (view === 'divisionSent' && canReadDivisionSent && loadingDivisionSent);
+    || (view === 'divisionSent' && canReadDivisionSent && loadingDivisionSent)
+    || ((view === 'feedback' || view === 'unread') && ownFeedbackList && loadingFeedback);
 
   const filtersActive = !!query.trim() || status !== 'all' || !!from || !!to;
 

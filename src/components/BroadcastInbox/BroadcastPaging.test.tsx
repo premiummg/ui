@@ -38,6 +38,40 @@ describe('a list with more than a page', () => {
     expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
   });
 
+  test('an app that empties a page by its own filter gives the page cursor, and "load more" moves on instead of asking the same page again', async () => {
+    // The server pages are [1,2] [3,4] [5]; the app takes 3 and 4 out (its own), so the second page arrives empty.
+    const pages: Record<string, { items: ReturnType<typeof item>[]; more: boolean; nextCursor: string }> = {
+      first: { items: [item(1), item(2)], more: true, nextCursor: 'c2' },
+      c2: { items: [], more: true, nextCursor: 'c4' },
+      c4: { items: [item(5)], more: false, nextCursor: 'c5' },
+    };
+    const fetchReceived = vi.fn(async (before?: string) => pages[before ?? 'first']);
+    render(<BroadcastInbox {...baseProps} fetchReceived={fetchReceived} currentUserId="u" canSendMessages={false} />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Load more' }));
+    await waitFor(() => expect(fetchReceived).toHaveBeenLastCalledWith('c2'));
+    await userEvent.click(await screen.findByRole('button', { name: 'Load more' }));
+    expect(await screen.findByText('Message 5')).toBeInTheDocument();
+    expect(fetchReceived).toHaveBeenLastCalledWith('c4');
+  });
+
+  test('a newest page emptied by the app filter does not wipe the older ones already loaded', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      let newest: { items: ReturnType<typeof item>[]; more: boolean; nextCursor?: string } = { items: [item(1)], more: true, nextCursor: 'c1' };
+      const fetchReceived = vi.fn(async (before?: string) => (before ? { items: [item(2)], more: false } : newest));
+      render(<BroadcastInbox {...baseProps} fetchReceived={fetchReceived} currentUserId="u" canSendMessages={false} pollIntervalMs={1000} />);
+      await userEvent.setup({ advanceTimers: vi.advanceTimersByTime }).click(await screen.findByRole('button', { name: 'Load more' }));
+      expect(await screen.findByText('Message 2')).toBeInTheDocument();
+      newest = { items: [], more: true, nextCursor: 'c1' };
+      const calls = fetchReceived.mock.calls.length;
+      vi.advanceTimersByTime(1500);
+      await waitFor(() => expect(fetchReceived.mock.calls.length).toBeGreaterThan(calls));
+      expect(screen.getByText('Message 2')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test('a plain array is a list with nothing more to load', async () => {
     render(<BroadcastInbox {...baseProps} fetchSent={async () => [item(1), item(2)]} currentUserId="admin-1" canSendMessages />);
     expect(await screen.findByText('2 conversations')).toBeInTheDocument();
