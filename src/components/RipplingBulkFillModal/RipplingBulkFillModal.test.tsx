@@ -202,6 +202,48 @@ describe('RipplingBulkFillModal', () => {
       expect(await screen.findByText(/1 filled · 1 deactivated/)).toBeInTheDocument();
     });
 
+    test('"Select all" counts and ticks only the fills, never a terminated person', async () => {
+      renderModal({ loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED), labels: deactivationLabels });
+      await screen.findByText('Carla Gomez');
+      const selectAll = screen.getByRole('checkbox', { name: 'Select all (1)' });
+      // Off and on again: Ana comes back, Carla stays unticked.
+      await userEvent.click(selectAll);
+      expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
+      await userEvent.click(selectAll);
+      expect(screen.getAllByRole('checkbox')[1]).toBeChecked();
+      expect(screen.getAllByRole('checkbox')[2]).not.toBeChecked();
+      expect(screen.getByRole('button', { name: 'Fill 1 selected' })).toBeInTheDocument();
+    });
+
+    test('unticking all the fills leaves a terminated person ticked by hand as it is', async () => {
+      renderModal({ loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED), labels: deactivationLabels });
+      await screen.findByText('Carla Gomez');
+      await userEvent.click(screen.getAllByRole('checkbox')[2]);
+      await userEvent.click(screen.getByRole('checkbox', { name: 'Select all (1)' }));
+      expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
+      expect(screen.getAllByRole('checkbox')[2]).toBeChecked();
+    });
+
+    test('the message after a fill that closes counts the deactivated apart from the filled', async () => {
+      renderModal({
+        loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED),
+        onApply: vi.fn().mockResolvedValue({
+          filled: [
+            { employee_id: 'e1', employee_name: 'Ana Ruiz', fields: ['phone'] },
+            { employee_id: 'e3', employee_name: 'Carla Gomez', fields: ['deactivated'] },
+          ],
+          skipped: [],
+        }),
+        labels: deactivationLabels,
+      });
+      await screen.findByText('Carla Gomez');
+      await userEvent.click(screen.getAllByRole('checkbox')[2]);
+      await userEvent.click(screen.getByRole('button', { name: /deactivate/ }));
+      // The toast and the result behind it (onClose is a mock here, so the dialog stays): the toast used to say "2 filled".
+      await waitFor(() => expect(screen.getAllByText('1 filled · 1 deactivated')).toHaveLength(2));
+      expect(screen.queryByText('2 filled')).not.toBeInTheDocument();
+    });
+
     test('an app that does not give the new words still shows the notice and fills as before', async () => {
       renderModal({ loadPreview: vi.fn().mockResolvedValue(WITH_TERMINATED) });
       await screen.findByText('Carla Gomez');

@@ -86,8 +86,14 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
   useEffect(load, []);
 
   const rows = data?.rows ?? [];
-  const rowIds = useMemo(() => rows.map((r) => r.employee_id), [rows]);
-  const allSelected = rows.length > 0 && rows.every((r) => selection.selected.has(r.employee_id));
+  // "Select all" is about filling: it never ticks a terminated person (that deactivates the account), who is ticked one
+  // by one, and unticking all leaves those as they are.
+  const fillIds = useMemo(() => rows.filter((r) => !r.terminated).map((r) => r.employee_id), [rows]);
+  const allSelected = fillIds.length > 0 && fillIds.every((id) => selection.selected.has(id));
+  function toggleAllFills() {
+    if (allSelected) selection.remove(fillIds);
+    else selection.reset([...fillIds, ...rows.filter((r) => r.terminated && selection.selected.has(r.employee_id)).map((r) => r.employee_id)]);
+  }
   const nameById = useMemo(() => new Map(rows.map((r) => [r.employee_id, r.employee_name])), [rows]);
   const selectedRows = rows.filter((r) => selection.selected.has(r.employee_id));
   const deactivateCount = selectedRows.filter((r) => r.terminated).length;
@@ -102,8 +108,8 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
       setResult(res);
       onFilled();
       if (res.skipped.length === 0 && !res.photos_pending?.length) {
-        const deactivated = res.filled.filter((f) => f.fields.includes('deactivated')).length;
-        toast(deactivated > 0 && deactivated === res.filled.length && t.resultDeactivated ? t.resultDeactivated(deactivated) : t.resultFilled(res.filled.length), 'success');
+        // Same words as the result: who was filled and, apart, who was deactivated.
+        toast(resultLines(res, t), 'success');
         onClose();
       }
     } catch (err) {
@@ -152,7 +158,7 @@ export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFill
 
             {rows.length > 0 && (
               <>
-                <SelectAllRow checked={allSelected} onChange={() => selection.toggleAll(rowIds)} label={t.selectAll(rows.length)} />
+                {fillIds.length > 0 && <SelectAllRow checked={allSelected} onChange={toggleAllFills} label={t.selectAll(fillIds.length)} />}
                 <div className="max-h-[50vh] divide-y divide-gray-100 overflow-y-auto border-t border-gray-200 dark:divide-white/10 dark:border-white/20">
                   {rows.map((row) => {
                     const entries = Object.entries(row.fields);
