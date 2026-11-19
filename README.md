@@ -485,6 +485,20 @@ multi-angle review of the library:
   `StatCard`'s `accent?: 'amber'` -> `tone?: StatCardTone` (matches every other tone-bearing
   component - `StatusBadge`, `Eyebrow`, `ConfirmDialog`).
 
+### Behavior changes to know when updating
+
+- `ScrollableTable`: the default `maxHeight` is `max(240px, calc(100dvh - 320px))` (the table fills the screen less a
+  header, with a floor). Pass `maxHeight` to keep the height a page had before.
+- `SiteButtonProps` is a union (a button, or a link with `href`). It can no longer be extended with `interface X
+  extends SiteButtonProps`: use `type X = SiteButtonProps & { ... }`.
+- `UnitField`: title-cases its options by default (`capitalize`), as it did before a few versions that did not; pass
+  `capitalize={false}` to show them as stored.
+- `RipplingBulkFillModal`: "Select all" ticks only the people to fill, never somebody Rippling terminated (that
+  deactivates the account): those are ticked one by one.
+- `ItemPicker`, `TimePicker`, `PhoneCountrySelect`: Escape closes their list only, never the Modal around them.
+- `BroadcastPage.nextCursor`: an app that filters a page before handing it over gives the cursor of the page as the
+  server sent it, so "load more" moves on even when the filter emptied a page.
+
 ### Added in 0.95.0
 
 - `ItemPicker<T>`: a search-then-select combobox over any list of objects. The caller says how an item is matched
@@ -514,7 +528,8 @@ example `Pagination`'s `ofLabel`, `DatePicker`'s `todayLabel`) still overrides t
 `SearchPicker`, `FileDropzone`, `AttachmentTile`, `ExcelColumnMapper`, `AddressAutocomplete`.
 
 `Modal` also takes `eyebrow` (a small label above the title) and `showClose` (an X at the top right). `UnitField`
-shows a blank option while nothing is chosen and no longer title-cases its options unless `capitalize` is passed.
+shows a blank option while nothing is chosen. (Its options were not title-cased by default for a few versions; they
+are again, as before: pass `capitalize={false}` to show them exactly as stored.)
 `FormLabel` accepts `children` as well as `text`.
 
 ### Unreleased: text/locale overrides on ten components, for a bilingual consumer
