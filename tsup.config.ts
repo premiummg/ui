@@ -13,7 +13,8 @@ export default defineConfig({
   // but are never imported from index.ts, so esbuild never pulls them into
   // the bundle - nothing extra needed here to keep them out of dist.
   esbuildOptions(options) {
-    // The four PremiumLogo PNGs (~220KB total) get inlined as base64 data
+    // The eight PremiumLogo PNGs (~60KB total: the stacked ones are 400px tall, twice the largest size they are shown
+    // at, and every one is 256 colors; at full size they were 430KB of the bundle) get inlined as base64 data
     // URIs at build time instead of shipped as separate files - unlike the
     // fonts (referenced from CSS via url(), resolved by the consuming app's
     // own build), an <img src> import needs a real path a browser can fetch,
