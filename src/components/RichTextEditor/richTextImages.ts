@@ -30,15 +30,45 @@ function dataUrlFromFile(file: File): Promise<string> {
   });
 }
 
+const IMAGE_NAME_RE = /\.(png|jpe?g|gif|webp)$/i;
+
+// The image in a paste or a drop, if there is one. A screenshot or "Copy image" in a browser arrives as an
+// `image/*` item, but a file copied in the file manager (Explorer, Finder) arrives only in `files`, and some
+// browsers give it an empty type, so the extension is read too. Without this, copying a PNG from a folder
+// pasted nothing at all.
+export function imageFileFromTransfer(data: DataTransfer | null | undefined): File | null {
+  if (!data) return null;
+  for (const item of Array.from(data.items ?? [])) {
+    if (item.kind === 'file' && item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      if (file) return file;
+    }
+  }
+  return Array.from(data.files ?? []).find((f) => f.type.startsWith('image/') || IMAGE_NAME_RE.test(f.name)) ?? null;
+}
+
 // Downscales and re-encodes every pasted image before it ever becomes part
 // of the document, capped to MAX_IMAGE_DIMENSION on its longest side and
 // re-encoded as JPEG - a pasted screenshot is an opaque screen capture in
 // the overwhelming majority of real pastes, and JPEG's lossy compression is
 // what actually gets a multi-megabyte PNG down to a reasonable size; simply
 // re-saving as PNG at full resolution barely helps, since the source is
-// already PNG-compressed. No small-file exemption (see the note above) - a
-// transparent icon/logo does lose its alpha channel here, a real cost, but
-// one worth paying to guarantee nothing pasted can reintroduce the hang.
+// already PNG-compressed. No small-file exemption (see the note above).
+//
+// The exception is an image with real transparency (a logo, an icon): JPEG has
+// no alpha channel, so it would come out with a black background. Those stay
+// PNG - still capped to MAX_IMAGE_DIMENSION, so they stay small.
+// True when any pixel is not fully opaque. Stops at the first one found; an opaque screenshot reads the whole canvas.
+function hasTransparency(ctx: CanvasRenderingContext2D, width: number, height: number): boolean {
+  try {
+    const data = ctx.getImageData(0, 0, width, height).data;
+    for (let i = 3; i < data.length; i += 4) if (data[i] < 255) return true;
+  } catch {
+    // Pixels can't be read: treat it as opaque, the previous behaviour.
+  }
+  return false;
+}
+
 export async function readPastedImage(file: File): Promise<string> {
   try {
     const bitmap = await createImageBitmap(file);
@@ -54,7 +84,7 @@ export async function readPastedImage(file: File): Promise<string> {
     ctx.drawImage(bitmap, 0, 0, width, height);
     bitmap.close?.();
 
-    return canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+    return hasTransparency(ctx, width, height) ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', JPEG_QUALITY);
   } catch {
     // Decode failed (an exotic format, corrupt clipboard data) - fall back
     // to the original rather than losing the paste entirely.

@@ -1,6 +1,6 @@
 import { ReactNode, RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { FiYoutube } from 'react-icons/fi';
+import { FiImage, FiLink, FiYoutube } from 'react-icons/fi';
 import { parseYouTubeId } from './richTextYouTube';
 
 // Formatting toolbar shared by RichTextEditor's compact box and its expanded
@@ -298,10 +298,102 @@ function YouTubeModal({ onInsert, onClose }: { onInsert: (videoId: string) => vo
   );
 }
 
+// An address typed without a scheme ("premiummg.ca") is read as https; anything that is not http(s),
+// mailto or tel (javascript:, data:, ...) is refused, so the editor never writes a link it would have to
+// sanitize away later.
+export function normalizeLinkUrl(raw: string): string | null {
+  const value = raw.trim();
+  if (!value) return null;
+  if (/^(https?:|mailto:|tel:)/i.test(value)) return value;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return null;
+  if (/\s/.test(value)) return null;
+  return `https://${value}`;
+}
+
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Same shape as YouTubeModal: portalled above the full-editor modal, Escape closes only this one.
+function LinkModal({ initialText, onInsert, onClose }: {
+  initialText: string;
+  onInsert: (html: string) => void;
+  onClose: () => void;
+}) {
+  const [url, setUrl] = useState('');
+  const [text, setText] = useState(initialText);
+  const [error, setError] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const pressedOverlay = useRef(false);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      e.stopPropagation();
+      onClose();
+    }
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, [onClose]);
+
+  function submit() {
+    const href = normalizeLinkUrl(url);
+    if (!href) {
+      setError("That doesn't look like a web address.");
+      return;
+    }
+    const label = text.trim() || url.trim();
+    onInsert(`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`);
+    onClose();
+  }
+
+  const onEnter = (e: React.KeyboardEvent) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } };
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-1100 flex items-center justify-center bg-black/40 p-4 dark:bg-black/60"
+      onMouseDown={(e) => { pressedOverlay.current = e.target === e.currentTarget; }}
+      onClick={(e) => { if (e.target === e.currentTarget && pressedOverlay.current) onClose(); }}
+    >
+      <div className="w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-(--premium-dark-grey)">
+        <h3 className="mb-4 font-heading text-base font-semibold text-gray-900 dark:text-gray-100">Insert a link</h3>
+        <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">Web address</label>
+        <input
+          ref={inputRef}
+          value={url}
+          onChange={(e) => { setUrl(e.target.value); setError(''); }}
+          onKeyDown={onEnter}
+          placeholder="https://premiummg.ca"
+          className="input-field"
+        />
+        <label className="mb-1 mt-3 block text-xs font-medium text-gray-600 dark:text-gray-300">Text to show (optional)</label>
+        <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onEnter} placeholder="Brand Guideline" className="input-field" />
+        {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
+        <div className="mt-4 flex gap-2">
+          <button type="button" onClick={submit} className="btn-primary flex-1 py-2.5 text-sm">Insert</button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50 dark:border-white/20 dark:text-gray-300 dark:hover:bg-white/10"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 export interface RichTextToolbarProps {
   exec: (cmd: string, value?: string | null) => void;
   execHighlight: (value: string) => void;
   onInsertYouTube?: (videoId: string) => void;
+  // Gets the image file the author picked; the editor decides how it is inserted.
+  onInsertImage?: (file: File) => void;
   full?: boolean;
   textColor?: string;
   setTextColor?: (value: string) => void;
@@ -314,6 +406,7 @@ export function RichTextToolbar({
   exec,
   execHighlight,
   onInsertYouTube,
+  onInsertImage,
   full = false,
   textColor = '',
   setTextColor,
@@ -322,6 +415,8 @@ export function RichTextToolbar({
   trailing = null,
 }: RichTextToolbarProps) {
   const [youTubeOpen, setYouTubeOpen] = useState(false);
+  const [linkText, setLinkText] = useState<string | null>(null);
+  const imageInput = useRef<HTMLInputElement>(null);
 
   return (
     <div className="border-b border-gray-200 bg-gray-50 dark:border-white/20 dark:bg-(--premium-black)/30">
@@ -385,6 +480,44 @@ export function RichTextToolbar({
       )}
 
       <Sep />
+      <button
+        type="button"
+        // Keeps the focus out of the way like YouTube below, but reads the selected text first: it becomes the
+        // link's label, so selecting a word and pressing Link links that word.
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => setLinkText(window.getSelection()?.toString() ?? '')}
+        title="Insert a link"
+        className="flex select-none items-center gap-1.5 rounded px-2 py-1 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600"
+      >
+        <FiLink size={14} /> Link
+      </button>
+      {onInsertImage && (
+        <>
+          <button
+            type="button"
+            // The caret has to stay in the editor while the file dialog is open, so the image lands where it was.
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => imageInput.current?.click()}
+            title="Insert an image"
+            className="flex select-none items-center gap-1.5 rounded px-2 py-1 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:text-gray-200 dark:hover:bg-gray-600"
+          >
+            <FiImage size={14} /> Image
+          </button>
+          <input
+            ref={imageInput}
+            type="file"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) onInsertImage(file);
+              e.target.value = '';
+            }}
+          />
+        </>
+      )}
       {onInsertYouTube && (
         <button
           type="button"
@@ -405,6 +538,9 @@ export function RichTextToolbar({
       {trailing}
     </div>
 
+      {linkText !== null && (
+        <LinkModal initialText={linkText} onInsert={(html) => exec('insertHTML', html)} onClose={() => setLinkText(null)} />
+      )}
       {youTubeOpen && onInsertYouTube && (
         <YouTubeModal onInsert={onInsertYouTube} onClose={() => setYouTubeOpen(false)} />
       )}

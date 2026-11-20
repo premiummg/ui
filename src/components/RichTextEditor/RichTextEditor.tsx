@@ -1,9 +1,9 @@
-import { ClipboardEvent, useEffect, useRef, useState } from 'react';
+import { ClipboardEvent, DragEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FiMaximize2 } from 'react-icons/fi';
 import { RichTextToolbar, useRichTextCommands } from './RichTextToolbar';
 import { sanitizePastedHtml, isHtmlEmpty, ensureBlockWrapped, normalizeAutoInkColors } from './richTextSanitize';
-import { buildResizableImageNode, reattachResizeHandles, stripResizeHandles, readPastedImage } from './richTextImages';
+import { buildResizableImageNode, reattachResizeHandles, stripResizeHandles, readPastedImage, imageFileFromTransfer } from './richTextImages';
 import { buildYouTubeNode, hydrateYouTubeNodes, stripYouTubePreviews } from './richTextYouTube';
 
 // Rich text body editor - for a News/Knowledge Base/Documents/Events style
@@ -24,7 +24,7 @@ import { buildYouTubeNode, hydrateYouTubeNodes, stripYouTubePreviews } from './r
 // the rest of a consumer's own form fields.
 
 const EDITOR_CONTENT_CLASSES =
-  'focus:outline-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-6 [&_ol]:ml-6 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1 [&_img]:max-w-full';
+  'focus:outline-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-6 [&_ol]:ml-6 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1 [&_img]:max-w-full [&_a]:text-brand-600 [&_a]:underline';
 
 // The contentEditable div is written to imperatively (innerHTML) rather than
 // rendered from `value`, because re-rendering it on every keystroke would
@@ -119,10 +119,9 @@ function totalImageBytes(container: HTMLElement | null): number {
 // enter through this path, where the source is a local clipboard blob.
 function useRichTextPaste(editorRef: React.RefObject<HTMLDivElement | null>, emit: () => void) {
   return (e: ClipboardEvent<HTMLDivElement>) => {
-    const items = Array.from(e.clipboardData?.items ?? []);
-    const imageItem = items.find((item) => item.type.startsWith('image/'));
+    const file = imageFileFromTransfer(e.clipboardData);
 
-    if (!imageItem) {
+    if (!file) {
       const html = e.clipboardData?.getData('text/html');
       if (!html) return;
       e.preventDefault();
@@ -137,8 +136,6 @@ function useRichTextPaste(editorRef: React.RefObject<HTMLDivElement | null>, emi
     }
 
     e.preventDefault();
-    const file = imageItem.getAsFile();
-    if (!file) return;
 
     // readPastedImage is async (a large image goes through a decode/draw/
     // re-encode round trip to compress it - see richTextImages.ts), so the
@@ -165,6 +162,40 @@ function useRichTextPaste(editorRef: React.RefObject<HTMLDivElement | null>, emi
       }
       emit();
     });
+  };
+}
+
+// An image file dragged in from the desktop or a folder lands where it is dropped. Anything else that is
+// dragged (text, a link) keeps the browser's own behaviour.
+function useRichTextDrop(editorRef: React.RefObject<HTMLDivElement | null>, emit: () => void) {
+  return (e: DragEvent<HTMLDivElement>) => {
+    const file = imageFileFromTransfer(e.dataTransfer);
+    if (!file) return;
+    e.preventDefault();
+    const doc = document as Document & { caretRangeFromPoint?: (x: number, y: number) => Range | null };
+    const at = doc.caretRangeFromPoint?.(e.clientX, e.clientY);
+    const range = at && editorRef.current?.contains(at.startContainer) ? at : null;
+    readPastedImage(file).then((dataUrl) => {
+      const { wrap } = buildResizableImageNode(dataUrl);
+      if (range) {
+        range.insertNode(wrap);
+        range.setStartAfter(wrap);
+        range.collapse(true);
+        const liveSel = window.getSelection();
+        liveSel?.removeAllRanges();
+        liveSel?.addRange(range);
+      } else {
+        editorRef.current?.appendChild(wrap);
+      }
+      emit();
+    });
+  };
+}
+
+// The toolbar's Image button: the picked file goes in at the caret, the same node a pasted screenshot becomes.
+function makeImageInserter(insertNodes: (nodes: Node | Node[]) => void) {
+  return (file: File) => {
+    readPastedImage(file).then((dataUrl) => insertNodes(buildResizableImageNode(dataUrl).wrap));
   };
 }
 
@@ -220,6 +251,7 @@ export function RichTextEditor({
   const { emit, oversized } = useEditableSync(editorRef, value, onChange);
   const { saveSelection, exec, execHighlight, insertNodes } = useRichTextCommands(editorRef, emit);
   const handlePaste = useRichTextPaste(editorRef, emit);
+  const handleDrop = useRichTextDrop(editorRef, emit);
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -232,6 +264,7 @@ export function RichTextEditor({
           exec={exec}
           execHighlight={execHighlight}
           onInsertYouTube={makeYouTubeInserter(insertNodes)}
+          onInsertImage={makeImageInserter(insertNodes)}
           trailing={
             <button
               type="button"
@@ -257,6 +290,7 @@ export function RichTextEditor({
             suppressContentEditableWarning
             onInput={emit}
             onPaste={handlePaste}
+            onDrop={handleDrop}
             onKeyUp={saveSelection}
             onMouseUp={saveSelection}
             className={`thin-scrollbar overflow-y-auto px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 ${EDITOR_CONTENT_CLASSES}`}
@@ -297,6 +331,7 @@ function RichTextFullEditor({ title, initialHtml, onSave, onClose }: {
   const { emit, oversized } = useEditableSync(editorRef, draft, setDraft);
   const { saveSelection, exec, execHighlight, insertNodes } = useRichTextCommands(editorRef, emit);
   const handlePaste = useRichTextPaste(editorRef, emit);
+  const handleDrop = useRichTextDrop(editorRef, emit);
 
   // Focus the editor and drop the caret at the end, the way opening a document
   // for editing normally behaves.
@@ -341,6 +376,7 @@ function RichTextFullEditor({ title, initialHtml, onSave, onClose }: {
           exec={exec}
           execHighlight={execHighlight}
           onInsertYouTube={makeYouTubeInserter(insertNodes)}
+          onInsertImage={makeImageInserter(insertNodes)}
           textColor={textColor}
           setTextColor={setTextColor}
           highlightColor={highlightColor}
@@ -358,6 +394,7 @@ function RichTextFullEditor({ title, initialHtml, onSave, onClose }: {
             suppressContentEditableWarning
             onInput={emit}
             onPaste={handlePaste}
+            onDrop={handleDrop}
             onKeyUp={saveSelection}
             onMouseUp={saveSelection}
             className={`thin-scrollbar h-full overflow-y-auto px-6 py-4 text-sm text-gray-900 dark:text-gray-100 ${EDITOR_CONTENT_CLASSES}`}
