@@ -30,8 +30,9 @@ const ACCEPTED_TYPES = new Set(Object.values(TYPE_BY_EXT));
 const ACCEPT_ATTRIBUTE = [...ACCEPTED_TYPES, '.heic', '.heif'].join(',');
 
 // The type the server will see for this file, or null when it cannot be sent.
-function acceptedType(file: File): string | null {
+function acceptedType(file: File, allowPdf = false): string | null {
   const type = file.type.toLowerCase();
+  if (allowPdf && (type === 'application/pdf' || (!type && /\.pdf$/i.test(file.name)))) return 'application/pdf';
   if (type === 'image/heif') return 'image/heic';
   if (ACCEPTED_TYPES.has(type)) return type;
   // Windows and Chrome often report no type at all for HEIC.
@@ -50,11 +51,14 @@ export interface ImageAttachmentPickerProps {
   // text button, for forms.
   compact?: boolean;
   className?: string;
+  // PDFs too, not only images (a receipt or a form attached to a timesheet row).
+  allowPdf?: boolean;
 }
 
 function Preview({ file, onRemove, removeLabel }: { file: File; onRemove: () => void; removeLabel: string }) {
   const [url, setUrl] = useState<string | null>(null);
-  const [broken, setBroken] = useState(false);
+  // A PDF has no picture to show: its name stands for it.
+  const [broken, setBroken] = useState(file.type === 'application/pdf');
   useEffect(() => {
     const made = URL.createObjectURL(file);
     setUrl(made);
@@ -91,6 +95,7 @@ export function ImageAttachmentPicker({
   disabled = false,
   compact = false,
   className = '',
+  allowPdf = false,
 }: ImageAttachmentPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
@@ -103,10 +108,10 @@ export function ImageAttachmentPicker({
     // A file with a missing type is handed over with the one its extension says.
     const images = all
       .map((f) => {
-        const type = acceptedType(f);
+        const type = acceptedType(f, allowPdf);
         return type && type !== f.type ? new File([f], f.name, { type, lastModified: f.lastModified }) : f;
       })
-      .filter((f) => acceptedType(f));
+      .filter((f) => acceptedType(f, allowPdf));
     if (images.length < all.length) setError(strings.unsupportedLabel);
     const fits = images.filter((f) => f.size <= maxBytes);
     if (fits.length < images.length) setError(strings.tooLargeLabel);
@@ -147,7 +152,7 @@ export function ImageAttachmentPicker({
         <FiImage size={compact ? 16 : 14} />
         {!compact && strings.addLabel}
       </button>
-      <input ref={inputRef} type="file" accept={ACCEPT_ATTRIBUTE} multiple className="sr-only" tabIndex={-1} onChange={(e) => handlePick(e.target.files)} />
+      <input ref={inputRef} type="file" accept={allowPdf ? `${ACCEPT_ATTRIBUTE},application/pdf,.pdf` : ACCEPT_ATTRIBUTE} multiple className="sr-only" tabIndex={-1} onChange={(e) => handlePick(e.target.files)} />
       {error && <FieldError scope="form" className={`mt-1 text-xs ${compact ? 'w-full' : ''}`} message={error} />}
     </div>
   );

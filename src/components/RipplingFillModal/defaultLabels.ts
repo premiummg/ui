@@ -1,0 +1,43 @@
+import type { RipplingFillModalLabels } from './RipplingFillModal';
+
+// The built-in text, in English and French. A caller passes `labels` only for what it says differently.
+export const DEFAULT_LABELS: { en: RipplingFillModalLabels; fr: RipplingFillModalLabels } = {
+  en: {
+    heading: 'Fill missing info from Rippling',
+    body: "Compares this record against Rippling's. Shows fields it's missing, plus a name correction if Rippling's differs from what's on file. Nothing else already on file here is ever changed.",
+    loading: 'Checking Rippling…',
+    loadError: "Couldn't load this employee's Rippling data",
+    retry: 'Try again',
+    nothingMissing: 'Nothing to fill. This record already has everything Rippling knows.',
+    fill: 'Fill',
+    filling: 'Filling…',
+    close: 'Close',
+    filledToast: (count: number) => `Filled ${count} field${count === 1 ? '' : 's'} from Rippling.`,
+    fillError: "Couldn't fill these fields. Try again.",
+    photo: 'Photo',
+    photoDifferentHint: "This employee already has a photo, and it is not the one in Rippling. Choose which to keep.",
+    photoCurrent: 'Current',
+    photoFromRippling: 'In Rippling',
+    photoKeepCurrent: 'Keep current',
+    photoUseRippling: "Use Rippling's",
+  },
+  fr: {
+    heading: 'Remplir les infos manquantes depuis Rippling',
+    body: "Compare cette fiche à celle de Rippling. Montre les champs manquants, ainsi qu'une correction de nom si celui de Rippling diffère de celui au dossier. Rien d'autre de déjà présent ici n'est jamais modifié.",
+    loading: 'Vérification de Rippling…',
+    loadError: "Impossible de charger les données Rippling de cet employé",
+    retry: 'Réessayer',
+    nothingMissing: 'Rien à remplir. Cette fiche a déjà tout ce que Rippling sait.',
+    fill: 'Remplir',
+    filling: 'Remplissage…',
+    close: 'Fermer',
+    filledToast: (count: number) => `${count} champ${count === 1 ? '' : 's'} rempli${count === 1 ? '' : 's'} depuis Rippling.`,
+    fillError: "Impossible de remplir ces champs. Réessayez.",
+    photo: 'Photo',
+    photoDifferentHint: "Cet employé a déjà une photo, et ce n'est pas celle de Rippling. Choisissez laquelle garder.",
+    photoCurrent: 'Actuelle',
+    photoFromRippling: 'Dans Rippling',
+    photoKeepCurrent: 'Garder l\'actuelle',
+    photoUseRippling: 'Utiliser celle de Rippling',
+  },
+};

@@ -5,6 +5,8 @@ import { FormLabel } from '../FormLabel';
 import { Modal } from '../Modal';
 import { useToast } from '../Toaster';
 import { ImageAttachmentPicker } from '../ImageAttachments/ImageAttachments';
+import { useUiText } from '../../lib/i18n';
+import { DEFAULT_LABELS } from './defaultLabels';
 
 export const FEEDBACK_MESSAGE_MAX = 4000;
 
@@ -44,7 +46,7 @@ export interface FeedbackModalProps {
   // Resolves once the feedback is accepted; rejects with an Error whose message
   // displays as is, falling back to labels.sendError.
   onSend: (fields: FeedbackFields) => Promise<void>;
-  labels: FeedbackModalLabels;
+  labels?: Partial<FeedbackModalLabels>;
   // Always anonymous: no checkbox, and the anonymous note is always shown. For a
   // box that only takes anonymous messages (complaints, say).
   anonymousOnly?: boolean;
@@ -53,7 +55,8 @@ export interface FeedbackModalProps {
 // Feedback about the app, from any role, with an anonymous option and images.
 // Presentational only: onSend does the real request. Anonymous means the sender
 // cannot be contacted, which the app's backend has to honor (no sender stored).
-export function FeedbackModal({ onClose, onSend, labels: t, anonymousOnly = false }: FeedbackModalProps) {
+export function FeedbackModal({ onClose, onSend, labels, anonymousOnly = false }: FeedbackModalProps) {
+  const t: FeedbackModalLabels = { ...useUiText(DEFAULT_LABELS), ...labels };
   const { toast } = useToast();
   const messageId = useId();
   const [message, setMessage] = useState('');

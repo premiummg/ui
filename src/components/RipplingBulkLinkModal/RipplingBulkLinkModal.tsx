@@ -7,6 +7,8 @@ import { RipplingLinkModal } from '../RipplingLinkModal';
 import type { RipplingCandidate, RipplingLinkModalLabels } from '../RipplingLinkModal';
 import { ModalLoading, ModalLoadError, SelectAllRow, BatchFailures, useIdSelection } from '../RipplingBulk/shared';
 import type { RipplingBulkSuggestions, RipplingBulkLinkResult } from '../RipplingBulk/types';
+import { useUiText } from '../../lib/i18n';
+import { DEFAULT_LABELS } from './defaultLabels';
 
 export interface RipplingBulkLinkModalLabels {
   heading: string;
@@ -51,21 +53,22 @@ export interface RipplingBulkLinkModalProps {
   linkOne: {
     loadCandidates: () => Promise<RipplingCandidate[]>;
     onLink: (employeeId: string, candidate: RipplingCandidate) => Promise<unknown>;
-    labels: RipplingLinkModalLabels;
+    labels?: Partial<RipplingLinkModalLabels>;
     errorMessage?: (err: unknown) => string | null | undefined;
   };
   // Runs whenever something was linked (the list behind the dialog may have changed).
   onLinked: () => void;
   onClose: () => void;
   errorMessage?: (err: unknown) => string | null | undefined;
-  labels: RipplingBulkLinkModalLabels;
+  labels?: Partial<RipplingBulkLinkModalLabels>;
 }
 
 // Bulk "Match with Rippling": a suggested worker for every active employee the
 // automatic email sync could not link. Confident matches start ticked, doubtful
 // ones start unticked; the admin reviews and links the ticked ones in one go, or
 // searches Rippling by hand for any employee.
-export function RipplingBulkLinkModal({ loadSuggestions, onLinkBulk, linkOne, onLinked, onClose, errorMessage, labels: t }: RipplingBulkLinkModalProps) {
+export function RipplingBulkLinkModal({ loadSuggestions, onLinkBulk, linkOne, onLinked, onClose, errorMessage, labels }: RipplingBulkLinkModalProps) {
+  const t: RipplingBulkLinkModalLabels = { ...useUiText(DEFAULT_LABELS), ...labels };
   const { toast } = useToast();
   const [data, setData] = useState<RipplingBulkSuggestions | null>(null);
   const [loading, setLoading] = useState(true);

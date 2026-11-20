@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import type { IconType } from 'react-icons';
 
 export interface StatCardProps {
@@ -19,6 +19,11 @@ export interface StatCardProps {
   // (StatusBadge, Eyebrow, ConfirmDialog).
   tone?: StatCardTone;
   onClick?: () => void;
+  // A card that is a link: the app's own router Link (so a click does not reload the page), where it goes, and the
+  // router state to carry.
+  link?: { component: ComponentType<{ to: string; state?: unknown; className?: string; children?: ReactNode }>; to: string; state?: unknown };
+  // While the figure is loading: the card's outline with grey bars, the same size as the card it becomes.
+  loading?: boolean;
 }
 
 export type StatCardTone = 'amber';
@@ -30,7 +35,16 @@ export type StatCardTone = 'amber';
 // and announced correctly to a screen reader - omit `onClick` when `hint`
 // is itself interactive (a period picker), since a real <button> can't
 // contain another interactive control.
-export function StatCard({ label, value, hint, icon: Icon, tone, onClick }: StatCardProps) {
+export function StatCard({ label, value, hint, icon: Icon, tone, onClick, link, loading }: StatCardProps) {
+  if (loading) {
+    return (
+      <div className="relative bg-white dark:bg-(--premium-dark-grey) rounded-xl border border-gray-100 dark:border-white/10 p-4 overflow-hidden animate-pulse" aria-busy="true">
+        <div className="h-2.5 w-16 bg-gray-200 dark:bg-white/10 rounded mb-3" />
+        <div className="h-7 w-12 bg-gray-200 dark:bg-white/10 rounded mb-2" />
+        <div className="h-2 w-20 bg-gray-100 dark:bg-white/5 rounded" />
+      </div>
+    );
+  }
   const content = (
     <>
       {/* rounded-l-xl on the bar itself, not overflow-hidden on the card -
@@ -51,6 +65,15 @@ export function StatCard({ label, value, hint, icon: Icon, tone, onClick }: Stat
   );
 
   const className = 'relative bg-white dark:bg-(--premium-dark-grey) rounded-xl border border-gray-100 dark:border-white/10 p-4 text-left w-full';
+
+  if (link) {
+    const Link = link.component;
+    return (
+      <Link to={link.to} state={link.state} className={`${className} block cursor-pointer hover:shadow-md transition-shadow`}>
+        {content}
+      </Link>
+    );
+  }
 
   if (onClick) {
     return (

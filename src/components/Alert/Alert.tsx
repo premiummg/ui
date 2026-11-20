@@ -19,8 +19,10 @@ const STYLES: Record<AlertVariant, { cls: string; edge: string; Icon: React.Comp
     edge: '#22c55e',
     Icon: FiCheck,
   },
+  // The brand amber (#FAAD00), the attention channel of the apps, which wrote this by hand because the Tailwind amber
+  // this used to be is not the brand's.
   warning: {
-    cls: 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400',
+    cls: 'bg-[#FAAD00]/10 border border-[#FAAD00]/45 text-gray-800 dark:text-gray-100 [&>svg]:text-(--premium-orange)',
     edge: 'var(--premium-orange)',
     Icon: FiAlertCircle,
   },
@@ -43,10 +45,12 @@ export interface AlertProps {
   // needs more than a single follow-up action belongs in a bigger
   // component, not a second slot bolted onto this one.
   action?: { label: string; onClick: () => void };
+  // A bold first part of the message, before the text ("No timesheets in June." then what to do).
+  title?: ReactNode;
   className?: string;
 }
 
-export function Alert({ variant = 'error', text, action, className = '' }: AlertProps) {
+export function Alert({ variant = 'error', text, action, title, className = '' }: AlertProps) {
   const { cls, edge, Icon } = STYLES[variant];
   return (
     <div
@@ -54,7 +58,7 @@ export function Alert({ variant = 'error', text, action, className = '' }: Alert
       className={`flex items-center gap-2.5 pl-0 pr-4 py-3 rounded-2xl text-sm overflow-hidden ${cls} ${className}`}>
       <span className="self-stretch w-[3px] shrink-0" style={{ backgroundColor: edge }} />
       <Icon size={15} className="shrink-0" />
-      <span className="flex-1">{text}</span>
+      <span className="flex-1">{title && <><span className="font-semibold">{title}</span>{' '}</>}{text}</span>
       {action && (
         <button
           type="button"

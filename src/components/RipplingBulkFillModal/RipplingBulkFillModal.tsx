@@ -5,6 +5,8 @@ import { Avatar } from '../Avatar';
 import { useToast } from '../Toaster';
 import { ModalLoading, ModalLoadError, SelectAllRow, BatchFailures, useIdSelection } from '../RipplingBulk/shared';
 import type { RipplingBulkFillPreview, RipplingBulkFillResult } from '../RipplingBulk/types';
+import { useUiText } from '../../lib/i18n';
+import { DEFAULT_LABELS } from './defaultLabels';
 
 export interface RipplingBulkFillModalLabels {
   heading: string;
@@ -46,7 +48,7 @@ export interface RipplingBulkFillModalProps {
   onFilled: () => void;
   onClose: () => void;
   errorMessage?: (err: unknown) => string | null | undefined;
-  labels: RipplingBulkFillModalLabels;
+  labels?: Partial<RipplingBulkFillModalLabels>;
 }
 
 // The single-employee "Fill missing info from Rippling" for everyone linked at
@@ -60,7 +62,8 @@ function resultLines(result: RipplingBulkFillResult, t: RipplingBulkFillModalLab
   return filled > 0 ? `${t.resultFilled(filled)} · ${t.resultDeactivated(deactivated)}` : t.resultDeactivated(deactivated);
 }
 
-export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFilled, onClose, errorMessage, labels: t }: RipplingBulkFillModalProps) {
+export function RipplingBulkFillModal({ loadPreview, onApply, fieldLabel, onFilled, onClose, errorMessage, labels }: RipplingBulkFillModalProps) {
+  const t: RipplingBulkFillModalLabels = { ...useUiText(DEFAULT_LABELS), ...labels };
   const { toast } = useToast();
   const [data, setData] = useState<RipplingBulkFillPreview | null>(null);
   const [loading, setLoading] = useState(true);

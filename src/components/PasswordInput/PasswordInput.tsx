@@ -1,5 +1,5 @@
 import { useUiText } from '../../lib/i18n';
-import { ChangeEvent, ReactNode, useState } from 'react';
+import { ChangeEvent, ReactNode, useId, useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
 
@@ -61,7 +61,9 @@ export function PasswordInput({
   // as the field id in RHF mode; the plain-controlled mode has no equivalent
   // object to read a name off, so it takes `name` directly instead.
   const fieldProps = registration ?? { value, onChange, name };
-  const id = registration?.name ?? name;
+  // Without a name (a controlled field) the label still needs an id to point at.
+  const autoId = useId();
+  const id = registration?.name ?? name ?? autoId;
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{label}</label>

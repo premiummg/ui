@@ -26,7 +26,8 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   // be anything), so the caller supplies it via `className`/`style`, same
   // as SiteButton's onRed/onDark do for the marketing-page equivalent of
   // this same idea.
-  onColor: 'rounded-lg bg-white font-semibold hover:bg-white/90 transition disabled:opacity-60',
+  // The text takes the deep red of the band it sits on (every caller set it by hand with a style before).
+  onColor: 'rounded-lg bg-white text-(--premium-red-dark) font-semibold hover:bg-white/90 transition disabled:opacity-60',
   // The quieter sibling of onColor for the other actions on the same colored
   // field (Cancel, Message, a secondary link back): an outline instead of a fill,
   // so the one white pill stays the one thing to act on.
@@ -59,6 +60,8 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  // A button that stays on or off (Reorder, Going): said to a screen reader with aria-pressed and drawn as held down.
+  pressed?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -68,7 +71,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   // in-page action button sitting inside some form on the page actually
   // wants. Pass `type="submit"` explicitly on the one button per form that
   // should actually submit it.
-  { variant = 'primary', size = 'md', className = '', type = 'button', ...rest },
+  { variant = 'primary', size = 'md', className = '', type = 'button', pressed, ...rest },
   ref,
 ) {
   return (
@@ -81,7 +84,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       // see above) would otherwise stack above the label instead of sitting
       // beside it - every other button-shaped component here already
       // includes its own flex layout for exactly this reason.
-      className={`inline-flex items-center gap-2 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
+      aria-pressed={pressed}
+      className={`inline-flex items-center gap-2 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${pressed ? 'ring-2 ring-inset ring-current/30' : ''} ${className}`}
       {...rest}
     />
   );

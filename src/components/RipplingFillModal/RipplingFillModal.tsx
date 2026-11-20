@@ -4,6 +4,8 @@ import { Button } from '../Button';
 import { TextButton } from '../TextButton';
 import { useToast } from '../Toaster';
 import { Avatar } from '../Avatar';
+import { useUiText } from '../../lib/i18n';
+import { DEFAULT_LABELS } from './defaultLabels';
 
 // Pictures that come from the server are shown only if they are a path of the same site, a small embedded image or an
 // https address: nothing else (a script address, another protocol) ever reaches an image.
@@ -59,15 +61,16 @@ export interface RipplingFillModalProps {
   // The visible name of a field key ("phone" becomes "Phone").
   fieldLabel: (field: string) => string;
   errorMessage?: (err: unknown) => string | null | undefined;
-  labels: RipplingFillModalLabels;
+  labels?: Partial<RipplingFillModalLabels>;
 }
 
 // Shows only what Rippling knows and this record is missing, and fills it in one
 // click. Nothing already on file is ever shown for change, except a photo that
 // differs from the one in Rippling: that is shown next to it, and the admin chooses.
 export function RipplingFillModal({
-  loadFields, loadPreview, onFill, onUsePhoto, onClose, onFilled, fieldLabel, errorMessage, labels: t,
+  loadFields, loadPreview, onFill, onUsePhoto, onClose, onFilled, fieldLabel, errorMessage, labels,
 }: RipplingFillModalProps) {
+  const t: RipplingFillModalLabels = { ...useUiText(DEFAULT_LABELS), ...labels };
   const { toast } = useToast();
   const photoId = useId();
   const [fields, setFields] = useState<RipplingFillFields | null>(null);

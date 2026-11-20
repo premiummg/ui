@@ -7,9 +7,12 @@ export interface SearchInputProps {
   placeholder?: string;
   className?: string;
   debounceMs?: number;
+  // Turned off (a list being reordered by dragging cannot be filtered at the same time), with a title that says why.
+  disabled?: boolean;
+  title?: string;
 }
 
-export function SearchInput({ value, onChange, placeholder = 'Search…', className = '', debounceMs = 350 }: SearchInputProps) {
+export function SearchInput({ value, onChange, placeholder = 'Search…', className = '', debounceMs = 350, disabled, title }: SearchInputProps) {
   const [inputValue, setInputValue] = useState(value);
 
   // Sync when the parent clears the field (e.g. a "clear filters" action).
@@ -37,9 +40,12 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
         value={inputValue}
         onChange={e => setInputValue(e.target.value)}
         placeholder={placeholder}
-        className="input-field w-full pl-8 pr-8"
+        aria-label={placeholder}
+        disabled={disabled}
+        title={title}
+        className="input-field w-full pl-8 pr-8 disabled:opacity-50 disabled:cursor-not-allowed"
       />
-      {inputValue && (
+      {inputValue && !disabled && (
         <button type="button"
           onClick={() => { setInputValue(''); onChange(''); }}
           className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition"

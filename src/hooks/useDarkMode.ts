@@ -1,24 +1,40 @@
 import { useState, useEffect } from 'react';
 
-// Reads/toggles the class (`html.dark`) that drives every `dark:` utility in
-// the app. Whoever mounts this app is expected to have already set that
-// class once at boot, before React hydrates, from `localStorage` (`'theme'`)
-// falling back to `prefers-color-scheme` - this hook only tracks and flips
-// it from then on, and persists the choice back to `localStorage` itself.
+// The dark mode of the page: the `dark` class on <html> (set before paint by the app's index.html from the stored
+// choice or the system's), kept in step with a toggle. Nothing is written on mount: until the person toggles, the
+// page follows the system, live, as it changes; only a toggle stores an explicit choice ("theme" in localStorage),
+// which from then on wins. (Writing on mount used to freeze whatever the system said the first time.)
 export function useDarkMode() {
-  // No document while a page is rendered ahead of time (prerender, SSR): light until the browser takes over.
   const [isDark, setIsDark] = useState(
     () => typeof document !== 'undefined' && document.documentElement.classList.contains('dark'),
   );
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle('dark', isDark);
-    // A blocked or full storage must not crash the toggle: the choice just lasts until the page is closed.
-    try {
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    } catch {}
+    document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
 
-  return { isDark, toggle: () => setIsDark(d => !d) };
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = (e: MediaQueryListEvent) => {
+      try {
+        if (localStorage.getItem('theme')) return; // an explicit choice was made since mount
+      } catch {}
+      setIsDark(e.matches);
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  const toggle = () => {
+    setIsDark((d) => {
+      const next = !d;
+      try {
+        localStorage.setItem('theme', next ? 'dark' : 'light');
+      } catch {}
+      return next;
+    });
+  };
+
+  return { isDark, toggle };
 }

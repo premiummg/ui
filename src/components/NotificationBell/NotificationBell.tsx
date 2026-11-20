@@ -23,7 +23,12 @@ export interface NotificationBellProps {
   // Tooltip of the trigger. Defaults to `label`.
   triggerTitle?: string;
   // Optional footer action, e.g. "View all notifications".
-  footer?: { label: string; onClick: () => void };
+  // One action at the bottom of the panel, or several side by side ("View all" and "Birthdays").
+  footer?: { label: string; onClick: () => void } | { label: string; onClick: () => void }[];
+  // A dot on the trigger for "there is something new" when there is no number to show.
+  dot?: boolean;
+  // Called when the panel opens (to mark what it lists as seen).
+  onOpen?: () => void;
   width?: string;
 }
 
@@ -33,7 +38,8 @@ export interface NotificationBellProps {
 // What differs between them - the actual rows - stays fully up to the
 // caller via `children`, since a notification row and a "3 timesheets
 // pending" row don't share a shape worth forcing into one prop.
-export function NotificationBell({ icon: Icon, label, count, title, headerAction, children, footer, width = 'w-80', badgeTone = 'amber', triggerTitle }: NotificationBellProps) {
+export function NotificationBell({ icon: Icon, label, count, title, headerAction, children, footer, width = 'w-80', badgeTone = 'amber', triggerTitle, dot, onOpen }: NotificationBellProps) {
+  const footers = footer ? (Array.isArray(footer) ? footer : [footer]) : [];
   const { open, setOpen, ref } = usePopover<HTMLDivElement>();
   const close = () => setOpen(false);
   const { side, panelRef } = usePopoverSide(open, ref, 'right');
@@ -47,7 +53,7 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
     <div className="relative inline-block shrink-0" ref={ref}>
       <button
         type="button"
-        onClick={() => setOpen(o => !o)}
+        onClick={() => setOpen(o => { if (!o) onOpen?.(); return !o; })}
         aria-label={label}
         title={triggerTitle ?? label}
         aria-expanded={open}
@@ -61,6 +67,12 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
           >
             {count > 9 ? '9+' : count}
           </span>
+        )}
+        {!count && dot && (
+          <span
+            className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${badgeTone === 'red' ? '' : 'bg-[#FAAD00]'}`}
+            style={badgeTone === 'red' ? { backgroundColor: 'var(--premium-red)' } : undefined}
+          />
         )}
       </button>
 
@@ -81,14 +93,19 @@ export function NotificationBell({ icon: Icon, label, count, title, headerAction
 
           <div className="max-h-96 overflow-y-auto">{typeof children === 'function' ? children(close) : children}</div>
 
-          {footer && (
-            <button
-              type="button"
-              onClick={() => { close(); footer.onClick(); }}
-              className="w-full px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 border-t border-gray-100 dark:border-white/10 transition"
-            >
-              {footer.label}
-            </button>
+          {footers.length > 0 && (
+            <div className="flex border-t border-gray-100 dark:border-white/10 divide-x divide-gray-100 dark:divide-white/10">
+              {footers.map(f => (
+                <button
+                  key={f.label}
+                  type="button"
+                  onClick={() => { close(); f.onClick(); }}
+                  className="flex-1 px-4 py-2.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition"
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           )}
         </div>
       )}

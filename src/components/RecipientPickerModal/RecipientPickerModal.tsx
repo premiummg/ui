@@ -3,6 +3,8 @@ import { FiSearch } from 'react-icons/fi';
 import { Modal } from '../Modal';
 import { FormLabel } from '../FormLabel';
 import { Button } from '../Button';
+import { useUiText } from '../../lib/i18n';
+import { DEFAULT_LABELS } from './defaultLabels';
 
 export interface RecipientPerson {
   id: string;
@@ -30,14 +32,15 @@ export interface RecipientPickerModalProps {
   onClose: () => void;
   // Called with the people ticked, in list order, when the sender continues.
   onContinue: (selected: RecipientPerson[]) => void;
-  labels: RecipientPickerLabels;
+  labels?: Partial<RecipientPickerLabels>;
 }
 
 // "Who is this going to": a searchable, multi-select list of the people the
 // sender is allowed to address. Presentational; the caller decides who is in
 // the list (their division, admins, ...) and what happens with the pick, which
 // in both apps is handing it on to SendMessageModal.
-export function RecipientPickerModal({ people, onClose, onContinue, labels: t }: RecipientPickerModalProps) {
+export function RecipientPickerModal({ people, onClose, onContinue, labels }: RecipientPickerModalProps) {
+  const t: RecipientPickerLabels = { ...useUiText(DEFAULT_LABELS), ...labels };
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
 

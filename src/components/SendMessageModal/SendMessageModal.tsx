@@ -4,6 +4,8 @@ import { FormLabel } from '../FormLabel';
 import { Avatar } from '../Avatar';
 import { useToast } from '../Toaster';
 import { ImageAttachmentPicker, type ImageAttachmentPickerStrings } from '../ImageAttachments/ImageAttachments';
+import { useUiText } from '../../lib/i18n';
+import { DEFAULT_LABELS } from './defaultLabels';
 
 const TITLE_MAX = 150;
 const MESSAGE_MAX = 4000;
@@ -55,7 +57,7 @@ export interface SendMessageModalProps {
   // Called right after a successful send, before onClose - e.g. to exit a
   // bulk-selection mode or refresh a list.
   onSent?: () => void;
-  labels: SendMessageModalLabels;
+  labels?: Partial<SendMessageModalLabels>;
   // Lets the sender attach images; omit to leave attachments out. `label` is the
   // visible field label (e.g. "Images (optional)").
   images?: ImageAttachmentPickerStrings & { label: string };
@@ -106,7 +108,8 @@ function ReplyModeOption({ selected, onSelect, title, description }: {
 // system and pmg-intranet, which had each hand-written their own version.
 // Presentational only - onSend does the real API call; this has no opinion
 // on the payload shape beyond the three fields a person actually fills in.
-export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend, onSent, labels: t, images, allowResponseRequest = true }: SendMessageModalProps) {
+export function SendMessageModal({ recipientIds, recipientNames, onClose, onSend, onSent, labels, images, allowResponseRequest = true }: SendMessageModalProps) {
+  const t: SendMessageModalLabels = { ...useUiText(DEFAULT_LABELS), ...labels };
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');

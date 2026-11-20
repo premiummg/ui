@@ -25,6 +25,10 @@ export interface ModalProps {
   dismissable?: boolean;
   // Accessible name when there is no `title` to point at (a modal that builds its own header).
   ariaLabel?: string;
+  // center (default) | sheet: from the bottom of a phone, centered from sm up, as tall as the screen allows and
+  // scrolling inside | right: a full height panel on the right (the record beside a list). In both, the children lay
+  // out their own header and padding.
+  placement?: 'center' | 'sheet' | 'right';
 }
 
 // Only the top modal answers Escape and traps Tab, so a confirm opened over an edit modal closes alone instead
@@ -56,7 +60,7 @@ function lockBodyScroll(): () => void {
 
 const TEXT = { en: { close: 'Close' }, fr: { close: 'Fermer' } };
 
-export function Modal({ onClose, eyebrow, showClose = false, closeLabel, title, description, children, maxWidth = 'max-w-md', zIndex = 'z-50', dismissable = true, ariaLabel }: ModalProps) {
+export function Modal({ onClose, eyebrow, showClose = false, closeLabel, title, description, children, maxWidth = 'max-w-md', zIndex = 'z-50', dismissable = true, ariaLabel, placement = 'center' }: ModalProps) {
   const tx = useUiText(TEXT);
   const id = useId();
   const titleId = `${id}-title`;
@@ -118,7 +122,9 @@ export function Modal({ onClose, eyebrow, showClose = false, closeLabel, title, 
     <div
       // The overlay scrolls when a modal is taller than the screen (a long list, a small window); the panel centres
       // itself with auto margins, which, unlike items-center, never pushes its top out of reach.
-      className={`fixed inset-0 ${zIndex} flex justify-center overflow-y-auto p-4 bg-black/40 dark:bg-black/60 backdrop-blur-sm`}
+      className={`fixed inset-0 ${zIndex} flex bg-black/40 dark:bg-black/60 backdrop-blur-sm ${
+        placement === 'right' ? 'justify-end' : placement === 'sheet' ? 'justify-center items-end sm:items-center p-4' : 'justify-center overflow-y-auto p-4'
+      }`}
       onMouseDown={e => { pressedOverlay.current = e.target === e.currentTarget; }}
       onClick={e => { if (dismissable && e.target === e.currentTarget && pressedOverlay.current) onClose(); }}
     >
@@ -131,9 +137,15 @@ export function Modal({ onClose, eyebrow, showClose = false, closeLabel, title, 
         aria-label={title ? undefined : ariaLabel}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        className={`bg-white dark:bg-(--premium-dark-grey) rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 w-full my-auto outline-none ${maxWidth}`}
+        className={`bg-white dark:bg-(--premium-dark-grey) shadow-xl border-gray-100 dark:border-white/10 w-full outline-none ${maxWidth} ${
+          placement === 'right'
+            ? 'h-full border-l flex flex-col overflow-hidden'
+            : placement === 'sheet'
+              ? 'rounded-2xl border max-h-[85vh] overflow-y-auto'
+              : 'rounded-2xl border my-auto'
+        }`}
       >
-        <div className="p-6">
+        <div className={placement === 'right' ? 'flex flex-col h-full min-h-0' : placement === 'sheet' ? '' : 'p-6'}>
           {(eyebrow || showClose) && (
             <div className={`flex items-start justify-between gap-4 ${description ? 'mb-1' : 'mb-4'}`}>
               <div className="min-w-0">

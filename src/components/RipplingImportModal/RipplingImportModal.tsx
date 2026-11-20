@@ -6,6 +6,8 @@ import { useToast } from '../Toaster';
 import { copyToClipboard } from '../../lib/clipboard';
 import { ModalLoading, ModalLoadError, SelectAllRow, BatchFailures, useIdSelection } from '../RipplingBulk/shared';
 import type { RipplingImportCandidates, RipplingImportOutcome } from '../RipplingBulk/types';
+import { useUiText } from '../../lib/i18n';
+import { DEFAULT_LABELS } from './defaultLabels';
 
 export interface RipplingImportSkipCounts {
   knownEmail: number;
@@ -75,7 +77,7 @@ export interface RipplingImportModalProps {
   onImported: () => void;
   onClose: () => void;
   errorMessage?: (err: unknown) => string | null | undefined;
-  labels: RipplingImportModalLabels;
+  labels?: Partial<RipplingImportModalLabels>;
 }
 
 // Pre-start workers (hired, accepted) and anything but an active worker start
@@ -88,8 +90,9 @@ function isActive(status: string | null): boolean {
 // linked to that worker. The app re-checks eligibility and runs each account
 // through the same validation as its own add-employee form.
 export function RipplingImportModal({
-  loadCandidates, onApply, roles, roleLabel, divisions, managerOptionalRoles, renderManagerField, formatDate, onImported, onClose, errorMessage, labels: t,
+  loadCandidates, onApply, roles, roleLabel, divisions, managerOptionalRoles, renderManagerField, formatDate, onImported, onClose, errorMessage, labels,
 }: RipplingImportModalProps) {
+  const t: RipplingImportModalLabels = { ...useUiText(DEFAULT_LABELS), ...labels };
   const { toast } = useToast();
   const [data, setData] = useState<RipplingImportCandidates | null>(null);
   const [loading, setLoading] = useState(true);

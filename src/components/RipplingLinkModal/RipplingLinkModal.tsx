@@ -4,6 +4,8 @@ import { SearchInput } from '../SearchInput';
 import { Button } from '../Button';
 import { TextButton } from '../TextButton';
 import { useToast } from '../Toaster';
+import { useUiText } from '../../lib/i18n';
+import { DEFAULT_LABELS } from './defaultLabels';
 
 // A real Rippling account could grow into the thousands of workers, with no
 // pagination or virtualization in this list: rendering every match unbounded
@@ -49,7 +51,7 @@ export interface RipplingLinkModalProps {
   onlyWorkerIds?: Set<string>;
   // Turns a failed link into the message to show; falls back to labels.linkError.
   errorMessage?: (err: unknown) => string | null | undefined;
-  labels: RipplingLinkModalLabels;
+  labels?: Partial<RipplingLinkModalLabels>;
   // Lets it open on top of another modal.
   zIndex?: string;
 }
@@ -59,8 +61,9 @@ export interface RipplingLinkModalProps {
 // exact match the automatic email sync could not make, so it narrows to the
 // right person at once.
 export function RipplingLinkModal({
-  employeeName, loadCandidates, onLink, onClose, onLinked, onlyWorkerIds, errorMessage, labels: t, zIndex,
+  employeeName, loadCandidates, onLink, onClose, onLinked, onlyWorkerIds, errorMessage, labels, zIndex,
 }: RipplingLinkModalProps) {
+  const t: RipplingLinkModalLabels = { ...useUiText(DEFAULT_LABELS), ...labels };
   const { toast } = useToast();
   const [candidates, setCandidates] = useState<RipplingCandidate[] | null>(null);
   const [loading, setLoading] = useState(true);

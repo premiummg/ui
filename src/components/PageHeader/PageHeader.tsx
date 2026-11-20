@@ -14,6 +14,8 @@ export interface PageHeaderProps {
   eyebrow?: ReactNode;
   count?: ReactNode;
   actions?: ReactNode;
+  // Actions on the right of the Back row (history, edit, delete of a detail page), which drew their own Back for this.
+  backActions?: ReactNode;
   // For the header rows that don't fit that shape - a detail page's avatar
   // + status pill, a form page's date line - `children` replaces the
   // title/count/actions row entirely, the same escape hatch `Navbar`'s nav
@@ -32,32 +34,39 @@ export interface PageHeaderProps {
   // in something else entirely to still read against it.
   countColor?: string;
   className?: string;
+  // A band that runs edge to edge of the page (a dashboard), with no rounded top corners.
+  flush?: boolean;
 }
 
 // The red band shell every real page in the app opens with - `.pmg-field` +
 // `.pmg-bars` (BRAND.md pg. 16's "solid blocks of color that command
 // attention", the same device as `ColorField`), rounded at the top to sit
 // flush above a page's own white/dark content panel.
-export function PageHeader({ backLabel, onBack, title, eyebrow, count, actions, children, color, barsColor, countColor, className = '' }: PageHeaderProps) {
+export function PageHeader({ backLabel, onBack, title, eyebrow, count, actions, backActions, children, color, barsColor, countColor, className = '', flush = false }: PageHeaderProps) {
   return (
     <div
-      className={`relative pmg-field rounded-t-2xl px-4 py-5 sm:px-6 ${className}`}
+      className={`relative pmg-field ${flush ? '' : 'rounded-t-2xl'} px-4 py-5 sm:px-6 ${className}`}
       style={color ? { backgroundColor: color } : undefined}
     >
       <div
-        className="absolute inset-0 pmg-bars rounded-t-2xl pointer-events-none"
+        className={`absolute inset-0 pmg-bars ${flush ? '' : 'rounded-t-2xl'} pointer-events-none`}
         style={barsColor ? {
           backgroundImage: `repeating-linear-gradient(var(--pmg-angle), ${barsColor} 0px, ${barsColor} 2px, transparent 2px, transparent 12px)`,
         } : undefined}
       />
       <div className="relative">
-        {onBack && backLabel && (
-          <button type="button"
-            onClick={onBack}
-            className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white transition"
-          >
-            <FiArrowLeft size={16} /> {backLabel}
-          </button>
+        {((onBack && backLabel) || backActions) && (
+          <div className="mb-3 flex items-center justify-between gap-2">
+            {onBack && backLabel ? (
+              <button type="button"
+                onClick={onBack}
+                className="inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white transition"
+              >
+                <FiArrowLeft size={16} /> {backLabel}
+              </button>
+            ) : <span />}
+            {backActions && <div className="flex items-center gap-1">{backActions}</div>}
+          </div>
         )}
         {children ?? (
           // items-start, not items-center: actions (a button, ~36px tall)

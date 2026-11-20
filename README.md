@@ -487,6 +487,11 @@ multi-angle review of the library:
 
 ### Behavior changes to know when updating
 
+- `useToast()` no longer redraws its caller when a toast appears or goes: a component that only calls `toast()` stays
+  as it is. Its `toasts` is the list at the moment it is read; a component that shows the toasts uses `useToastList()`.
+- `DatePicker` and `TimePicker`: the clear button is a button of its own next to the trigger (with a name, "Clear the
+  date" / "Clear the time"), no longer inside it. A popover closes when the focus is tabbed out of it.
+- `ItemPicker` and `SearchPicker` draw at most 50 options and say how many more there are.
 - `ScrollableTable`: the default `maxHeight` is `max(240px, calc(100dvh - 320px))` (the table fills the screen less a
   header, with a floor). Pass `maxHeight` to keep the height a page had before.
 - `SiteButtonProps` is a union (a button, or a link with `href`). It can no longer be extended with `interface X
@@ -498,6 +503,22 @@ multi-angle review of the library:
 - `ItemPicker`, `TimePicker`, `PhoneCountrySelect`: Escape closes their list only, never the Modal around them.
 - `BroadcastPage.nextCursor`: an app that filters a page before handing it over gives the cursor of the page as the
   server sent it, so "load more" moves on even when the filter emptied a page.
+
+- `useDarkMode` no longer stores a choice when it mounts: the page follows the system theme, live, until the person
+  toggles it; the toggle stores the choice.
+- `usePopoverSide(open, containerRef, preferred)` takes the trigger's container ref.
+- `PasswordInput` points its label at the field even without a `name` (a generated id).
+- `RecipientPickerModal`, `FeedbackModal`, `SendMessageModal` and the five Rippling modals have built-in English and
+  French text: `labels` is optional and only needs what an app says differently.
+
+### Added in 0.99.0
+
+Pieces both apps had drawn by hand, now here (each with its English and French text built in):
+`FilterToggleButton`, `RoleBadge`, `ChipToggle`, `RolePicker`, `LoadingState`, `EmptyState`, `CredentialCard`,
+`PasswordResultsDialog`, `RateHistoryList`, `MoneyInput`, `SignInEmailsEditor`, `ExtraEmailsInput`, `ChoiceDialog`,
+`NavUserMenu`, `NavMobileSettings`, `PersonHeader`, `ImportUpdateDialog`, `UnlinkedAccountsModal`, `TagListInput`,
+`DashboardHero`, `ChangePasswordForm`; the hooks `useConfirmDiscard`, `usePopoverSide`, `useDragReorder` (with
+`moveItem`); and `nameParts`, `photoSrc`, `downloadBlob`.
 
 ### Added in 0.95.0
 

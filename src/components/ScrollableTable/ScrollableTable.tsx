@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, ReactNode, PointerEvent as ReactPointerEve
 import { FiChevronLeft, FiChevronRight, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 export interface ScrollableTableProps {
+  // 'none' for a short table inside a card, which should grow with its rows and only scroll sideways.
   maxHeight?: string;
   children: ReactNode;
   // Click-and-drag with the mouse pans the content sideways, like a touch

@@ -32,4 +32,9 @@ describe('useDarkMode', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(localStorage.getItem('theme')).toBe('light');
   });
+
+  test('mounting does not store a choice, so the page keeps following the system', () => {
+    renderHook(() => useDarkMode());
+    expect(localStorage.getItem('theme')).toBeNull();
+  });
 });
