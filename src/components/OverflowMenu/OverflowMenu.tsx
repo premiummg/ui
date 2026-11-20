@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useUiText } from '../../lib/i18n';
 import { FiMoreHorizontal } from 'react-icons/fi';
 import type { IconType } from 'react-icons';
@@ -44,8 +45,12 @@ export function OverflowMenu({ items, dangerItems, onDark = false, label: labelI
   const all = [...(items ?? []), ...(dangerItems ?? [])];
   if (all.length === 0) return null;
 
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  // The item that was clicked unmounts with the menu: the focus goes back to the trigger, where a keyboard user was,
+  // instead of the page body. An action that opens a dialog moves it there afterwards.
   function run(item: OverflowItem) {
     setOpen(false);
+    triggerRef.current?.focus();
     item.onClick();
   }
 
@@ -58,6 +63,7 @@ export function OverflowMenu({ items, dangerItems, onDark = false, label: labelI
     // this div's stretched edge happens to be instead of under the button.
     <div className="relative inline-block" ref={ref}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen(o => !o)}
         aria-label={label}

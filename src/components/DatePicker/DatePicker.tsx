@@ -52,8 +52,8 @@ function yearPageStart(year: number) {
 }
 
 const TEXT = {
-  en: { select: 'Select date', clear: 'Clear', today: 'Today', unavailable: 'Already submitted' },
-  fr: { select: 'Sélectionner une date', clear: 'Effacer', today: "Aujourd'hui", unavailable: 'Déjà soumis' },
+  en: { select: 'Select date', clear: 'Clear', today: 'Today', unavailable: 'Already submitted', clearDate: 'Clear the date', previous: 'Previous', next: 'Next' },
+  fr: { select: 'Sélectionner une date', clear: 'Effacer', today: "Aujourd'hui", unavailable: 'Déjà soumis', clearDate: 'Effacer la date', previous: 'Précédent', next: 'Suivant' },
 };
 
 export function DatePicker({
@@ -180,6 +180,8 @@ export function DatePicker({
         type="button"
         onClick={toggle}
         disabled={disabled}
+        aria-haspopup="dialog"
+        aria-expanded={open}
         className={`
           w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-sm
           border bg-white dark:bg-(--premium-dark-grey) transition-all duration-150
@@ -193,20 +195,22 @@ export function DatePicker({
           {selected ? format(selected, 'MMM d, yyyy', { locale }) : placeholder}
         </span>
         <span className="flex items-center gap-1 text-gray-400 dark:text-gray-500 shrink-0">
-          {selected && !disabled && (
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={e => { e.stopPropagation(); onChange(''); }}
-              onKeyDown={e => e.key === 'Enter' && onChange('')}
-              className="p-0.5 rounded-lg hover:text-gray-600 dark:hover:text-gray-300 transition"
-            >
-              <FiX size={12} />
-            </span>
-          )}
+          {/* Room for the clear button, which sits over this corner as a button of its own: a button inside a button
+              is not valid, and a screen reader or a keyboard could not reach it. */}
+          {selected && !disabled && <span className="w-5" aria-hidden="true" />}
           <FiCalendar size={13} />
         </span>
       </button>
+      {selected && !disabled && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label={tx.clearDate}
+          className="absolute top-1/2 -translate-y-1/2 right-8 p-0.5 rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition"
+        >
+          <FiX size={12} />
+        </button>
+      )}
 
       {/* Dropdown */}
       {open && (
@@ -218,6 +222,7 @@ export function DatePicker({
               type="button"
               onClick={handlePrev}
               disabled={prevDisabled}
+              aria-label={tx.previous}
               className="w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
             >
               <FiChevronLeft size={14} />
@@ -233,6 +238,7 @@ export function DatePicker({
               type="button"
               onClick={handleNext}
               disabled={nextDisabled}
+              aria-label={tx.next}
               className="w-7 h-7 pointer-coarse:w-11 pointer-coarse:h-11 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
             >
               <FiChevronRight size={14} />

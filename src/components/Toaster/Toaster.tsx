@@ -1,6 +1,6 @@
 import { useUiText } from '../../lib/i18n';
 import { FiCheck, FiAlertTriangle, FiAlertCircle, FiInfo, FiX } from 'react-icons/fi';
-import { useToast, ToastType } from './ToastContext';
+import { useToast, useToastList, ToastType } from './ToastContext';
 
 // Steel Grey is the brand book's own answer for dark chrome - a near-black
 // with a blue cast appears nowhere in the brand. The coloured left edge is
@@ -35,7 +35,8 @@ const TEXT = { en: { dismiss: 'Dismiss' }, fr: { dismiss: 'Fermer' } };
 export function Toaster({ dismissLabel: dismissIn }: { dismissLabel?: string } = {}) {
   const tx = useUiText(TEXT);
   const dismissLabel = dismissIn ?? tx.dismiss;
-  const { toasts, dismiss } = useToast();
+  const { dismiss } = useToast();
+  const toasts = useToastList();
 
   return (
     <div role="status" aria-live="polite" className="fixed bottom-4 left-4 right-4 sm:left-auto z-50 flex flex-col gap-2 sm:max-w-sm sm:w-full pointer-events-none">

@@ -13,6 +13,22 @@ describe('Toaster + ToastProvider', () => {
     expect(screen.getByRole('status')).toBeEmptyDOMElement();
   });
 
+  test('a component that only calls toast() is not drawn again when a toast appears', () => {
+    let draws = 0;
+    let fire: ((m: string) => void) | undefined;
+    function Caller() {
+      draws++;
+      const { toast } = useToast();
+      fire = toast;
+      return null;
+    }
+    render(<><Caller /><Toaster /></>, { wrapper });
+    const before = draws;
+    act(() => fire!('Saved'));
+    expect(screen.getByText('Saved')).toBeInTheDocument();
+    expect(draws).toBe(before);
+  });
+
   test('toast() adds a message that Toaster renders', () => {
     const { result } = renderHook(() => useToast(), { wrapper });
     act(() => result.current.toast('Saved successfully', 'success'));

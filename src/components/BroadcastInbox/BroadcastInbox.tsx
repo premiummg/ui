@@ -120,7 +120,13 @@ const defaultListCount = (n: number, total?: number) =>
   total !== undefined && total > n ? `${n} of ${total} conversations` : `${n} ${n === 1 ? 'conversation' : 'conversations'}`;
 const capBadge = (n: number) => (n > BADGE_CAP ? `${BADGE_CAP}+` : String(n));
 
-export function BroadcastInbox({
+// Each person gets an inbox of their own: when the person signed in changes while the inbox stays on screen (a sign out
+// and sign in, another tab), it starts empty instead of keeping the lists, cursors and older pages of the one before.
+export function BroadcastInbox(props: BroadcastInboxProps) {
+  return <InboxOfOnePerson key={props.currentUserId ?? ''} {...props} />;
+}
+
+function InboxOfOnePerson({
   fetchSent,
   fetchReceived,
   fetchDivisionSent,

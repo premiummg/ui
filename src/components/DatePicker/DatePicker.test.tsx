@@ -29,7 +29,7 @@ describe('DatePicker', () => {
   test('the clear (x) button calls onChange("") without opening the calendar', async () => {
     const onChange = vi.fn();
     render(<DatePicker value="2026-03-15" onChange={onChange} />);
-    await userEvent.click(screen.getByRole('button', { name: '' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Clear the date' }));
     expect(onChange).toHaveBeenCalledWith('');
     expect(screen.queryByText('March 2026')).not.toBeInTheDocument();
   });

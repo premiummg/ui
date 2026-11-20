@@ -10,6 +10,12 @@ const SPEC: ImportFieldSpec<Field>[] = [
 ];
 
 describe('resolveImportRow', () => {
+  test('a header typed with spaces around it is still read on every row, not taken as an empty cell', () => {
+    const headers = importedHeaderSet(['Name ', ' Hourly Rate']);
+    const row = resolveImportRow({ 'Name ': 'Ada Lovelace', ' Hourly Rate': 40 }, headers, SPEC);
+    expect(row).toEqual({ name: 'Ada Lovelace', rate: '40' });
+  });
+
   test('reads a field from its first matching header', () => {
     const headers = importedHeaderSet(['Name', 'Hourly Rate']);
     const row = resolveImportRow({ Name: 'Ada Lovelace', 'Hourly Rate': 40 }, headers, SPEC);

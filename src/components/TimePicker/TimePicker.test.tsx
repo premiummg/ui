@@ -38,9 +38,27 @@ describe('TimePicker', () => {
   test('the clear (x) button calls onChange("") without opening the panel', async () => {
     const onChange = vi.fn();
     render(<TimePicker value="09:00" onChange={onChange} />);
-    await userEvent.click(screen.getByRole('button', { name: '' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Clear the time' }));
     expect(onChange).toHaveBeenCalledWith('');
     expect(screen.queryByText('Done')).not.toBeInTheDocument();
+  });
+
+  test('the keyboard reaches the open panel: arrows change the hour, right moves to the minutes, Enter closes and gives the focus back', async () => {
+    const onChange = vi.fn();
+    render(<TimePicker value="09:00" onChange={onChange} />);
+    const trigger = screen.getByText('9:00 AM').closest('button')!;
+    trigger.focus();
+    await userEvent.keyboard('{Enter}');
+    const panel = await screen.findByRole('dialog');
+    expect(panel).toHaveFocus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(onChange).toHaveBeenLastCalledWith('10:00');
+    await userEvent.keyboard('{ArrowRight}{ArrowUp}');
+    // 09:00 minus one step of the minutes wheel goes back to 08:55.
+    expect(onChange).toHaveBeenLastCalledWith('08:55');
+    await userEvent.keyboard('{Enter}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 
   test('a disabled picker does not open on click', async () => {

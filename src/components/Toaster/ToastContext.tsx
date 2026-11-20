@@ -14,14 +14,26 @@ export interface ToastContextValue {
   dismiss: (id: string) => void;
 }
 
-const ToastContext = createContext<ToastContextValue>({
-  toasts: [],
+// Two contexts: the actions never change, the list changes with every toast. A component that only calls toast() reads
+// the first and is not drawn again each time a toast appears or goes; only the Toaster reads the list.
+type ToastActions = Pick<ToastContextValue, 'toast' | 'dismiss'>;
+const ToastActionsContext = createContext<ToastActions & { latest: { current: Toast[] } }>({
   toast: () => {},
   dismiss: () => {},
+  latest: { current: [] },
 });
+const ToastListContext = createContext<Toast[]>([]);
 
-export function useToast() {
-  return useContext(ToastContext);
+// `toasts` here is the list as it is when read, not a value that redraws the caller when it changes: a component that
+// shows the toasts uses useToastList.
+export function useToast(): ToastContextValue {
+  const { toast, dismiss, latest } = useContext(ToastActionsContext);
+  return useMemo(() => ({ toast, dismiss, get toasts() { return latest.current; } }), [toast, dismiss, latest]);
+}
+
+// The toasts on screen, redrawing the caller whenever one appears or goes (the Toaster).
+export function useToastList(): Toast[] {
+  return useContext(ToastListContext);
 }
 
 let counter = 0;
@@ -66,13 +78,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     return () => { Object.values(pending).forEach(clearTimeout); };
   }, []);
 
-  // A new value only when the list changes, so a consumer that only calls toast() is not re-rendered
-  // by every parent render of the provider.
-  const value = useMemo(() => ({ toasts, toast, dismiss }), [toasts, toast, dismiss]);
+  const latest = useRef<Toast[]>(toasts);
+  latest.current = toasts;
+  const actions = useMemo(() => ({ toast, dismiss, latest }), [toast, dismiss]);
 
   return (
-    <ToastContext.Provider value={value}>
-      {children}
-    </ToastContext.Provider>
+    <ToastActionsContext.Provider value={actions}>
+      <ToastListContext.Provider value={toasts}>
+        {children}
+      </ToastListContext.Provider>
+    </ToastActionsContext.Provider>
   );
 }

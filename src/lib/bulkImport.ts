@@ -41,10 +41,17 @@ export function resolveImportRow<K extends string>(
   spec: ImportFieldSpec<K>[],
 ): Partial<Record<K, string>> {
   const result: Partial<Record<K, string>> = {};
+  // The header set is trimmed, the row's own keys are not: a header typed as "Position " would otherwise be found in
+  // the file but read as undefined on every row, which comes back as '' (clear this field) for everyone.
+  const byTrimmedKey = new Map<string, unknown>();
+  for (const [key, value] of Object.entries(row)) {
+    const trimmed = key.trim();
+    if (!byTrimmedKey.has(trimmed) || key === trimmed) byTrimmedKey.set(trimmed, value);
+  }
   for (const field of spec) {
     const matchedHeader = field.headers.find(h => headers.has(h));
     if (matchedHeader === undefined) continue;
-    result[field.key] = String(row[matchedHeader] ?? '').trim();
+    result[field.key] = String(byTrimmedKey.get(matchedHeader) ?? '').trim();
   }
   return result;
 }

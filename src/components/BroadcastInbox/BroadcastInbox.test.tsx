@@ -9,6 +9,15 @@ import { strings, broadcast, baseProps } from './testFixtures';
 beforeEach(forgetInboxView);
 
 describe('BroadcastInbox', () => {
+  test('another person signed in on the same screen starts with an empty inbox, not with the conversations of the one before', async () => {
+    const first = async () => [broadcast({ id: 'mine', title: 'For the first person', createdBy: 'boss' })];
+    const second = () => new Promise<never>(() => {});
+    const { rerender } = render(<BroadcastInbox {...baseProps} fetchReceived={first} currentUserId="person-1" canSendMessages={false} />);
+    await waitFor(() => expect(screen.getByText('For the first person')).toBeInTheDocument());
+    rerender(<BroadcastInbox {...baseProps} fetchReceived={second} currentUserId="person-2" canSendMessages={false} />);
+    expect(screen.queryByText('For the first person')).not.toBeInTheDocument();
+  });
+
   // The bug this session fixed: the Sent tab is a shared mailbox, so the
   // viewer isn't necessarily who actually wrote a given broadcast - it must
   // never be hardcoded to render as "your own message".

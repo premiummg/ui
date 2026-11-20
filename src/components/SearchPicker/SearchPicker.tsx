@@ -31,9 +31,12 @@ export interface SearchPickerProps {
 // every "find and pick one" control in a real app - a project search, an
 // employee picker, a vendor picker - that SearchInput's plain debounced text
 // box doesn't cover on its own (no dropdown, no groups, no selection state).
+// The most rows the list draws at once, over all its groups; the rest are reached by typing more.
+const MAX_SHOWN = 50;
+
 const TEXT = {
-  en: { empty: 'No matches', clear: 'Clear selection' },
-  fr: { empty: 'Aucun résultat', clear: 'Effacer la sélection' },
+  en: { empty: 'No matches', clear: 'Clear selection', more: (n: number) => `${n} more: keep typing to narrow the list` },
+  fr: { empty: 'Aucun résultat', clear: 'Effacer la sélection', more: (n: number) => `${n} de plus : continuez à écrire pour réduire la liste` },
 };
 
 export function SearchPicker({ groups, placeholder, emptyText: emptyIn, clearLabel: clearIn, value, onChange }: SearchPickerProps) {
@@ -59,6 +62,18 @@ export function SearchPicker({ groups, placeholder, emptyText: emptyIn, clearLab
       .filter(g => g.items.length > 0),
     [groups, q],
   );
+  // At most MAX_SHOWN rows are drawn, the groups cut in their order: a list of thousands redrew every row on each key.
+  const shown = useMemo(() => {
+    let room = MAX_SHOWN;
+    const out = [];
+    for (const g of filtered) {
+      if (room <= 0) break;
+      out.push({ ...g, items: g.items.slice(0, room) });
+      room -= g.items.length;
+    }
+    const total = filtered.reduce((n, g) => n + g.items.length, 0);
+    return { groups: out, hidden: Math.max(0, total - MAX_SHOWN) };
+  }, [filtered]);
 
   function select(item: PickerItem) {
     onChange(item);
@@ -101,6 +116,8 @@ export function SearchPicker({ groups, placeholder, emptyText: emptyIn, clearLab
           onFocus={() => { setOpen(true); setFocusBox(false); }}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
           placeholder={placeholder}
+          aria-label={placeholder}
+          aria-expanded={open}
           // text-base overrides the text-sm this inherits from the row
           // wrapper above - iOS Safari auto-zooms on focus for a text input
           // under 16px, and doesn't reliably zoom back out on blur.
@@ -111,7 +128,7 @@ export function SearchPicker({ groups, placeholder, emptyText: emptyIn, clearLab
         <div className={`absolute mt-1 w-full max-h-64 overflow-auto bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL}`}>
           {filtered.length === 0 ? (
             <p className="px-4 py-3 text-sm text-gray-400">{emptyText}</p>
-          ) : filtered.map((g, gi) => (
+          ) : shown.groups.map((g, gi) => (
             <div key={gi}>
               {g.label && <p className="px-4 pt-2.5 pb-1 pmg-eyebrow text-gray-400 dark:text-gray-500">{g.label}</p>}
               {g.items.map(i => (
@@ -127,6 +144,7 @@ export function SearchPicker({ groups, placeholder, emptyText: emptyIn, clearLab
               ))}
             </div>
           ))}
+          {shown.hidden > 0 && <p className="px-4 py-2.5 text-xs text-gray-400">{tx.more(shown.hidden)}</p>}
         </div>
       )}
     </div>

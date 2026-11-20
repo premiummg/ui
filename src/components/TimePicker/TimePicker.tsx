@@ -332,7 +332,10 @@ function PeriodColumn({ h24, onPick }: { h24: number; onPick: (period: 'AM' | 'P
   );
 }
 
-const TEXT = { en: { clear: 'Clear', done: 'Done' }, fr: { clear: 'Effacer', done: 'Terminé' } };
+const TEXT = {
+  en: { clear: 'Clear', done: 'Done', clearTime: 'Clear the time', panel: 'Pick a time: arrows change it, left and right move between hour, minutes and AM/PM, Enter is done', columns: ['Hour', 'Minutes', 'AM or PM'] },
+  fr: { clear: 'Effacer', done: 'Terminé', clearTime: "Effacer l'heure", panel: "Choisir une heure : les flèches la changent, gauche et droite passent de l'heure aux minutes et à AM/PM, Entrée termine", columns: ['Heure', 'Minutes', 'AM ou PM'] },
+};
 
 export function TimePicker({
   value, onChange, disabled, placeholder = '--:-- --', id, className = '',
@@ -343,9 +346,24 @@ export function TimePicker({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const pos = usePanelPosition(containerRef, open);
+  // Which wheel the keyboard moves: 0 hour, 1 minutes, 2 AM/PM.
+  const [column, setColumn] = useState(0);
+  // Closing from the keyboard gives the focus back to the trigger, where it was.
+  function close(refocus: boolean) {
+    setOpen(false);
+    if (refocus) triggerRef.current?.focus();
+  }
   // Escape closes the wheel only, not the Modal the form is in.
-  useEscapeToClose(open, () => setOpen(false));
+  useEscapeToClose(open, () => close(true));
+
+  // The panel lives at the end of <body>: the focus is moved into it when it opens, or a keyboard could never reach it
+  // (Tab from the trigger goes to the next field, and inside a Modal the focus trap sends it back).
+  useEffect(() => {
+    if (open && pos) panelRef.current?.focus();
+  }, [open, pos !== null]);
+  useEffect(() => { if (open) setColumn(0); }, [open]);
 
   // Not this package's own useOutsideClick/usePopover here: those only take
   // one ref, and the panel is no longer a DOM descendant of containerRef
@@ -376,11 +394,39 @@ export function TimePicker({
 
   const display = formatDisplay(parsed);
 
+  function onPanelKey(e: React.KeyboardEvent<HTMLDivElement>) {
+    const step = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
+    if (step) {
+      e.preventDefault();
+      if (column === 0) commit(h24 + step, minute);
+      else if (column === 1) {
+        const idx = Math.round(minute / MINUTE_STEP) + step;
+        const wraps = Math.floor(idx / MINUTE_COUNT);
+        commit(h24 + wraps, (((idx % MINUTE_COUNT) + MINUTE_COUNT) % MINUTE_COUNT) * MINUTE_STEP);
+      } else commit((h24 + 12) % 24, minute);
+      return;
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      setColumn((c) => Math.min(2, Math.max(0, c + (e.key === 'ArrowRight' ? 1 : -1))));
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      close(true);
+    }
+  }
+  // The wheel the keyboard moves is outlined, so who uses the keyboard sees where they are.
+  const keyColumn = (i: number) => `flex-1 flex rounded-lg ${column === i ? 'ring-1 ring-inset ring-(--premium-red)/40' : ''}`;
+
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       <button
+        ref={triggerRef}
         id={id}
         type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
         onClick={() => !disabled && setOpen(o => !o)}
         disabled={disabled}
         className={`
@@ -396,27 +442,33 @@ export function TimePicker({
           {display ?? placeholder}
         </span>
         <span className="flex items-center gap-1 text-gray-400 dark:text-gray-500 shrink-0">
-          {display && !disabled && (
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={e => { e.stopPropagation(); onChange(''); }}
-              onKeyDown={e => e.key === 'Enter' && onChange('')}
-              className="p-0.5 rounded-lg hover:text-gray-600 dark:hover:text-gray-300 transition"
-            >
-              <FiX size={12} />
-            </span>
-          )}
+          {/* Room for the clear button, a button of its own over this corner (not a button inside a button). */}
+          {display && !disabled && <span className="w-5" aria-hidden="true" />}
           <FiClock size={13} />
         </span>
       </button>
+      {display && !disabled && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          aria-label={tx.clearTime}
+          className="absolute top-1/2 -translate-y-1/2 right-8 p-0.5 rounded-lg text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition"
+        >
+          <FiX size={12} />
+        </button>
+      )}
 
       {open && pos && createPortal(
         <div
           ref={panelRef}
+          role="dialog"
+          aria-label={tx.panel}
+          tabIndex={-1}
+          onKeyDown={onPanelKey}
           style={{ position: 'fixed', top: pos.top, left: pos.left, width: PANEL_WIDTH }}
-          className={`bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden`}
+          className={`bg-white dark:bg-(--premium-dark-grey) border border-gray-100 dark:border-white/10 ${POPOVER_PANEL} overflow-hidden outline-none`}
         >
+          <p className="sr-only" aria-live="polite">{`${tx.columns[column]}: ${display ?? ''}`}</p>
           <div className="relative flex" style={{ height: WHEEL_HEIGHT }}>
             {/* The one center band every wheel reads its selection against -
                 a soft brand-red tint, not a solid fill: BRAND.md reserves a
@@ -429,12 +481,15 @@ export function TimePicker({
               className="absolute inset-x-2 top-1/2 -translate-y-1/2 rounded-xl pointer-events-none bg-[#E62027]/10 dark:bg-[#E62027]/15 ring-1 ring-[#E62027]/20"
               style={{ height: ITEM_HEIGHT }}
             />
+            <div className={keyColumn(0)}>
             <CyclicWheel
               length={24}
               index={h24}
               format={i => String(hour12Of(i))}
               onSettle={newH24 => commit(newH24, minute)}
             />
+            </div>
+            <div className={keyColumn(1)}>
             <CyclicWheel
               length={MINUTE_COUNT}
               // A value from outside this component (e.g. a native
@@ -445,7 +500,10 @@ export function TimePicker({
               format={i => String(i * MINUTE_STEP).padStart(2, '0')}
               onSettle={(newIndex, wraps) => commit(h24 + wraps, newIndex * MINUTE_STEP)}
             />
+            </div>
+            <div className={keyColumn(2)}>
             <PeriodColumn h24={h24} onPick={p => commit((h24 % 12) + (p === 'PM' ? 12 : 0), minute)} />
+            </div>
           </div>
           <div className="flex items-center justify-between px-4 py-2.5 border-t border-gray-100 dark:border-white/10">
             <button
@@ -457,7 +515,7 @@ export function TimePicker({
             </button>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => close(true)}
               className="text-xs font-semibold transition hover:opacity-80"
               style={{ color: 'var(--premium-red)' }}
             >

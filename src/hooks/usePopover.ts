@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from './useOutsideClick';
 import { useEscapeToClose } from './useEscapeToClose';
 
@@ -21,6 +21,21 @@ export function usePopover<T extends HTMLElement = HTMLDivElement>(onClose?: () 
 
   // Escape closes the open popover and nothing else (see useEscapeToClose).
   useEscapeToClose(open, close);
+
+  // Tab out of it closes it too: the focus moved to another control outside. A click on a part of the panel that takes
+  // no focus moves it nowhere (relatedTarget is null), and that is not leaving it.
+  const closeRef = useRef(close);
+  closeRef.current = close;
+  useEffect(() => {
+    const el = ref.current;
+    if (!open || !el) return;
+    function onFocusOut(e: FocusEvent) {
+      const next = e.relatedTarget as Node | null;
+      if (next && !el!.contains(next)) closeRef.current();
+    }
+    el.addEventListener('focusout', onFocusOut);
+    return () => el.removeEventListener('focusout', onFocusOut);
+  }, [open]);
 
   return { open, setOpen, ref, close };
 }
