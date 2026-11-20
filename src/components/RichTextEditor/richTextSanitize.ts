@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify';
 import { YOUTUBE_ID_RE, YOUTUBE_ALIGNMENTS, youTubeEmbedUrl, clampYoutubeWidth, youtubeMarginForAlign } from './richTextYouTube';
+import { resetImageBorders } from './richTextImages';
 
 // News/Knowledge Base/Documents bodies and Event descriptions are authored as
 // HTML by RichTextEditor (see RichTextEditor.tsx) and stored as HTML, so every
@@ -194,6 +195,7 @@ export function renderRichTextHtml(html?: string | null): string {
   const el = document.createElement('div');
   el.innerHTML = clean;
   normalizeAutoInkColors(el);
+  resetImageBorders(el);
   if (!clean.includes('data-youtube')) return el.innerHTML;
 
   el.querySelectorAll<HTMLDivElement>('[data-youtube]').forEach((wrap) => {

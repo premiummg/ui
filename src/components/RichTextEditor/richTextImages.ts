@@ -480,5 +480,30 @@ export function stripResizeHandles(html: string): string {
   tmp.innerHTML = html;
   tmp.querySelectorAll('[data-resize-handle]').forEach((h) => h.remove());
   tmp.querySelectorAll('[data-image-control]').forEach((h) => h.remove());
+  resetImageBorders(tmp);
   return tmp.innerHTML;
+}
+
+// The red border an image shows while the mouse is over it is an inline style on its wrapper, so a body saved
+// while the mouse rested on an image (right after dropping it in, or after resizing it) kept the red border for
+// every reader. Saving clears it, and so does rendering, which also covers posts saved before this.
+export function resetImageBorders(container: HTMLElement): void {
+  container.querySelectorAll<HTMLElement>('[data-resizable-image]').forEach((wrap) => {
+    // The whole shorthand, as buildResizableImageNode writes it: a browser may keep the colour inside `border`.
+    wrap.style.border = '2px solid transparent';
+  });
+}
+
+// The image on the clipboard as the browser's async clipboard offers it, for a paste whose event carried no usable
+// file. Resolves to null when it has none, or when the browser refuses the read.
+export async function readImageFromClipboardApi(): Promise<File | null> {
+  try {
+    for (const item of (await navigator.clipboard?.read?.()) ?? []) {
+      const type = item.types.find((t) => t.startsWith('image/'));
+      if (type) return new File([await item.getType(type)], `pasted.${type.split('/')[1] || 'png'}`, { type });
+    }
+  } catch {
+    // Permission refused or no clipboard API: nothing to add.
+  }
+  return null;
 }

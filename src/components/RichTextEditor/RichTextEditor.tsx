@@ -2,8 +2,8 @@ import { ClipboardEvent, DragEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FiMaximize2 } from 'react-icons/fi';
 import { RichTextToolbar, useRichTextCommands } from './RichTextToolbar';
-import { sanitizePastedHtml, isHtmlEmpty, ensureBlockWrapped, normalizeAutoInkColors } from './richTextSanitize';
-import { buildResizableImageNode, reattachResizeHandles, stripResizeHandles, readPastedImage, imageFileFromTransfer } from './richTextImages';
+import { sanitizePastedHtml, sanitizeRichText, isHtmlEmpty, ensureBlockWrapped, normalizeAutoInkColors } from './richTextSanitize';
+import { buildResizableImageNode, reattachResizeHandles, stripResizeHandles, readPastedImage, imageFileFromTransfer, readImageFromClipboardApi } from './richTextImages';
 import { buildYouTubeNode, hydrateYouTubeNodes, stripYouTubePreviews } from './richTextYouTube';
 
 // Rich text body editor - for a News/Knowledge Base/Documents/Events style
@@ -50,7 +50,9 @@ function useEditableSync(editorRef: React.RefObject<HTMLDivElement | null>, valu
     const el = editorRef.current;
     if (!el) return;
     if ((value || '') === lastRawValue.current) return;
-    el.innerHTML = ensureBlockWrapped(value);
+    // Sanitized like the read view: a row saved before the backend sanitized it (or text that is not HTML but holds a
+    // tag, like "<img src=x onerror=...") must not run in the editor of whoever opens it.
+    el.innerHTML = ensureBlockWrapped(sanitizeRichText(value));
     lastRawValue.current = value || '';
     // innerHTML assignment drops the JS listeners the resize handles rely on,
     // and what is stored for a video is only a bare placeholder - both need
@@ -118,35 +120,10 @@ function totalImageBytes(container: HTMLElement | null): number {
 // deliberately cannot carry <img> (see sanitizePastedHtml) - images only ever
 // enter through this path, where the source is a local clipboard blob.
 function useRichTextPaste(editorRef: React.RefObject<HTMLDivElement | null>, emit: () => void) {
-  return (e: ClipboardEvent<HTMLDivElement>) => {
-    const file = imageFileFromTransfer(e.clipboardData);
-
-    if (!file) {
-      const html = e.clipboardData?.getData('text/html');
-      if (!html) return;
-      e.preventDefault();
-      const clean = sanitizePastedHtml(html);
-      if (window.getSelection()?.rangeCount) {
-        document.execCommand('insertHTML', false, clean);
-      } else {
-        editorRef.current?.insertAdjacentHTML('beforeend', clean);
-      }
-      emit();
-      return;
-    }
-
-    e.preventDefault();
-
-    // readPastedImage is async (a large image goes through a decode/draw/
-    // re-encode round trip to compress it - see richTextImages.ts), so the
-    // insertion point has to be captured now, synchronously, while the
-    // paste's own selection is still live - by the time it resolves,
-    // window.getSelection() may no longer reflect where the paste happened.
-    const sel = window.getSelection();
-    const savedRange = sel?.rangeCount && editorRef.current?.contains(sel.anchorNode)
-      ? sel.getRangeAt(0).cloneRange()
-      : null;
-
+  // The insertion point has to be captured synchronously, while the paste's own selection is still live: the image is
+  // read asynchronously (a large one goes through a decode/draw/re-encode round trip, see richTextImages.ts), and by
+  // the time it resolves window.getSelection() may no longer say where the paste happened.
+  function insertImage(file: File, savedRange: Range | null) {
     readPastedImage(file).then((dataUrl) => {
       const { wrap } = buildResizableImageNode(dataUrl);
       if (savedRange) {
@@ -162,6 +139,44 @@ function useRichTextPaste(editorRef: React.RefObject<HTMLDivElement | null>, emi
       }
       emit();
     });
+  }
+
+  return (e: ClipboardEvent<HTMLDivElement>) => {
+    const file = imageFileFromTransfer(e.clipboardData);
+    const sel = window.getSelection();
+    const savedRange = sel?.rangeCount && editorRef.current?.contains(sel.anchorNode)
+      ? sel.getRangeAt(0).cloneRange()
+      : null;
+
+    if (!file) {
+      const html = e.clipboardData?.getData('text/html');
+      if (!html) {
+        // A file copied in the file manager can arrive as nothing the event shows (no item, no file). The browser's
+        // async clipboard sometimes has it as an image, so it is asked before giving up - and when it has nothing
+        // either, what the paste did offer is logged, since that is what it takes to see why.
+        const types = Array.from(e.clipboardData?.types ?? []);
+        if (types.includes('Files')) {
+          e.preventDefault();
+          readImageFromClipboardApi().then((found) => {
+            if (found) insertImage(found, savedRange);
+            else console.warn('[RichTextEditor] a pasted file was not an image it could read', types);
+          });
+        }
+        return;
+      }
+      e.preventDefault();
+      const clean = sanitizePastedHtml(html);
+      if (window.getSelection()?.rangeCount) {
+        document.execCommand('insertHTML', false, clean);
+      } else {
+        editorRef.current?.insertAdjacentHTML('beforeend', clean);
+      }
+      emit();
+      return;
+    }
+
+    e.preventDefault();
+    insertImage(file, savedRange);
   };
 }
 
